@@ -4,4 +4,4 @@ A library providing the interface `RobotDriver`, that should be inhereted by cla
 ## Requirements
 
 ### System-wide packages
-- `eigen3-dev`
+- `libeigen3-dev`
