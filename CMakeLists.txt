@@ -51,6 +51,7 @@ include_directories(
 add_library(rosilo_robot_driver
     src/rosilo_robot_driver.cpp
     src/rosilo_robot_driver_provider.cpp
+    src/rosilo_robot_driver_interface.cpp
     )
 
 add_dependencies(rosilo_robot_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
