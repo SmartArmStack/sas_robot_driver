@@ -15,6 +15,9 @@ add_compile_options(-Werror=return-type)
 find_package(catkin REQUIRED COMPONENTS
     roscpp
     rospy
+    std_msgs
+    sensor_msgs
+    rosilo_conversions
     )
 
 ###################################
@@ -47,6 +50,7 @@ include_directories(
 
 add_library(rosilo_robot_driver
     src/rosilo_robot_driver.cpp
+    src/rosilo_robot_driver_provider.cpp
     )
 
 add_dependencies(rosilo_robot_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
