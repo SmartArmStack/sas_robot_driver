@@ -36,23 +36,26 @@ void RobotDriverProvider::_callback_target_joint_positions(const std_msgs::Float
         enabled_ = true;
 }
 
-RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &nodehandle):
-    enabled_(false)
+RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &nodehandle, const std::string &node_prefix):
+    enabled_(false),
+    node_prefix_(node_prefix)
 {
-    publisher_joint_states_ = nodehandle.advertise<sensor_msgs::JointState>(ros::this_node::getName() + "/get/joint_states", 1);
-    publisher_joint_limits_min_ = nodehandle.advertise<std_msgs::Float64MultiArray>(ros::this_node::getName() + "/get/joint_positions_min", 1);
-    publisher_joint_limits_max_ = nodehandle.advertise<std_msgs::Float64MultiArray>(ros::this_node::getName() + "/get/joint_positions_max", 1);
+    publisher_joint_states_ = nodehandle.advertise<sensor_msgs::JointState>(node_prefix + "/get/joint_states", 1);
+    publisher_joint_limits_min_ = nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_min", 1);
+    publisher_joint_limits_max_ = nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_max", 1);
 
-    subscriber_target_joint_positions_ = nodehandle.subscribe(ros::this_node::getName() + "set/target_joint_positions", 1, &RobotDriverProvider::_callback_target_joint_positions, this);
+    subscriber_target_joint_positions_ = nodehandle.subscribe(node_prefix + "set/target_joint_positions", 1, &RobotDriverProvider::_callback_target_joint_positions, this);
 }
 
-RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &publisher_nodehandle, ros::NodeHandle &subscriber_nodehandle)
+RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &publisher_nodehandle, ros::NodeHandle &subscriber_nodehandle, const std::string &node_prefix):
+    enabled_(false),
+    node_prefix_(node_prefix)
 {
-    publisher_joint_states_ = publisher_nodehandle.advertise<sensor_msgs::JointState>(ros::this_node::getName() + "/get/joint_states", 1);
-    publisher_joint_limits_min_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(ros::this_node::getName() + "/get/joint_positions_min", 1);
-    publisher_joint_limits_max_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(ros::this_node::getName() + "/get/joint_positions_max", 1);
+    publisher_joint_states_ = publisher_nodehandle.advertise<sensor_msgs::JointState>(node_prefix + "/get/joint_states", 1);
+    publisher_joint_limits_min_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_min", 1);
+    publisher_joint_limits_max_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_max", 1);
 
-    subscriber_target_joint_positions_ = subscriber_nodehandle.subscribe(ros::this_node::getName() + "set/target_joint_positions", 1, &RobotDriverProvider::_callback_target_joint_positions, this);
+    subscriber_target_joint_positions_ = subscriber_nodehandle.subscribe(node_prefix + "set/target_joint_positions", 1, &RobotDriverProvider::_callback_target_joint_positions, this);
 }
 
 VectorXd RobotDriverProvider::get_target_joint_positions() const
@@ -60,7 +63,7 @@ VectorXd RobotDriverProvider::get_target_joint_positions() const
     if(is_enabled())
         return target_joint_positions_;
     else
-        throw std::runtime_error(ros::this_node::getName() + "::RobotDriverProvider::get_target_joint_positions() trying to get an uninitialized vector");
+        throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_target_joint_positions() trying to get an uninitialized vector");
 }
 
 void RobotDriverProvider::send_joint_positions(const VectorXd &joint_positions)

@@ -40,6 +40,7 @@ class RobotDriverProvider
 {
 private:
     std::atomic_bool enabled_;
+    std::string node_prefix_;
 
     ros::Publisher publisher_joint_states_;
     ros::Publisher publisher_joint_limits_min_;
@@ -53,8 +54,8 @@ public:
     RobotDriverProvider() = delete;
     RobotDriverProvider(const RobotDriverProvider&) = delete;
 
-    RobotDriverProvider(ros::NodeHandle& nodehandle);
-    RobotDriverProvider(ros::NodeHandle& publisher_nodehandle, ros::NodeHandle& subscriber_nodehandle);
+    RobotDriverProvider(ros::NodeHandle& nodehandle, const std::string& node_prefix=ros::this_node::getName());
+    RobotDriverProvider(ros::NodeHandle& publisher_nodehandle, ros::NodeHandle& subscriber_nodehandle, const std::string& node_prefix=ros::this_node::getName());
 
     VectorXd get_target_joint_positions() const;
     void send_joint_positions(const VectorXd& joint_positions);
