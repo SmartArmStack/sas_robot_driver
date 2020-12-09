@@ -37,14 +37,9 @@ void RobotDriverProvider::_callback_target_joint_positions(const std_msgs::Float
 }
 
 RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &nodehandle, const std::string &node_prefix):
-    enabled_(false),
-    node_prefix_(node_prefix)
+    RobotDriverProvider(nodehandle, nodehandle, node_prefix)
 {
-    publisher_joint_states_ = nodehandle.advertise<sensor_msgs::JointState>(node_prefix + "/get/joint_states", 1);
-    publisher_joint_limits_min_ = nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_min", 1);
-    publisher_joint_limits_max_ = nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_max", 1);
-
-    subscriber_target_joint_positions_ = nodehandle.subscribe(node_prefix + "set/target_joint_positions", 1, &RobotDriverProvider::_callback_target_joint_positions, this);
+    //Delegated to RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &publisher_nodehandle, ros::NodeHandle &subscriber_nodehandle, const std::string &node_prefix)
 }
 
 RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &publisher_nodehandle, ros::NodeHandle &subscriber_nodehandle, const std::string &node_prefix):
