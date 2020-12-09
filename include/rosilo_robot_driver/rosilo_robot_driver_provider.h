@@ -26,12 +26,17 @@
 #include <atomic>
 #include <tuple>
 
+#include <dqrobotics/DQ.h>
+
 #include <ros/ros.h>
 
 #include <sensor_msgs/JointState.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <std_msgs/Float64MultiArray.h>
 
 #include <rosilo_robot_driver/rosilo_robot_driver.h>
+
+using namespace DQ_robotics;
 
 namespace rosilo
 {
@@ -45,6 +50,7 @@ private:
     ros::Publisher publisher_joint_states_;
     ros::Publisher publisher_joint_limits_min_;
     ros::Publisher publisher_joint_limits_max_;
+    ros::Publisher publisher_reference_frame_;
 
     ros::Subscriber subscriber_target_joint_positions_;
     VectorXd target_joint_positions_;
@@ -60,6 +66,7 @@ public:
     VectorXd get_target_joint_positions() const;
     void send_joint_positions(const VectorXd& joint_positions);
     void send_joint_limits(const std::tuple<VectorXd, VectorXd>& joint_limits);
+    void send_reference_frame(const DQ& reference_frame);
 
     bool is_enabled() const;
 };

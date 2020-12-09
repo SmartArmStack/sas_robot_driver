@@ -43,26 +43,28 @@ void RobotDriverInterface::_callback_joint_limits_max(const std_msgs::Float64Mul
     joint_limits_max_ = std_vector_double_to_vectorxd(msg.data);
 }
 
-RobotDriverInterface::RobotDriverInterface(ros::NodeHandle &nodehandle, const std::string node_prefix):
-    enabled_(false),
-    node_prefix_(node_prefix)
+void RobotDriverInterface::_callback_reference_frame(const geometry_msgs::PoseStamped &msg)
 {
-    publisher_target_joint_positions_ = nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix_ + "set/target_joint_positions", 1);
+    reference_frame_ = geometry_msgs_pose_stamped_to_dq(msg);
+}
 
-    subscriber_joint_states_ = nodehandle.subscribe(node_prefix_ + "get/joint_states", 1, &RobotDriverInterface::_callback_joint_states, this);
-    subscriber_joint_limits_min_ = nodehandle.subscribe(node_prefix_ + "get/joint_positions_min", 1, &RobotDriverInterface::_callback_joint_limits_min, this);
-    subscriber_joint_limits_max_ = nodehandle.subscribe(node_prefix_ + "get/joint_positions_max", 1, &RobotDriverInterface::_callback_joint_limits_max, this);
+RobotDriverInterface::RobotDriverInterface(ros::NodeHandle &nodehandle, const std::string node_prefix):
+    RobotDriverInterface(nodehandle, nodehandle, node_prefix)
+{
+    //Delegated to RobotDriverInterface::RobotDriverInterface(ros::NodeHandle &publisher_nodehandle, ros::NodeHandle &subscriber_nodehandle, const std::string node_prefix)
 }
 
 RobotDriverInterface::RobotDriverInterface(ros::NodeHandle &publisher_nodehandle, ros::NodeHandle &subscriber_nodehandle, const std::string node_prefix):
     enabled_(false),
-    node_prefix_(node_prefix)
+    node_prefix_(node_prefix),
+    reference_frame_(0)
 {
     publisher_target_joint_positions_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix_ + "set/target_joint_positions", 1);
 
     subscriber_joint_states_ = subscriber_nodehandle.subscribe(node_prefix_ + "get/joint_states", 1, &RobotDriverInterface::_callback_joint_states, this);
     subscriber_joint_limits_min_ = subscriber_nodehandle.subscribe(node_prefix_ + "get/joint_positions_min", 1, &RobotDriverInterface::_callback_joint_limits_min, this);
     subscriber_joint_limits_max_ = subscriber_nodehandle.subscribe(node_prefix_ + "get/joint_positions_max", 1, &RobotDriverInterface::_callback_joint_limits_max, this);
+    subscriber_joint_limits_max_ = subscriber_nodehandle.subscribe(node_prefix_ + "get/reference_frame", 1, &RobotDriverInterface::_callback_reference_frame, this);
 }
 
 void RobotDriverInterface::send_target_joint_positions(const VectorXd &target_joint_positions)
@@ -90,12 +92,23 @@ std::tuple<VectorXd, VectorXd> RobotDriverInterface::get_joint_limits() const
         throw std::runtime_error(ros::this_node::getName() + "::RobotDriverInterface::get_joint_limits()::trying to get joint positions but uninitialized.");
 }
 
+DQ RobotDriverInterface::get_reference_frame() const
+{
+    if(is_enabled())
+    {
+        return reference_frame_;
+    }
+    else
+        throw std::runtime_error(ros::this_node::getName() + "::RobotDriverInterface::get_reference_frame()::trying to get reference frame but uninitialized.");
+}
+
 
 bool RobotDriverInterface::is_enabled() const
 {
     return( joint_positions_.size()>0 &&
             joint_limits_min_.size()>0 &&
-            joint_limits_max_.size()>0);
+            joint_limits_max_.size()>0 &&
+            is_unit(reference_frame_));
 }
 
 
