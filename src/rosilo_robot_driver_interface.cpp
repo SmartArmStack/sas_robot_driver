@@ -59,12 +59,13 @@ RobotDriverInterface::RobotDriverInterface(ros::NodeHandle &publisher_nodehandle
     node_prefix_(node_prefix),
     reference_frame_(0)
 {
+    ROS_INFO_STREAM(ros::this_node::getName() + "::Initializing RobotDriverInterface with prefix " + node_prefix);
     publisher_target_joint_positions_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix_ + "set/target_joint_positions", 1);
 
     subscriber_joint_states_ = subscriber_nodehandle.subscribe(node_prefix_ + "get/joint_states", 1, &RobotDriverInterface::_callback_joint_states, this);
     subscriber_joint_limits_min_ = subscriber_nodehandle.subscribe(node_prefix_ + "get/joint_positions_min", 1, &RobotDriverInterface::_callback_joint_limits_min, this);
     subscriber_joint_limits_max_ = subscriber_nodehandle.subscribe(node_prefix_ + "get/joint_positions_max", 1, &RobotDriverInterface::_callback_joint_limits_max, this);
-    subscriber_joint_limits_max_ = subscriber_nodehandle.subscribe(node_prefix_ + "get/reference_frame", 1, &RobotDriverInterface::_callback_reference_frame, this);
+    subscriber_reference_frame_ = subscriber_nodehandle.subscribe(node_prefix_ + "get/reference_frame", 1, &RobotDriverInterface::_callback_reference_frame, this);
 }
 
 void RobotDriverInterface::send_target_joint_positions(const VectorXd &target_joint_positions)
