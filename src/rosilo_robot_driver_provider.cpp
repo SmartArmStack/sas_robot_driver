@@ -46,6 +46,7 @@ RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &publisher_nodehandle, 
     enabled_(false),
     node_prefix_(node_prefix)
 {
+    ROS_INFO_STREAM(ros::this_node::getName() + "::Initializing RobotDriverProvider with prefix " + node_prefix);
     publisher_joint_states_ = publisher_nodehandle.advertise<sensor_msgs::JointState>(node_prefix + "/get/joint_states", 1);
     publisher_joint_limits_min_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_min", 1);
     publisher_joint_limits_max_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_max", 1);
