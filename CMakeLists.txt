@@ -59,3 +59,5 @@ add_dependencies(rosilo_robot_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catki
 target_link_libraries(rosilo_robot_driver
     ${catkin_LIBRARIES}
     )
+
+catkin_python_setup()

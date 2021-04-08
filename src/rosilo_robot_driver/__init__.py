@@ -23,20 +23,12 @@
 # ################################################################
 """
 
-# System
-from dqrobotics import *
-
-# ROS
-import roslib
-
-roslib.load_manifest('rosilo_robot_driver')
 import rospy
 
-# ROS Messages
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64MultiArray
 from geometry_msgs.msg import PoseStamped
-from rosilo_conversions import geometry_msgs_pose_stamped_to_dq
+import rosilo_conversions as rc
 
 
 class RobotDriverInterface:
@@ -78,6 +70,11 @@ class RobotDriverInterface:
             raise Exception("Tried to obtain uninitialized joint_positions_max_")
         return self.joint_positions_min_, self.joint_positions_max_
 
+    def get_reference_frame(self):
+        if self.reference_frame_ is None:
+            raise Exception("Tried to obtain uninitialized reference_frame_")
+        return self.reference_frame_
+
     def is_enabled(self):
         if (self.joint_positions_ is not None) and \
                 (self.joint_limits_min_ is not None) and \
@@ -94,4 +91,4 @@ class RobotDriverInterface:
         self.joint_limits_max_ = msg.data
 
     def _callback_reference_frame(self, msg):
-        self.reference_frame_ = geometry_msgs_pose_stamped_to_dq(msg)
+        self.reference_frame_ = rc.geometry_msgs_pose_stamped_to_dq(msg)
