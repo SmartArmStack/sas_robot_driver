@@ -52,7 +52,7 @@ RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &publisher_nodehandle, 
     publisher_joint_limits_max_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_max", 1);
     publisher_reference_frame_ = publisher_nodehandle.advertise<geometry_msgs::PoseStamped>(node_prefix + "/get/reference_frame", 1);
 
-    subscriber_target_joint_positions_ = subscriber_nodehandle.subscribe(node_prefix + "set/target_joint_positions", 1, &RobotDriverProvider::_callback_target_joint_positions, this);
+    subscriber_target_joint_positions_ = subscriber_nodehandle.subscribe(node_prefix + "/set/target_joint_positions", 1, &RobotDriverProvider::_callback_target_joint_positions, this);
 }
 
 VectorXd RobotDriverProvider::get_target_joint_positions() const
