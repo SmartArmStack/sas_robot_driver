@@ -77,7 +77,8 @@ class RobotDriverInterface:
     def is_enabled(self):
         if (self.joint_positions_ is not None) and \
                 (self.joint_limits_min_ is not None) and \
-                (self.joint_limits_max_ is not None):
+                (self.joint_limits_max_ is not None) and \
+                (self.reference_frame_ is not None):
             return True
 
     def _callback_joint_states(self, msg):
