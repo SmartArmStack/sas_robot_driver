@@ -59,19 +59,19 @@ class RobotDriverInterface:
 
     def get_joint_positions(self):
         if self.joint_positions_ is None:
-            raise Exception("Tried to obtain uninitialized get_joint_positions()")
+            raise Exception("[{}]::Tried to obtain uninitialized get_joint_positions()".format(rospy.get_name()))
         return self.joint_positions_
 
     def get_joint_limits(self):
         if self.joint_limits_min_ is None:
-            raise Exception("Tried to obtain uninitialized joint_limits_min_")
+            raise Exception("[{}]::Tried to obtain uninitialized joint_limits_min_".format(rospy.get_name()))
         if self.joint_limits_max_ is None:
-            raise Exception("Tried to obtain uninitialized joint_limits_max_")
+            raise Exception("[{}]::Tried to obtain uninitialized joint_limits_max_".format(rospy.get_name()))
         return self.joint_limits_min_, self.joint_limits_max_
 
     def get_reference_frame(self):
         if self.reference_frame_ is None:
-            raise Exception("Tried to obtain uninitialized reference_frame_")
+            raise Exception("[{}]::Tried to obtain uninitialized reference_frame_".format(rospy.get_name()))
         return self.reference_frame_
 
     def is_enabled(self):
