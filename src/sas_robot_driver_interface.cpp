@@ -1,31 +1,31 @@
 /*
 # Copyright (c) 2016-2020 Murilo Marques Marinho
 #
-#    This file is part of rosilo_robot_driver.
+#    This file is part of sas_robot_driver.
 #
-#    rosilo_robot_driver is free software: you can redistribute it and/or modify
+#    sas_robot_driver is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Lesser General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    rosilo_robot_driver is distributed in the hope that it will be useful,
+#    sas_robot_driver is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU Lesser General Public License for more details.
 #
 #    You should have received a copy of the GNU Lesser General Public License
-#    along with rosilo_robot_driver.  If not, see <https://www.gnu.org/licenses/>.
+#    along with sas_robot_driver.  If not, see <https://www.gnu.org/licenses/>.
 #
 # ################################################################
 #
 #   Author: Murilo M. Marinho, email: murilo@nml.t.u-tokyo.ac.jp
 #
 # ################################################################*/
-#include <rosilo_robot_driver/rosilo_robot_driver_interface.h>
+#include <sas_robot_driver/sas_robot_driver_interface.h>
 
-#include <rosilo_conversions/rosilo_conversions.h>
+#include <sas_conversions/sas_conversions.h>
 
-namespace rosilo
+namespace sas
 {
 
 void RobotDriverInterface::_callback_joint_states(const sensor_msgs::JointStateConstPtr &msg)
