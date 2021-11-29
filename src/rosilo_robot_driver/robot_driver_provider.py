@@ -35,7 +35,7 @@ class RobotDriverProvider:
         self.enabled_ = False
         self.target_joint_positions = None
         self.publisher_joint_states_ = rospy.Publisher(node_prefix + "get/joint_states",
-                                                       Float64MultiArray,
+                                                       JointState,
                                                        queue_size=1)
 
         self.publisher_joint_limits_min_ = rospy.Publisher(node_prefix + "get/joint_limits_min",
@@ -75,4 +75,8 @@ class RobotDriverProvider:
         self.target_joint_positions_ = msg.data
 
     def is_enabled(self):
-        return self.enabled_
+        if self.target_joint_positions is not None:
+            return True
+        else:
+            return False
+    
