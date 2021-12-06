@@ -24,6 +24,7 @@
 """
 import rospy
 
+from sensor_msgs.msg import JointState
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import Float64MultiArray
 import rosilo_conversions as rc
@@ -33,16 +34,16 @@ class RobotDriverProvider:
 
     def __init__(self, node_prefix):
         self.enabled_ = False
-        self.target_joint_positions = None
+        self.target_joint_positions_ = None
         self.publisher_joint_states_ = rospy.Publisher(node_prefix + "get/joint_states",
                                                        JointState,
                                                        queue_size=1)
 
-        self.publisher_joint_limits_min_ = rospy.Publisher(node_prefix + "get/joint_limits_min",
+        self.publisher_joint_limits_min_ = rospy.Publisher(node_prefix + "get/joint_positions_min",
                                                            Float64MultiArray,
                                                            queue_size=1)
 
-        self.publisher_joint_limits_max_ = rospy.Publisher(node_prefix + "get/joint_limits_max",
+        self.publisher_joint_limits_max_ = rospy.Publisher(node_prefix + "get/joint_positions_max",
                                                            Float64MultiArray,
                                                            queue_size=1)
 
@@ -59,13 +60,13 @@ class RobotDriverProvider:
         return self.target_joint_positions_
 
     def send_joint_positions(self, joint_positions):
-        msg = Float64MultiArray(data=joint_positions)
+        msg = JointState(position=joint_positions)
         self.publisher_joint_states_.publish(msg)
 
-    def send_joint_limits(self, joint_limits):
-        msg_min = Float64MultiArray(data=joint_limits)
+    def send_joint_limits(self, joint_limits_lower, joint_limits_upper):
+        msg_min = Float64MultiArray(data=joint_limits_lower)
         self.publisher_joint_limits_min_.publish(msg_min)
-        msg_max = Float64MultiArray(data=joint_limits)
+        msg_max = Float64MultiArray(data=joint_limits_upper)
         self.publisher_joint_limits_max_.publish(msg_max)
 
     def send_reference_frame(self, reference_frame):
@@ -75,8 +76,7 @@ class RobotDriverProvider:
         self.target_joint_positions_ = msg.data
 
     def is_enabled(self):
-        if self.target_joint_positions is not None:
+        if self.target_joint_positions_ is not None:
             return True
         else:
             return False
-    
