@@ -63,7 +63,8 @@ class RobotDriverProvider:
         msg = JointState(position=joint_positions)
         self.publisher_joint_states_.publish(msg)
 
-    def send_joint_limits(self, joint_limits_lower, joint_limits_upper):
+    def send_joint_limits(self, joint_limits):
+        joint_limits_lower, joint_limits_upper = joint_limits
         msg_min = Float64MultiArray(data=joint_limits_lower)
         self.publisher_joint_limits_min_.publish(msg_min)
         msg_max = Float64MultiArray(data=joint_limits_upper)
