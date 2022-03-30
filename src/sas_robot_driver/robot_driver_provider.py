@@ -1,5 +1,5 @@
 """
-# Copyright (c) 2012-2021 Murilo Marques Marinho
+# Copyright (c) 2012-2022 Murilo Marques Marinho
 #
 #    This file is part of sas_robot_driver.
 #
@@ -33,7 +33,7 @@ class RobotDriverProvider:
 
     def __init__(self, node_prefix):
         self.enabled_ = False
-        self.target_joint_positions = None
+        self.target_joint_positions_ = None
         self.publisher_joint_states_ = rospy.Publisher(node_prefix + "get/joint_states",
                                                        Float64MultiArray,
                                                        queue_size=1)
@@ -75,4 +75,4 @@ class RobotDriverProvider:
         self.target_joint_positions_ = msg.data
 
     def is_enabled(self):
-        return self.enabled_
+        return (self.target_joint_positions_ is not None)
