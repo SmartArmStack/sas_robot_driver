@@ -32,23 +32,24 @@ import sas_conversions as rc
 class RobotDriverProvider:
 
     def __init__(self, node_prefix):
-        self.enabled_ = False
+        # Regular Members
         self.target_joint_positions_ = None
+        
+        # ROS Publishers
         self.publisher_joint_states_ = rospy.Publisher(node_prefix + "get/joint_states",
                                                        Float64MultiArray,
                                                        queue_size=1)
-
         self.publisher_joint_limits_min_ = rospy.Publisher(node_prefix + "get/joint_limits_min",
                                                            Float64MultiArray,
                                                            queue_size=1)
-
         self.publisher_joint_limits_max_ = rospy.Publisher(node_prefix + "get/joint_limits_max",
                                                            Float64MultiArray,
                                                            queue_size=1)
-
         self.publisher_reference_frame_ = rospy.Publisher(node_prefix + "get/reference_frame",
                                                           PoseStamped,
                                                           queue_size=1)
+        
+        # ROS Subscribers
         self.subscriber_target_joint_positions_ = rospy.Subscriber(node_prefix + "set/target_joint_positions",
                                                                    Float64MultiArray,
                                                                    self._callback_target_joint_positions)
