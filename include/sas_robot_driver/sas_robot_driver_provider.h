@@ -1,6 +1,6 @@
 #pragma once
 /*
-# Copyright (c) 2016-2020 Murilo Marques Marinho
+# Copyright (c) 2016-2022 Murilo Marques Marinho
 #
 #    This file is part of sas_robot_driver.
 #
@@ -50,7 +50,6 @@ private:
     ros::Publisher publisher_joint_states_;
     ros::Publisher publisher_joint_limits_min_;
     ros::Publisher publisher_joint_limits_max_;
-    ros::Publisher publisher_reference_frame_;
 
     ros::Subscriber subscriber_target_joint_positions_;
     VectorXd target_joint_positions_;
@@ -64,11 +63,12 @@ public:
     RobotDriverProvider(ros::NodeHandle& publisher_nodehandle, ros::NodeHandle& subscriber_nodehandle, const std::string& node_prefix=ros::this_node::getName());
 
     VectorXd get_target_joint_positions() const;
-    void send_joint_positions(const VectorXd& joint_positions);
-    void send_joint_limits(const std::tuple<VectorXd, VectorXd>& joint_limits);
-    void send_reference_frame(const DQ& reference_frame);
 
     bool is_enabled() const;
+
+    void send_joint_positions(const VectorXd& joint_positions);
+    void send_joint_limits(const std::tuple<VectorXd, VectorXd>& joint_limits);
+
 };
 
 }

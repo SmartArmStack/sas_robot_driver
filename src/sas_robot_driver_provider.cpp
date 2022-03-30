@@ -22,7 +22,6 @@
 #
 # ################################################################*/
 #include <sas_robot_driver/sas_robot_driver_provider.h>
-
 #include <sas_conversions/sas_conversions.h>
 
 namespace sas
@@ -50,7 +49,6 @@ RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &publisher_nodehandle, 
     publisher_joint_states_ = publisher_nodehandle.advertise<sensor_msgs::JointState>(node_prefix + "/get/joint_states", 1);
     publisher_joint_limits_min_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_min", 1);
     publisher_joint_limits_max_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_max", 1);
-    publisher_reference_frame_ = publisher_nodehandle.advertise<geometry_msgs::PoseStamped>(node_prefix + "/get/reference_frame", 1);
 
     subscriber_target_joint_positions_ = subscriber_nodehandle.subscribe(node_prefix + "/set/target_joint_positions", 1, &RobotDriverProvider::_callback_target_joint_positions, this);
 }
@@ -79,11 +77,6 @@ void RobotDriverProvider::send_joint_limits(const std::tuple<VectorXd, VectorXd>
     std_msgs::Float64MultiArray ros_msg_max;
     ros_msg_max.data = vectorxd_to_std_vector_double(std::get<1>(joint_limits));
     publisher_joint_limits_max_.publish(ros_msg_max);
-}
-
-void RobotDriverProvider::send_reference_frame(const DQ &reference_frame)
-{
-    publisher_reference_frame_.publish(sas::dq_to_geometry_msgs_pose_stamped(reference_frame));
 }
 
 bool RobotDriverProvider::is_enabled() const
