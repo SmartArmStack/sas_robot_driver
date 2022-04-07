@@ -46,9 +46,6 @@ class RobotDriverProvider:
         self.publisher_joint_limits_max_ = rospy.Publisher(node_prefix + "get/joint_positions_max",
                                                            Float64MultiArray,
                                                            queue_size=1)
-        self.publisher_reference_frame_ = rospy.Publisher(node_prefix + "get/reference_frame",
-                                                          PoseStamped,
-                                                          queue_size=1)
         
         # ROS Subscribers
         self.subscriber_target_joint_positions_ = rospy.Subscriber(node_prefix + "set/target_joint_positions",
@@ -69,9 +66,6 @@ class RobotDriverProvider:
         self.publisher_joint_limits_min_.publish(msg_min)
         msg_max = Float64MultiArray(data=joint_limits[1])
         self.publisher_joint_limits_max_.publish(msg_max)
-
-    def send_reference_frame(self, reference_frame):
-        self.publisher_reference_frame_.publish(rc.dq_to_geometry_msgs_pose_stamped(reference_frame))
 
     def _callback_target_joint_positions(self, msg):
         self.target_joint_positions_ = msg.data
