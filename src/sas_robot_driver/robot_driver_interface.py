@@ -34,11 +34,9 @@ class RobotDriverInterface:
 
     def __init__(self, node_prefix):
 
-        self.enabled_ = False
         self.joint_positions_ = None
         self.joint_limits_min_ = None
         self.joint_limits_max_ = None
-        self.reference_frame_ = None
 
         self.publisher_target_joint_positions_ = rospy.Publisher(node_prefix + "set/target_joint_positions",
                                                                  Float64MultiArray,
@@ -66,11 +64,6 @@ class RobotDriverInterface:
         if self.joint_limits_max_ is None:
             raise Exception("[{}]::Tried to obtain uninitialized joint_limits_max_".format(rospy.get_name()))
         return self.joint_limits_min_, self.joint_limits_max_
-
-    def get_reference_frame(self):
-        if self.reference_frame_ is None:
-            raise Exception("[{}]::Tried to obtain uninitialized reference_frame_".format(rospy.get_name()))
-        return self.reference_frame_
 
     def is_enabled(self):
         if (self.joint_positions_ is not None) and \
