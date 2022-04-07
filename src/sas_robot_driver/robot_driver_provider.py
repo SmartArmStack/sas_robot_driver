@@ -24,6 +24,7 @@
 """
 import rospy
 
+from sensor_msgs.msg import JointState
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import Float64MultiArray
 import sas_conversions as rc
@@ -39,10 +40,10 @@ class RobotDriverProvider:
         self.publisher_joint_states_ = rospy.Publisher(node_prefix + "get/joint_states",
                                                        JointState,
                                                        queue_size=1)
-        self.publisher_joint_limits_min_ = rospy.Publisher(node_prefix + "get/joint_limits_min",
+        self.publisher_joint_limits_min_ = rospy.Publisher(node_prefix + "get/joint_positions_min",
                                                            Float64MultiArray,
                                                            queue_size=1)
-        self.publisher_joint_limits_max_ = rospy.Publisher(node_prefix + "get/joint_limits_max",
+        self.publisher_joint_limits_max_ = rospy.Publisher(node_prefix + "get/joint_positions_max",
                                                            Float64MultiArray,
                                                            queue_size=1)
         self.publisher_reference_frame_ = rospy.Publisher(node_prefix + "get/reference_frame",
@@ -60,7 +61,7 @@ class RobotDriverProvider:
         return self.target_joint_positions_
 
     def send_joint_positions(self, joint_positions):
-        msg = Float64MultiArray(data=joint_positions)
+        msg = JointState(position=joint_positions)
         self.publisher_joint_states_.publish(msg)
 
     def send_joint_limits(self, joint_limits):
