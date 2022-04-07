@@ -50,8 +50,6 @@ class RobotDriverInterface:
                                                              Float64MultiArray, self._callback_joint_limits_min)
         self.subscriber_joint_limits_max_ = rospy.Subscriber(node_prefix + "get/joint_positions_max",
                                                              Float64MultiArray, self._callback_joint_limits_max)
-        self.subscriber_reference_frame_ = rospy.Subscriber(node_prefix + "get/reference_frame", PoseStamped,
-                                                            self._callback_reference_frame)
 
     def send_target_joint_positions(self, target_positions):
         msg = Float64MultiArray(data=target_positions)
@@ -77,8 +75,7 @@ class RobotDriverInterface:
     def is_enabled(self):
         if (self.joint_positions_ is not None) and \
                 (self.joint_limits_min_ is not None) and \
-                (self.joint_limits_max_ is not None) and \
-                (self.reference_frame_ is not None):
+                (self.joint_limits_max_ is not None):
             return True
 
     def _callback_joint_states(self, msg):
@@ -90,5 +87,3 @@ class RobotDriverInterface:
     def _callback_joint_limits_max(self, msg):
         self.joint_limits_max_ = msg.data
 
-    def _callback_reference_frame(self, msg):
-        self.reference_frame_ = rc.geometry_msgs_pose_stamped_to_dq(msg)
