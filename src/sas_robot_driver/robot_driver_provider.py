@@ -37,7 +37,7 @@ class RobotDriverProvider:
         
         # ROS Publishers
         self.publisher_joint_states_ = rospy.Publisher(node_prefix + "get/joint_states",
-                                                       Float64MultiArray,
+                                                       JointState,
                                                        queue_size=1)
         self.publisher_joint_limits_min_ = rospy.Publisher(node_prefix + "get/joint_limits_min",
                                                            Float64MultiArray,
