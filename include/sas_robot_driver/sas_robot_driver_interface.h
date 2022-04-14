@@ -26,17 +26,14 @@
 #include <atomic>
 #include <tuple>
 
-#include <dqrobotics/DQ.h>
-
 #include <ros/ros.h>
 
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/Float64MultiArray.h>
+#include <std_msgs/Int32MultiArray.h>
 #include <geometry_msgs/PoseStamped.h>
 
 #include <sas_robot_driver/sas_robot_driver.h>
-
-using namespace DQ_robotics;
 
 namespace sas
 {
@@ -45,33 +42,50 @@ class RobotDriverInterface
 {
 private:
     std::atomic_bool enabled_;
-    std::string node_prefix_;
+    std::string topic_prefix_;
 
     ros::Subscriber subscriber_joint_states_;
     VectorXd joint_positions_;
+    VectorXd joint_velocities_;
+    VectorXd joint_forces_;
     ros::Subscriber subscriber_joint_limits_min_;
     VectorXd joint_limits_min_;
     ros::Subscriber subscriber_joint_limits_max_;
     VectorXd joint_limits_max_;
+    ros::Subscriber subscriber_home_state_;
+    VectorXi home_states_;
 
     ros::Publisher publisher_target_joint_positions_;
+    ros::Publisher publisher_target_joint_velocities_;
+    ros::Publisher publisher_target_joint_forces_;
+    ros::Publisher publisher_homing_signal_;
+    ros::Publisher publisher_clear_positions_signal_;
 
     void _callback_joint_states(const sensor_msgs::JointStateConstPtr& msg);
-    void _callback_joint_limits_min(const std_msgs::Float64MultiArray& msg);
-    void _callback_joint_limits_max(const std_msgs::Float64MultiArray& msg);
+    void _callback_joint_limits_min(const std_msgs::Float64MultiArrayConstPtr& msg);
+    void _callback_joint_limits_max(const std_msgs::Float64MultiArrayConstPtr& msg);
+    void _callback_home_states(const std_msgs::Int32MultiArrayConstPtr &msg);
 public:
     RobotDriverInterface() = delete;
     RobotDriverInterface(const RobotDriverInterface&) = delete;
 
-    RobotDriverInterface(ros::NodeHandle& nodehandle, const std::string node_prefix);
-    RobotDriverInterface(ros::NodeHandle& publisher_nodehandle, ros::NodeHandle& subscriber_nodehandle, const std::string node_prefix);
+    RobotDriverInterface(ros::NodeHandle& nodehandle, const std::string topic_prefix);
+    RobotDriverInterface(ros::NodeHandle& publisher_nodehandle, ros::NodeHandle& subscriber_nodehandle, const std::string topic_prefix);
 
     void send_target_joint_positions(const VectorXd& target_joint_positions);
+    void send_target_joint_velocities(const VectorXd& target_joint_velocities);
+    void send_target_joint_forces(const VectorXd& target_joint_forces);
+    void send_homing_signal(const VectorXi& homing_signal);
+    void send_clear_positions_signal(const VectorXi& clear_positions_signal);
 
     VectorXd get_joint_positions() const;
+    VectorXd get_joint_velocities() const;
+    VectorXd get_joint_forces() const;
     std::tuple<VectorXd, VectorXd> get_joint_limits() const;
+    VectorXi get_home_states() const;
 
-    bool is_enabled() const;
+    bool is_enabled(const RobotDriver::SupportedFunctionality& control_mode=RobotDriver::SupportedFunctionality::PositionControl) const;
+    std::string get_topic_prefix() const;
 };
 
 }

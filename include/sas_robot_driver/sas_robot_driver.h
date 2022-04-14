@@ -42,6 +42,15 @@ protected:
     RobotDriver()=delete;
     RobotDriver(const RobotDriver&)=delete;
 public:
+    enum class SupportedFunctionality{
+        None=0,
+        PositionControl,
+        VelocityControl,
+        ForceControl,
+        Homing,
+        ClearPositions
+    };
+
     virtual VectorXd get_joint_positions() = 0;
     virtual void set_target_joint_positions(const VectorXd& set_target_joint_positions_rad) = 0;
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.0)
 project(sas_robot_driver)
 
 #Add custom (non compiling) targets so launch scripts and python files show up in QT Creator's project view.
