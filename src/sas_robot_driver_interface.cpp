@@ -166,10 +166,11 @@ bool RobotDriverInterface::is_enabled(const RobotDriver::Functionality &control_
     case RobotDriver::Functionality::Homing:
         return home_states_.size() > 0;
     case RobotDriver::Functionality::ClearPositions:
-        throw std::runtime_error(ros::this_node::getName()+"::is_enabled() RobotDriver::SupportedFunctionality::ClearPositions has no meaning in RobotDriverInterface.");
+        throw std::runtime_error(ros::this_node::getName()+"::is_enabled() RobotDriver::Functionality::ClearPositions has no meaning in RobotDriverInterface::is_enabled().");
     case RobotDriver::Functionality::None:
-        throw std::runtime_error(ros::this_node::getName()+"::is_enabled() Unknown RobotDriver::SupportedFunctionality.");
+        throw std::runtime_error(ros::this_node::getName()+"::is_enabled() RobotDriver::Functionality::None has no meaning in RobotDriverInterface::is_enabled().");
     }    
+    throw std::runtime_error(ros::this_node::getName()+"::is_enabled() Unknown RobotDriver::Functionality.");
 }
 
 std::string RobotDriverInterface::get_topic_prefix() const
