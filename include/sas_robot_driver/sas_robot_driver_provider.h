@@ -75,7 +75,7 @@ public:
     VectorXd get_target_joint_velocities() const;
     VectorXd get_target_joint_forces() const;
     VectorXi get_homing_signal() const;
-    VectorXi get_clear_positions_signal() const;
+    VectorXi get_clear_positions_signal();
     RobotDriver::Functionality get_currently_active_functionality() const;
 
     bool is_enabled(const RobotDriver::Functionality& supported_functionality=RobotDriver::Functionality::PositionControl) const;

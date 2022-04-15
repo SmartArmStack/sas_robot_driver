@@ -51,10 +51,28 @@ void RobotDriverProvider::_callback_homing_signal(const std_msgs::Int32MultiArra
     currently_active_functionality_ = RobotDriver::Functionality::Homing;
 }
 
+/**
+ * @brief RobotDriverProvider::_callback_clear_positions_signal. This callback behaves differently from
+ * the other callbacks in that a clear positions signal is a "one-off" pulse. We still allow the users
+ * to send 0s or 1s because in the same message only some of the joints should be cleared.
+ * @param msg a suitable std::msgs::Int32MultiArrayConstPtr that will be managed by ROS.
+ */
 void RobotDriverProvider::_callback_clear_positions_signal(const std_msgs::Int32MultiArrayConstPtr &msg)
 {
-    clear_positions_signal_ = std_vector_int_to_vectorxi(msg->data);
-    currently_active_functionality_ = RobotDriver::Functionality::ClearPositions;
+    VectorXi clear_positions_signal_temp(msg->data.size());
+
+    //We keep the clear position flags as 1 until they are processed by get_clear_positions_signal()
+    for(int i=0;i<clear_positions_signal_temp.size();i++)
+    {
+        if(clear_positions_signal_(i)==1 || msg->data[i]==1)
+            clear_positions_signal_temp(i) = 1;
+        else
+            clear_positions_signal_temp(i) = 0;
+    }
+    clear_positions_signal_ = clear_positions_signal_temp;
+
+    //Other callback have something similar but here seems unused
+    //currently_active_functionality_ = RobotDriver::Functionality::ClearPositions;
 }
 
 RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &nodehandle, const std::string &node_prefix):
@@ -115,10 +133,18 @@ VectorXi RobotDriverProvider::get_homing_signal() const
         throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_homing_signal() trying to get an uninitialized vector");
 }
 
-VectorXi RobotDriverProvider::get_clear_positions_signal() const
+/**
+ * @brief RobotDriverProvider::get_clear_positions_signal. Getting the clear positions signal also clears it.
+ * @return a VectorXi with 0s for configurations that should not be cleared and 1 for positions that should be cleared.
+ */
+VectorXi RobotDriverProvider::get_clear_positions_signal()
 {
     if(is_enabled(RobotDriver::Functionality::ClearPositions))
-        return clear_positions_signal_;
+    {
+        const VectorXi return_value(clear_positions_signal_);
+        clear_positions_signal_ = VectorXi::Zero(return_value.size());
+        return return_value;
+    }
     else
         throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_clear_positions_signal() trying to get an uninitialized vector");
 }
