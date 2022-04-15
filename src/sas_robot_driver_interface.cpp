@@ -30,6 +30,7 @@ namespace sas
 void RobotDriverInterface::_callback_joint_states(const sensor_msgs::JointStateConstPtr &msg)
 {
     joint_positions_ = std_vector_double_to_vectorxd(msg->position);
+    joint_velocities_ = std_vector_double_to_vectorxd(msg->velocity);
     joint_forces_ = std_vector_double_to_vectorxd(msg->effort);
 }
 
@@ -117,7 +118,7 @@ VectorXd RobotDriverInterface::get_joint_positions() const
 
 VectorXd RobotDriverInterface::get_joint_velocities() const
 {
-    if(is_enabled())
+    if(is_enabled(RobotDriver::Functionality::VelocityControl))
         return joint_velocities_;
     else
         throw std::runtime_error(ros::this_node::getName() + "::RobotDriverInterface::get_joint_velocities()::trying to get joint velocities but uninitialized.");
@@ -125,7 +126,7 @@ VectorXd RobotDriverInterface::get_joint_velocities() const
 
 VectorXd RobotDriverInterface::get_joint_forces() const
 {
-    if(is_enabled())
+    if(is_enabled(RobotDriver::Functionality::ForceControl))
         return joint_forces_;
     else
         throw std::runtime_error(ros::this_node::getName() + "::RobotDriverInterface::get_joint_efforts()::trying to get joint efforts but uninitialized.");
@@ -143,7 +144,7 @@ std::tuple<VectorXd, VectorXd> RobotDriverInterface::get_joint_limits() const
 
 VectorXi RobotDriverInterface::get_home_states() const
 {
-    if(home_states_.size() > 0)
+    if(is_enabled(RobotDriver::Functionality::Homing))
     {
         return home_states_;
     }
@@ -166,8 +167,9 @@ bool RobotDriverInterface::is_enabled(const RobotDriver::Functionality &control_
         return home_states_.size() > 0;
     case RobotDriver::Functionality::ClearPositions:
         throw std::runtime_error(ros::this_node::getName()+"::is_enabled() RobotDriver::SupportedFunctionality::ClearPositions has no meaning in RobotDriverInterface.");
-    }
-    throw std::runtime_error(ros::this_node::getName()+"::is_enabled() Unknown RobotDriver::SupportedFunctionality.");
+    case RobotDriver::Functionality::None:
+        throw std::runtime_error(ros::this_node::getName()+"::is_enabled() Unknown RobotDriver::SupportedFunctionality.");
+    }    
 }
 
 std::string RobotDriverInterface::get_topic_prefix() const
