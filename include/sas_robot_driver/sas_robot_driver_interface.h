@@ -84,7 +84,7 @@ public:
     std::tuple<VectorXd, VectorXd> get_joint_limits() const;
     VectorXi get_home_states() const;
 
-    bool is_enabled(const RobotDriver::SupportedFunctionality& control_mode=RobotDriver::SupportedFunctionality::PositionControl) const;
+    bool is_enabled(const RobotDriver::Functionality& control_mode=RobotDriver::Functionality::PositionControl) const;
     std::string get_topic_prefix() const;
 };
 

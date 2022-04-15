@@ -42,7 +42,7 @@ protected:
     RobotDriver()=delete;
     RobotDriver(const RobotDriver&)=delete;
 public:
-    enum class SupportedFunctionality{
+    enum class Functionality{
         None=0,
         PositionControl,
         VelocityControl,

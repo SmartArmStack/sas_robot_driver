@@ -152,19 +152,19 @@ VectorXi RobotDriverInterface::get_home_states() const
 }
 
 
-bool RobotDriverInterface::is_enabled(const RobotDriver::SupportedFunctionality &control_mode) const
+bool RobotDriverInterface::is_enabled(const RobotDriver::Functionality &control_mode) const
 {
     switch(control_mode)
     {
-    case RobotDriver::SupportedFunctionality::PositionControl:
+    case RobotDriver::Functionality::PositionControl:
         return joint_positions_.size() > 0 && joint_limits_min_.size() > 0 && joint_limits_max_.size() > 0;
-    case RobotDriver::SupportedFunctionality::VelocityControl:
+    case RobotDriver::Functionality::VelocityControl:
         return joint_velocities_.size() > 0;
-    case RobotDriver::SupportedFunctionality::ForceControl:
+    case RobotDriver::Functionality::ForceControl:
         return joint_forces_.size() > 0;
-    case RobotDriver::SupportedFunctionality::Homing:
+    case RobotDriver::Functionality::Homing:
         return home_states_.size() > 0;
-    case RobotDriver::SupportedFunctionality::ClearPositions:
+    case RobotDriver::Functionality::ClearPositions:
         throw std::runtime_error(ros::this_node::getName()+"::is_enabled() RobotDriver::SupportedFunctionality::ClearPositions has no meaning in RobotDriverInterface.");
     }
     throw std::runtime_error(ros::this_node::getName()+"::is_enabled() Unknown RobotDriver::SupportedFunctionality.");

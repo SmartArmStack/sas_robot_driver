@@ -30,31 +30,31 @@ namespace sas
 void RobotDriverProvider::_callback_target_joint_positions(const std_msgs::Float64MultiArrayConstPtr &msg)
 {
     target_joint_positions_ = std_vector_double_to_vectorxd(msg->data);
-    currently_active_functionality_ = RobotDriver::SupportedFunctionality::PositionControl;
+    currently_active_functionality_ = RobotDriver::Functionality::PositionControl;
 }
 
 void RobotDriverProvider::_callback_target_joint_velocities(const std_msgs::Float64MultiArrayConstPtr &msg)
 {
     target_joint_velocities_ = std_vector_double_to_vectorxd(msg->data);
-    currently_active_functionality_ = RobotDriver::SupportedFunctionality::VelocityControl;
+    currently_active_functionality_ = RobotDriver::Functionality::VelocityControl;
 }
 
 void RobotDriverProvider::_callback_target_joint_forces(const std_msgs::Float64MultiArrayConstPtr &msg)
 {
     target_joint_forces_ = std_vector_double_to_vectorxd(msg->data);
-    currently_active_functionality_ = RobotDriver::SupportedFunctionality::ForceControl;
+    currently_active_functionality_ = RobotDriver::Functionality::ForceControl;
 }
 
 void RobotDriverProvider::_callback_homing_signal(const std_msgs::Int32MultiArrayConstPtr &msg)
 {
     homing_signal_ = std_vector_int_to_vectorxi(msg->data);
-    currently_active_functionality_ = RobotDriver::SupportedFunctionality::Homing;
+    currently_active_functionality_ = RobotDriver::Functionality::Homing;
 }
 
 void RobotDriverProvider::_callback_clear_positions_signal(const std_msgs::Int32MultiArrayConstPtr &msg)
 {
     clear_positions_signal_ = std_vector_int_to_vectorxi(msg->data);
-    currently_active_functionality_ = RobotDriver::SupportedFunctionality::ClearPositions;
+    currently_active_functionality_ = RobotDriver::Functionality::ClearPositions;
 }
 
 RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &nodehandle, const std::string &node_prefix):
@@ -65,7 +65,7 @@ RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &nodehandle, const std:
 
 RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &publisher_nodehandle, ros::NodeHandle &subscriber_nodehandle, const std::string &node_prefix):
     node_prefix_(node_prefix),
-    currently_active_functionality_(RobotDriver::SupportedFunctionality::None)
+    currently_active_functionality_(RobotDriver::Functionality::None)
 {
     ROS_INFO_STREAM(ros::this_node::getName() + "::Initializing RobotDriverProvider with prefix " + node_prefix);
     publisher_joint_states_ = publisher_nodehandle.advertise<sensor_msgs::JointState>(node_prefix + "/get/joint_states", 1);
@@ -81,7 +81,7 @@ RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &publisher_nodehandle, 
 
 VectorXd RobotDriverProvider::get_target_joint_positions() const
 {
-    if(is_enabled(RobotDriver::SupportedFunctionality::PositionControl))
+    if(is_enabled(RobotDriver::Functionality::PositionControl))
         return target_joint_positions_;
     else
         throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_target_joint_positions() trying to get an uninitialized vector");
@@ -89,7 +89,7 @@ VectorXd RobotDriverProvider::get_target_joint_positions() const
 
 VectorXd RobotDriverProvider::get_target_joint_velocities() const
 {
-    if(is_enabled(RobotDriver::SupportedFunctionality::VelocityControl))
+    if(is_enabled(RobotDriver::Functionality::VelocityControl))
         return target_joint_velocities_;
     else
         throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_target_joint_velocities() trying to get an uninitialized vector");
@@ -97,7 +97,7 @@ VectorXd RobotDriverProvider::get_target_joint_velocities() const
 
 VectorXd RobotDriverProvider::get_target_joint_forces() const
 {
-    if(is_enabled(RobotDriver::SupportedFunctionality::ForceControl))
+    if(is_enabled(RobotDriver::Functionality::ForceControl))
         return target_joint_forces_;
     else
         throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_target_joint_forces() trying to get an uninitialized vector");
@@ -109,7 +109,7 @@ VectorXd RobotDriverProvider::get_target_joint_forces() const
  */
 VectorXi RobotDriverProvider::get_homing_signal() const
 {
-    if(is_enabled(RobotDriver::SupportedFunctionality::Homing))
+    if(is_enabled(RobotDriver::Functionality::Homing))
         return homing_signal_;
     else
         throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_homing_signal() trying to get an uninitialized vector");
@@ -117,13 +117,13 @@ VectorXi RobotDriverProvider::get_homing_signal() const
 
 VectorXi RobotDriverProvider::get_clear_positions_signal() const
 {
-    if(is_enabled(RobotDriver::SupportedFunctionality::ClearPositions))
+    if(is_enabled(RobotDriver::Functionality::ClearPositions))
         return clear_positions_signal_;
     else
         throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_clear_positions_signal() trying to get an uninitialized vector");
 }
 
-RobotDriver::SupportedFunctionality RobotDriverProvider::get_currently_active_functionality() const
+RobotDriver::Functionality RobotDriverProvider::get_currently_active_functionality() const
 {
     return currently_active_functionality_;
 }
@@ -169,19 +169,19 @@ void RobotDriverProvider::send_home_state(const VectorXi &home_state)
     publisher_home_state_.publish(ros_msg_home_state);
 }
 
-bool RobotDriverProvider::is_enabled(const RobotDriver::SupportedFunctionality& supported_functionality) const
+bool RobotDriverProvider::is_enabled(const RobotDriver::Functionality& supported_functionality) const
 {
     switch(supported_functionality)
     {
-    case RobotDriver::SupportedFunctionality::PositionControl:
+    case RobotDriver::Functionality::PositionControl:
         return target_joint_positions_.size() > 0;
-    case RobotDriver::SupportedFunctionality::VelocityControl:
+    case RobotDriver::Functionality::VelocityControl:
         return target_joint_velocities_.size() > 0;
-    case RobotDriver::SupportedFunctionality::ForceControl:
+    case RobotDriver::Functionality::ForceControl:
         return target_joint_forces_.size() > 0;
-    case RobotDriver::SupportedFunctionality::Homing:
+    case RobotDriver::Functionality::Homing:
         return homing_signal_.size() > 0;
-    case RobotDriver::SupportedFunctionality::ClearPositions:
+    case RobotDriver::Functionality::ClearPositions:
         return clear_positions_signal_.size() > 0;
     default:
         throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::is_enabled() unknown control mode");

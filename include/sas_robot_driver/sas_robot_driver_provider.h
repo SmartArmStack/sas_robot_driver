@@ -41,7 +41,7 @@ class RobotDriverProvider
 {
 private:
     std::string node_prefix_;
-    RobotDriver::SupportedFunctionality currently_active_functionality_;
+    RobotDriver::Functionality currently_active_functionality_;
 
     ros::Publisher publisher_joint_states_;
     ros::Publisher publisher_joint_limits_min_;
@@ -76,9 +76,9 @@ public:
     VectorXd get_target_joint_forces() const;
     VectorXi get_homing_signal() const;
     VectorXi get_clear_positions_signal() const;
-    RobotDriver::SupportedFunctionality get_currently_active_functionality() const;
+    RobotDriver::Functionality get_currently_active_functionality() const;
 
-    bool is_enabled(const RobotDriver::SupportedFunctionality& supported_functionality=RobotDriver::SupportedFunctionality::PositionControl) const;
+    bool is_enabled(const RobotDriver::Functionality& supported_functionality=RobotDriver::Functionality::PositionControl) const;
 
     void send_joint_states(const VectorXd& joint_positions,
                            const VectorXd& joint_velocities,
