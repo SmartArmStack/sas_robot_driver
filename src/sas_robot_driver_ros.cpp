@@ -28,9 +28,13 @@
 namespace sas
 {
 
-RobotDriverROS::RobotDriverROS(ros::NodeHandle &nodehandle, const RobotDriverROSConfiguration &configuration, std::atomic_bool *kill_this_node):
+RobotDriverROS::RobotDriverROS(ros::NodeHandle &nodehandle,
+                               RobotDriver* robot_driver,
+                               const RobotDriverROSConfiguration &configuration,
+                               std::atomic_bool *kill_this_node):
     configuration_(configuration),
     kill_this_node_(kill_this_node),
+    robot_driver_(robot_driver),
     clock_(configuration.thread_sampling_time_nsec),
     robot_driver_provider_(nodehandle,configuration_.robot_driver_provider_prefix)
 {

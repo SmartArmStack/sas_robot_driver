@@ -68,7 +68,7 @@ public:
     RobotDriverROS(const RobotDriverROS&)=delete;
     RobotDriverROS()=delete;
 
-    RobotDriverROS(ros::NodeHandle& nodehandle,
+    RobotDriverROS(ros::NodeHandle& nodehandle, RobotDriver *robot_driver,
               const RobotDriverROSConfiguration& configuration,
               std::atomic_bool* kill_this_node);
     ~RobotDriverROS();
