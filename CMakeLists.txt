@@ -49,16 +49,29 @@ include_directories(
     ${catkin_INCLUDE_DIRS}
     )
 
-add_library(sas_robot_driver
+add_library(${PROJECT_NAME}
     src/sas_robot_driver.cpp
     src/sas_robot_driver_provider.cpp
     src/sas_robot_driver_interface.cpp
     src/sas_robot_driver_ros.cpp
     )
 
-add_dependencies(sas_robot_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_executable(sas_robot_driver_ros_composer_node
+    src/sas_robot_driver_ros_composer_node.cpp
+    src/sas_robot_driver_ros_composer.cpp)
 
-target_link_libraries(sas_robot_driver
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(sas_robot_driver_ros_composer_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+target_link_libraries(${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    )
+
+target_link_libraries(sas_robot_driver_ros_composer_node
+    dqrobotics
+    dqrobotics-interface-vrep
+    dqrobotics-interface-json11
+    ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     )
 
@@ -79,6 +92,10 @@ target_link_libraries(sas_robot_driver
 
 ## Mark executables and/or libraries for installation
 install(TARGETS ${PROJECT_NAME}
+  DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
+install(TARGETS sas_robot_driver_ros_composer_node
   DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 

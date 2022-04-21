@@ -23,12 +23,8 @@
 # ################################################################*/
 #pragma once
 
-#include <memory>
 #include <atomic>
 #include <vector>
-
-//DQ Robotics
-#include <dqrobotics/DQ.h>
 
 //ROS related
 #include <ros/ros.h>
@@ -41,6 +37,16 @@
 namespace sas
 {
 
+template<class T>
+void smart_get_param(ros::NodeHandle& nh, const std::string& name, T& t)
+{
+    if(!nh.getParam(ros::this_node::getName()+name,t))
+    {
+        throw std::runtime_error(ros::this_node::getName() + "::Error loading " + name);
+    }
+}
+
+
 struct RobotDriverROSConfiguration
 {
     std::string robot_driver_provider_prefix;
@@ -50,14 +56,11 @@ struct RobotDriverROSConfiguration
 class RobotDriverROS
 {
 private:
-    ros::CallbackQueue publisher_callback_queue_;
-    ros::CallbackQueue subscriber_callback_queue_;
-
     RobotDriverROSConfiguration configuration_;
     std::atomic_bool* kill_this_node_;
     RobotDriver* robot_driver_;
     Clock clock_;
-    std::unique_ptr<RobotDriverProvider> robot_driver_provider_;
+    RobotDriverProvider robot_driver_provider_;
 
     bool _should_shutdown() const;
 
@@ -65,8 +68,7 @@ public:
     RobotDriverROS(const RobotDriverROS&)=delete;
     RobotDriverROS()=delete;
 
-    RobotDriverROS(ros::NodeHandle& nodehandle_publisher,
-              ros::NodeHandle& nodehandle_subscriber,
+    RobotDriverROS(ros::NodeHandle& nodehandle,
               const RobotDriverROSConfiguration& configuration,
               std::atomic_bool* kill_this_node);
     ~RobotDriverROS();

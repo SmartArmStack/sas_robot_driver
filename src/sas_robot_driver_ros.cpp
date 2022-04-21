@@ -27,15 +27,14 @@
 
 namespace sas
 {
-RobotDriverROS::RobotDriverROS(ros::NodeHandle &nodehandle_publisher, ros::NodeHandle &nodehandle_subscriber, const RobotDriverROSConfiguration &configuration, std::atomic_bool *kill_this_node):
+
+RobotDriverROS::RobotDriverROS(ros::NodeHandle &nodehandle, const RobotDriverROSConfiguration &configuration, std::atomic_bool *kill_this_node):
     configuration_(configuration),
     kill_this_node_(kill_this_node),
-    clock_(configuration.thread_sampling_time_nsec)
+    clock_(configuration.thread_sampling_time_nsec),
+    robot_driver_provider_(nodehandle,configuration_.robot_driver_provider_prefix)
 {
-    nodehandle_publisher.setCallbackQueue(&publisher_callback_queue_);
-    nodehandle_subscriber.setCallbackQueue(&subscriber_callback_queue_);
 
-    robot_driver_provider_.reset(new sas::RobotDriverProvider(nodehandle_publisher, nodehandle_subscriber, configuration_.robot_driver_provider_prefix));
 }
 
 int RobotDriverROS::control_loop()
@@ -51,15 +50,15 @@ int RobotDriverROS::control_loop()
         {
             clock_.update_and_sleep();
 
-            subscriber_callback_queue_.callAvailable();
-            if(robot_driver_provider_->is_enabled())
+            ros::spinOnce();
+            if(robot_driver_provider_.is_enabled())
             {
-                robot_driver_->set_target_joint_positions(robot_driver_provider_->get_target_joint_positions());
+                robot_driver_->set_target_joint_positions(robot_driver_provider_.get_target_joint_positions());
             }
 
-            robot_driver_provider_->send_joint_positions(robot_driver_->get_joint_positions());
-            robot_driver_provider_->send_joint_limits(robot_driver_->get_joint_limits());
-            publisher_callback_queue_.callAvailable();
+            robot_driver_provider_.send_joint_positions(robot_driver_->get_joint_positions());
+            robot_driver_provider_.send_joint_limits(robot_driver_->get_joint_limits());
+            ros::spinOnce();
         }
     }
     catch(const std::exception& e)
