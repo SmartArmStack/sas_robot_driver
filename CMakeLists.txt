@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
     std_msgs
     sensor_msgs
     sas_conversions
+    sas_clock
     )
 
 ###################################
@@ -32,7 +33,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
     INCLUDE_DIRS include
     LIBRARIES sas_robot_driver
-    CATKIN_DEPENDS roscpp rospy 
+    CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs sas_conversions sas_clock
     # DEPENDS dqrobotics
     )
 
@@ -52,6 +53,7 @@ add_library(sas_robot_driver
     src/sas_robot_driver.cpp
     src/sas_robot_driver_provider.cpp
     src/sas_robot_driver_interface.cpp
+    src/sas_robot_driver_ros.cpp
     )
 
 add_dependencies(sas_robot_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -59,7 +61,7 @@ add_dependencies(sas_robot_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_E
 target_link_libraries(sas_robot_driver
     ${catkin_LIBRARIES}
     )
-    
+
     
 #############
 ## Install ##

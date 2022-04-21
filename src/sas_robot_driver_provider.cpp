@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2016-2020 Murilo Marques Marinho
+# Copyright (c) 2016-2022 Murilo Marques Marinho
 #
 #    This file is part of sas_robot_driver.
 #
@@ -18,7 +18,7 @@
 #
 # ################################################################
 #
-#   Author: Murilo M. Marinho, email: murilo@nml.t.u-tokyo.ac.jp
+#   Author: Murilo M. Marinho, email: murilo@g.ecc.u-tokyo.ac.jp
 #
 # ################################################################*/
 #include <sas_robot_driver/sas_robot_driver_provider.h>

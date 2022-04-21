@@ -53,6 +53,8 @@ public:
 
     virtual VectorXd get_joint_positions() = 0;
     virtual void set_target_joint_positions(const VectorXd& set_target_joint_positions_rad) = 0;
+    virtual std::tuple<VectorXd, VectorXd> get_joint_limits() = 0;
+    virtual void set_joint_limits(const std::tuple<VectorXd, VectorXd>& joint_limits) = 0;
 
     virtual void connect()=0;
     virtual void disconnect()=0;
