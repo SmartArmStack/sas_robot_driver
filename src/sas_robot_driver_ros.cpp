@@ -43,8 +43,10 @@ int RobotDriverROS::control_loop()
         clock_.init();
         ROS_INFO_STREAM(ros::this_node::getName() << "::Waiting to connect with robot...");
         robot_driver_->connect();
-        robot_driver_->initialize();
         ROS_INFO_STREAM(ros::this_node::getName() << "::Connected to robot.");
+        ROS_INFO_STREAM(ros::this_node::getName() << "::Initializing robot...");
+        robot_driver_->initialize();
+        ROS_INFO_STREAM(ros::this_node::getName() << "::Robot initialized.");
 
         while(not _should_shutdown())
         {

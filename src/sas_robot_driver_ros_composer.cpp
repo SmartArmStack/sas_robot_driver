@@ -108,9 +108,9 @@ void RobotDriverROSComposer::disconnect()
 
 void RobotDriverROSComposer::initialize()
 {
-    bool initialized = false;
     if(configuration_.use_real_robot)
     {
+        bool initialized = false;
         while(not initialized and not (*break_loops_))
         {
             ros::spinOnce();
