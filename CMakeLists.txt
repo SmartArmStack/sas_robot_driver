@@ -96,7 +96,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 install(TARGETS sas_robot_driver_ros_composer_node
-  DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 ## Mark cpp header files for installation
