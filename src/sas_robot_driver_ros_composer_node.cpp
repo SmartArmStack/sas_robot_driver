@@ -44,12 +44,11 @@ int main(int argc, char** argv)
     }
 
     ros::init(argc, argv, "sas_robot_driver_ros_composer_node", ros::init_options::NoSigintHandler);
-
+    ros::NodeHandle nh;
 
     try
     {
         ROS_INFO_STREAM(ros::this_node::getName()+"::Loading parameters from parameter server.");
-        ros::NodeHandle nh;
         RobotDriverROSComposerConfiguration robot_driver_ros_composer_configuration;
         smart_get_param(nh,"/use_real_robot",robot_driver_ros_composer_configuration.use_real_robot);
         smart_get_param(nh,"/vrep_robot_joint_names",robot_driver_ros_composer_configuration.vrep_robot_joint_names);
