@@ -45,21 +45,24 @@ int main(int argc, char** argv)
 
     ros::init(argc, argv, "sas_robot_driver_ros_composer_node", ros::init_options::NoSigintHandler);
 
-    ROS_INFO_STREAM(ros::this_node::getName()+"::Loading parameters from parameter server.");
-    ros::NodeHandle nh;
-    RobotDriverROSComposerConfiguration robot_driver_ros_composer_configuration;
-    smart_get_param(nh,"/use_real_robot",robot_driver_ros_composer_configuration.use_real_robot);
-    smart_get_param(nh,"/vrep_robot_joint_names",robot_driver_ros_composer_configuration.vrep_robot_joint_names);
-    smart_get_param(nh,"/vrep_ip",robot_driver_ros_composer_configuration.vrep_ip);
-    smart_get_param(nh,"/vrep_port",robot_driver_ros_composer_configuration.vrep_port);
-    smart_get_param(nh,"/robot_driver_interface_node_prefixes",robot_driver_ros_composer_configuration.robot_driver_interface_topic_prefixes);
-    smart_get_param(nh,"/robot_parameter_file_path",robot_driver_ros_composer_configuration.robot_parameter_file_path);
-    RobotDriverROSConfiguration robot_driver_ros_configuration;
-    smart_get_param(nh,"/thread_sampling_time_nsec",robot_driver_ros_configuration.thread_sampling_time_nsec);
-    robot_driver_ros_configuration.robot_driver_provider_prefix = ros::this_node::getName();
 
     try
     {
+        ROS_INFO_STREAM(ros::this_node::getName()+"::Loading parameters from parameter server.");
+        ros::NodeHandle nh;
+        RobotDriverROSComposerConfiguration robot_driver_ros_composer_configuration;
+        smart_get_param(nh,"/use_real_robot",robot_driver_ros_composer_configuration.use_real_robot);
+        smart_get_param(nh,"/vrep_robot_joint_names",robot_driver_ros_composer_configuration.vrep_robot_joint_names);
+        smart_get_param(nh,"/vrep_ip",robot_driver_ros_composer_configuration.vrep_ip);
+        smart_get_param(nh,"/vrep_port",robot_driver_ros_composer_configuration.vrep_port);
+        smart_get_param(nh,"/robot_driver_interface_node_prefixes",robot_driver_ros_composer_configuration.robot_driver_interface_topic_prefixes);
+        smart_get_param(nh,"/robot_parameter_file_path",robot_driver_ros_composer_configuration.robot_parameter_file_path);
+        RobotDriverROSConfiguration robot_driver_ros_configuration;
+        smart_get_param(nh,"/thread_sampling_time_nsec",robot_driver_ros_configuration.thread_sampling_time_nsec);
+        robot_driver_ros_configuration.robot_driver_provider_prefix = ros::this_node::getName();
+        ROS_INFO_STREAM(ros::this_node::getName()+"::Parameters OK.");
+
+
         ROS_INFO_STREAM(ros::this_node::getName()+"::Instantiating RobotDriverROSComposer.");
         sas::RobotDriverROSComposer robot_driver_composer(robot_driver_ros_composer_configuration,nh,&kill_this_process);
         ROS_INFO_STREAM(ros::this_node::getName()+"::Instantiating RobotDriverROS.");
