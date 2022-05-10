@@ -51,6 +51,8 @@ struct RobotDriverROSConfiguration
 {
     std::string robot_driver_provider_prefix;
     int thread_sampling_time_nsec;
+    std::vector<double> q_min;
+    std::vector<double> q_max;
 };
 
 class RobotDriverROS
