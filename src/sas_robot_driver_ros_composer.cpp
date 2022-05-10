@@ -38,6 +38,7 @@ RobotDriverROSComposer::RobotDriverROSComposer(const RobotDriverROSComposerConfi
     {
         for(const std::string& topic_prefix: configuration.robot_driver_interface_topic_prefixes)
         {
+            ROS_INFO_STREAM(ros::this_node::getName()+"::Adding subrobot driver with prefix "+topic_prefix);
             robot_driver_interface_vector_.push_back(std::unique_ptr<RobotDriverInterface>(new RobotDriverInterface(node_handle,topic_prefix)));
         }
     }
