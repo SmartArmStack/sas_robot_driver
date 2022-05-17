@@ -122,6 +122,8 @@ void RobotDriverROSComposer::initialize()
                     initialized = false;
             }
         }
+        //Send initial values to CoppeliaSim
+        vi_.set_joint_positions(configuration_.vrep_robot_joint_names,get_joint_positions());
     }
     else
     {
