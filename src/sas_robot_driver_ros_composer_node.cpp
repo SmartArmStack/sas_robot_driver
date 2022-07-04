@@ -22,6 +22,7 @@
 #
 # ################################################################*/
 #include <exception>
+#include <sas_common/sas_common.h>
 #include "sas_robot_driver_ros_composer.h"
 #include <sas_robot_driver/sas_robot_driver_ros.h>
 using namespace sas;
@@ -50,14 +51,14 @@ int main(int argc, char** argv)
     {
         ROS_INFO_STREAM(ros::this_node::getName()+"::Loading parameters from parameter server.");
         RobotDriverROSComposerConfiguration robot_driver_ros_composer_configuration;
-        smart_get_param(nh,"/use_real_robot",robot_driver_ros_composer_configuration.use_real_robot);
-        smart_get_param(nh,"/vrep_robot_joint_names",robot_driver_ros_composer_configuration.vrep_robot_joint_names);
-        smart_get_param(nh,"/vrep_ip",robot_driver_ros_composer_configuration.vrep_ip);
-        smart_get_param(nh,"/vrep_port",robot_driver_ros_composer_configuration.vrep_port);
-        smart_get_param(nh,"/robot_driver_interface_node_prefixes",robot_driver_ros_composer_configuration.robot_driver_interface_topic_prefixes);
-        smart_get_param(nh,"/robot_parameter_file_path",robot_driver_ros_composer_configuration.robot_parameter_file_path);
+        get_ros_param(nh,"/use_real_robot",robot_driver_ros_composer_configuration.use_real_robot);
+        get_ros_param(nh,"/vrep_robot_joint_names",robot_driver_ros_composer_configuration.vrep_robot_joint_names);
+        get_ros_param(nh,"/vrep_ip",robot_driver_ros_composer_configuration.vrep_ip);
+        get_ros_param(nh,"/vrep_port",robot_driver_ros_composer_configuration.vrep_port);
+        get_ros_param(nh,"/robot_driver_interface_node_prefixes",robot_driver_ros_composer_configuration.robot_driver_interface_topic_prefixes);
+        get_ros_param(nh,"/robot_parameter_file_path",robot_driver_ros_composer_configuration.robot_parameter_file_path);
         RobotDriverROSConfiguration robot_driver_ros_configuration;
-        smart_get_param(nh,"/thread_sampling_time_nsec",robot_driver_ros_configuration.thread_sampling_time_nsec);
+        get_ros_param(nh,"/thread_sampling_time_nsec",robot_driver_ros_configuration.thread_sampling_time_nsec);
         robot_driver_ros_configuration.robot_driver_provider_prefix = ros::this_node::getName();
         ROS_INFO_STREAM(ros::this_node::getName()+"::Parameters OK.");
 

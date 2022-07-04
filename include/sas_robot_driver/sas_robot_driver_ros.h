@@ -37,16 +37,6 @@
 namespace sas
 {
 
-template<class T>
-void smart_get_param(ros::NodeHandle& nh, const std::string& name, T& t)
-{
-    if(!nh.getParam(ros::this_node::getName()+name,t))
-    {
-        throw std::runtime_error(ros::this_node::getName() + "::Error loading " + name);
-    }
-}
-
-
 struct RobotDriverROSConfiguration
 {
     std::string robot_driver_provider_prefix;
