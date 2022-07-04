@@ -68,6 +68,9 @@ public:
     RobotDriverProvider() = delete;
     RobotDriverProvider(const RobotDriverProvider&) = delete;
 
+#ifdef IS_SAS_PYTHON_BUILD
+    RobotDriverProvider(const std::string& node_prefix);
+#endif
     RobotDriverProvider(ros::NodeHandle& nodehandle, const std::string& node_prefix=ros::this_node::getName());
     RobotDriverProvider(ros::NodeHandle& publisher_nodehandle, ros::NodeHandle& subscriber_nodehandle, const std::string& node_prefix=ros::this_node::getName());
 

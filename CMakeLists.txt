@@ -9,12 +9,16 @@ add_custom_target(${PROJECT_NAME}_OTHER_FILES ALL WORKING_DIRECTORY ${PROJECT_SO
 add_compile_options(-std=c++11)
 add_compile_options(-Werror=return-type)
 
+FIND_PACKAGE(Eigen3 CONFIG REQUIRED)
+INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
     roscpp
     rospy
+    pybind11_catkin
     std_msgs
     sensor_msgs
     sas_common
@@ -34,7 +38,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
     INCLUDE_DIRS include
     LIBRARIES sas_robot_driver
-    CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs sas_common sas_conversions sas_clock
+    CATKIN_DEPENDS roscpp rospy std_msgs pybind11_catkin sensor_msgs sas_common sas_conversions sas_clock
     # DEPENDS dqrobotics
     )
 
@@ -75,6 +79,13 @@ target_link_libraries(sas_robot_driver_ros_composer_node
     ${PROJECT_NAME}
     ${catkin_LIBRARIES}
     )
+
+
+# Python bindings
+pybind_add_module(_sas_robot_driver SHARED src/sas_robot_driver_py.cpp src/sas_robot_driver.cpp src/sas_robot_driver_interface.cpp src/sas_robot_driver_provider.cpp)
+target_compile_definitions(_sas_robot_driver PRIVATE IS_SAS_PYTHON_BUILD)
+# https://github.com/pybind/pybind11/issues/387
+target_link_libraries(_sas_robot_driver PRIVATE ${catkin_LIBRARIES} -ldqrobotics)
 
     
 #############

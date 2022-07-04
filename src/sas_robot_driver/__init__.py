@@ -22,5 +22,4 @@
 #
 # ################################################################
 """
-from .robot_driver_interface import RobotDriverInterface
-from .robot_driver_provider import RobotDriverProvider
+from _sas_robot_driver import RobotDriverInterface, RobotDriverProvider

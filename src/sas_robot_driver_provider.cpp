@@ -23,6 +23,7 @@
 # ################################################################*/
 #include <sas_robot_driver/sas_robot_driver_provider.h>
 #include <sas_conversions/sas_conversions.h>
+#include <sas_common/sas_common.h>
 
 namespace sas
 {
@@ -80,6 +81,14 @@ RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &nodehandle, const std:
 {
     //Delegated
 }
+
+#ifdef IS_SAS_PYTHON_BUILD
+RobotDriverProvider::RobotDriverProvider(const std::string &node_prefix):
+    RobotDriverProvider(sas::common::get_static_node_handle(),node_prefix)
+{
+    //Delegated
+}
+#endif
 
 RobotDriverProvider::RobotDriverProvider(ros::NodeHandle &publisher_nodehandle, ros::NodeHandle &subscriber_nodehandle, const std::string &node_prefix):
     node_prefix_(node_prefix),

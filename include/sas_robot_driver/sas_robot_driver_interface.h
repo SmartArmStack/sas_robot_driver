@@ -69,6 +69,9 @@ public:
     RobotDriverInterface() = delete;
     RobotDriverInterface(const RobotDriverInterface&) = delete;
 
+#ifdef IS_SAS_PYTHON_BUILD
+    RobotDriverInterface(const std::string& topic_prefix);
+#endif
     RobotDriverInterface(ros::NodeHandle& nodehandle, const std::string topic_prefix);
     RobotDriverInterface(ros::NodeHandle& publisher_nodehandle, ros::NodeHandle& subscriber_nodehandle, const std::string topic_prefix);
 

@@ -22,6 +22,7 @@
 #
 # ################################################################*/
 #include <sas_robot_driver/sas_robot_driver_interface.h>
+#include <sas_common/sas_common.h>
 #include <sas_conversions/sas_conversions.h>
 
 namespace sas
@@ -49,6 +50,13 @@ void RobotDriverInterface::_callback_home_states(const std_msgs::Int32MultiArray
     home_states_ = std_vector_int_to_vectorxi(msg->data);
 }
 
+#ifdef IS_SAS_PYTHON_BUILD
+RobotDriverInterface::RobotDriverInterface(const std::string &topic_prefix):
+    RobotDriverInterface(sas::common::get_static_node_handle(),topic_prefix)
+{
+
+}
+#endif
 
 RobotDriverInterface::RobotDriverInterface(ros::NodeHandle &nodehandle, const std::string topic_prefix):
     RobotDriverInterface(nodehandle, nodehandle, topic_prefix)
@@ -61,16 +69,16 @@ RobotDriverInterface::RobotDriverInterface(ros::NodeHandle &publisher_nodehandle
     topic_prefix_(topic_prefix)
 {
     ROS_INFO_STREAM(ros::this_node::getName() + "::Initializing RobotDriverInterface with prefix " + topic_prefix);
-    publisher_target_joint_positions_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(topic_prefix_ + "set/target_joint_positions", 1);
-    publisher_target_joint_velocities_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(topic_prefix_ + "set/target_joint_velocities", 1);
-    publisher_target_joint_forces_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(topic_prefix_ + "set/target_joint_forces", 1);
-    publisher_homing_signal_ = publisher_nodehandle.advertise<std_msgs::Int32MultiArray>(topic_prefix_ + "set/homing_signal", 1);
-    publisher_clear_positions_signal_ = publisher_nodehandle.advertise<std_msgs::Int32MultiArray>(topic_prefix_ + "set/clear_positions_signal", 1);
+    publisher_target_joint_positions_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(topic_prefix_ + "/set/target_joint_positions", 1);
+    publisher_target_joint_velocities_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(topic_prefix_ + "/set/target_joint_velocities", 1);
+    publisher_target_joint_forces_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(topic_prefix_ + "/set/target_joint_forces", 1);
+    publisher_homing_signal_ = publisher_nodehandle.advertise<std_msgs::Int32MultiArray>(topic_prefix_ + "/set/homing_signal", 1);
+    publisher_clear_positions_signal_ = publisher_nodehandle.advertise<std_msgs::Int32MultiArray>(topic_prefix_ + "/set/clear_positions_signal", 1);
 
-    subscriber_joint_states_ = subscriber_nodehandle.subscribe(topic_prefix_ + "get/joint_states", 1, &RobotDriverInterface::_callback_joint_states, this);
-    subscriber_joint_limits_min_ = subscriber_nodehandle.subscribe(topic_prefix_ + "get/joint_positions_min", 1, &RobotDriverInterface::_callback_joint_limits_min, this);
-    subscriber_joint_limits_max_ = subscriber_nodehandle.subscribe(topic_prefix_ + "get/joint_positions_max", 1, &RobotDriverInterface::_callback_joint_limits_max, this);
-    subscriber_home_state_ = subscriber_nodehandle.subscribe(topic_prefix_ + "get/home_states", 1, &RobotDriverInterface::_callback_home_states, this);
+    subscriber_joint_states_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/joint_states", 1, &RobotDriverInterface::_callback_joint_states, this);
+    subscriber_joint_limits_min_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/joint_positions_min", 1, &RobotDriverInterface::_callback_joint_limits_min, this);
+    subscriber_joint_limits_max_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/joint_positions_max", 1, &RobotDriverInterface::_callback_joint_limits_max, this);
+    subscriber_home_state_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/home_states", 1, &RobotDriverInterface::_callback_home_states, this);
 }
 
 void RobotDriverInterface::send_target_joint_positions(const VectorXd &target_joint_positions)
