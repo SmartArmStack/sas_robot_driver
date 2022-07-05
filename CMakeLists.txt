@@ -121,7 +121,7 @@ install(DIRECTORY include/${PROJECT_NAME}/
  )
 
 install(TARGETS _sas_robot_driver
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  LIBRARY DESTINATION ${PYTHON_INSTALL_DIR}
 )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
