@@ -81,7 +81,9 @@ target_link_libraries(sas_robot_driver_ros_composer_node
     )
 
 
-# Python bindings
+#####################
+## PYTHON BINDINGS ##
+#####################
 pybind_add_module(_sas_robot_driver SHARED src/sas_robot_driver_py.cpp src/sas_robot_driver.cpp src/sas_robot_driver_interface.cpp src/sas_robot_driver_provider.cpp)
 target_compile_definitions(_sas_robot_driver PRIVATE IS_SAS_PYTHON_BUILD)
 # https://github.com/pybind/pybind11/issues/387
@@ -97,10 +99,10 @@ target_link_libraries(_sas_robot_driver PRIVATE ${catkin_LIBRARIES} -ldqrobotics
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(PROGRAMS
+   scripts/sas_robot_driver_interface_example.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark executables and/or libraries for installation
 install(TARGETS ${PROJECT_NAME}
