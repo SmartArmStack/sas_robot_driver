@@ -120,6 +120,10 @@ install(DIRECTORY include/${PROJECT_NAME}/
 #   PATTERN ".svn" EXCLUDE
  )
 
+install(TARGETS _sas_robot_driver
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
 #   # myfile1
