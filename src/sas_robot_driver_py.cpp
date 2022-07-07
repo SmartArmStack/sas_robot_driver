@@ -56,7 +56,7 @@ PYBIND11_MODULE(_sas_robot_driver, m) {
             .def("get_joint_forces",&RDI::get_joint_forces)
             .def("get_joint_limits",&RDI::get_joint_limits)
             .def("get_home_states",&RDI::get_home_states)
-            .def("is_enabled",(bool (RDI::*) (const sas::RobotDriver::Functionality &))&RDI::is_enabled,"Returns true if the RobotDriverInterface is enabled.",py::arg("control_mode")=sas::RobotDriver::Functionality::PositionControl)
+            .def("is_enabled",&RDI::is_enabled,"Returns true if the RobotDriverInterface is enabled.",py::arg("supported_functionality")=sas::RobotDriver::Functionality::PositionControl)
             .def("get_topic_prefix",&RDI::get_topic_prefix);
 
     py::class_<RDP>(m, "RobotDriverProvider")
@@ -67,7 +67,7 @@ PYBIND11_MODULE(_sas_robot_driver, m) {
             .def("get_homing_signal",&RDP::get_homing_signal)
             .def("get_clear_positions_signal",&RDP::get_clear_positions_signal)
             .def("get_currently_active_functionality",&RDP::get_currently_active_functionality)
-            .def("is_enabled",&RDP::is_enabled)
+            .def("is_enabled",&RDP::is_enabled,"Returns true if the RobotDriverProvider is inabled.",py::arg("supported_functionality")=sas::RobotDriver::Functionality::PositionControl)
             .def("send_joint_states",&RDP::send_joint_states)
             .def("send_joint_limits",&RDP::send_joint_limits)
             .def("send_home_state",&RDP::send_home_state);
