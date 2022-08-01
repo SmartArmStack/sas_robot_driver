@@ -55,6 +55,8 @@ int main(int argc, char** argv)
         get_ros_param(nh,"/vrep_robot_joint_names",robot_driver_ros_composer_configuration.vrep_robot_joint_names);
         get_ros_param(nh,"/vrep_ip",robot_driver_ros_composer_configuration.vrep_ip);
         get_ros_param(nh,"/vrep_port",robot_driver_ros_composer_configuration.vrep_port);
+        if(ros::param::has(ros::this_node::getName()+"/vrep_dynamically_enabled")) //Added 2022/08/01
+            get_ros_param(nh,"/vrep_dynamically_enabled",robot_driver_ros_composer_configuration.vrep_dynamically_enabled_);
         get_ros_param(nh,"/robot_driver_interface_node_prefixes",robot_driver_ros_composer_configuration.robot_driver_interface_topic_prefixes);
         get_ros_param(nh,"/robot_parameter_file_path",robot_driver_ros_composer_configuration.robot_parameter_file_path);
         RobotDriverROSConfiguration robot_driver_ros_configuration;

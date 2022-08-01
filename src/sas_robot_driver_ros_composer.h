@@ -44,6 +44,7 @@ struct RobotDriverROSComposerConfiguration
     std::vector<std::string> vrep_robot_joint_names;
     std::string vrep_ip;
     int vrep_port;
+    bool vrep_dynamically_enabled_ = false;
     std::vector<std::string> robot_driver_interface_topic_prefixes;
     std::string robot_parameter_file_path;
 };

@@ -82,7 +82,15 @@ void RobotDriverROSComposer::set_target_joint_positions(const VectorXd &set_targ
             accumulator+=interface->get_joint_positions().size();
         }
     }
-    vi_.set_joint_positions(configuration_.vrep_robot_joint_names,set_target_joint_positions_rad);
+
+    if(configuration_.vrep_dynamically_enabled_)
+    {
+        vi_.set_joint_target_positions(configuration_.vrep_robot_joint_names,set_target_joint_positions_rad);
+    }
+    else
+    {
+        vi_.set_joint_positions(configuration_.vrep_robot_joint_names,set_target_joint_positions_rad);
+    }
 }
 
 void RobotDriverROSComposer::set_joint_limits(const std::tuple<VectorXd, VectorXd> &joint_limits)
@@ -124,6 +132,8 @@ void RobotDriverROSComposer::initialize()
         }
         //Send initial values to CoppeliaSim
         vi_.set_joint_positions(configuration_.vrep_robot_joint_names,get_joint_positions());
+        if(configuration_.vrep_dynamically_enabled_)
+            vi_.set_joint_target_positions(configuration_.vrep_robot_joint_names,get_joint_positions());
     }
     else
     {
