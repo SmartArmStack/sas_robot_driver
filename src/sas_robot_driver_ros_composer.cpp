@@ -24,6 +24,7 @@
 #include "sas_robot_driver_ros_composer.h"
 #include <ros/callback_queue_interface.h>
 #include <dqrobotics/interfaces/json11/DQ_JsonReader.h>
+#include <sas_common/sas_common.h>
 
 namespace sas
 {
@@ -46,14 +47,6 @@ RobotDriverROSComposer::RobotDriverROSComposer(const RobotDriverROSComposerConfi
     joint_limits_ = {smdh.get_lower_q_limit(),smdh.get_upper_q_limit()};
 }
 
-//https://stackoverflow.com/questions/25691324/how-to-concatenate-vectors-in-eigen
-VectorXd vector_xd_concat(const VectorXd& a, const VectorXd& b)
-{
-    VectorXd c(a.size() + b.size());
-    c << a, b;
-    return c;
-}
-
 VectorXd RobotDriverROSComposer::get_joint_positions()
 {
     if(configuration_.use_real_robot)
@@ -61,7 +54,7 @@ VectorXd RobotDriverROSComposer::get_joint_positions()
         VectorXd joint_positions;
         for(const auto& interface : robot_driver_interface_vector_)
         {
-            joint_positions = vector_xd_concat(joint_positions, interface->get_joint_positions());
+            joint_positions = concatenate(joint_positions, interface->get_joint_positions());
         }
         return joint_positions;
     }
