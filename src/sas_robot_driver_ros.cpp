@@ -18,7 +18,7 @@
 #
 # ################################################################
 #
-#   Author: Murilo M. Marinho, email: murilo@g.ecc.u-tokyo.ac.jp
+#   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
 # ################################################################*/
 #include <sas_robot_driver/sas_robot_driver_ros.h>

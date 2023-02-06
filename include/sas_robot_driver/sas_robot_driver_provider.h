@@ -19,7 +19,7 @@
 #
 # ################################################################
 #
-#   Author: Murilo M. Marinho, email: murilo@g.ecc.u-tokyo.ac.jp
+#   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
 # ################################################################*/
 

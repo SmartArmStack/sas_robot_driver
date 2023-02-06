@@ -2,7 +2,7 @@
 # Murilo Marques Marinho at the University of Tokyo.
 # This software can be used for Research Purposes only.
 # For commercial purposes, contact the author.
-# Author: Murilo M. Marinho, email: murilo@g.ecc.u-tokyo.ac.jp
+# Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 import time
 from dqrobotics import *  # Despite what PyCharm might say, this is very much necessary or DQs will not be recognized
 import rospy
