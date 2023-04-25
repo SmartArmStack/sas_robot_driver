@@ -78,7 +78,7 @@ void RobotDriverServer::_callback_clear_positions_signal(const std_msgs::msg::In
 }
 
 RobotDriverServer::RobotDriverServer(std::shared_ptr<Node> &node, const std::string &topic_prefix):
-    sas::Object("sas::RobotDriverProvider"),
+    sas::Object("sas::RobotDriverServer"),
     node_(node),
     node_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix),
     currently_active_functionality_(RobotDriver::Functionality::None)

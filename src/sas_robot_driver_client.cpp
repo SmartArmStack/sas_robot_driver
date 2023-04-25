@@ -60,7 +60,7 @@ void RobotDriverClient::_callback_home_states(const std_msgs::msg::Int32MultiArr
 //#endif
 
 RobotDriverClient::RobotDriverClient(std::shared_ptr<Node> &node, const std::string topic_prefix):
-    sas::Object("sas::RobotDriverInterface"),
+    sas::Object("sas::RobotDriverClient"),
     node_(node),
     topic_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix)
 {
