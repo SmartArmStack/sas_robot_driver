@@ -37,6 +37,9 @@ add_executable(sas_robot_driver_ros_composer_node
    src/sas_robot_driver_ros_composer_node.cpp
    src/sas_robot_driver_ros_composer.cpp)
 
+add_executable(sas_robot_driver_ros_example
+    src/examples/sas_robot_driver_ros_example.cpp)
+
 target_link_libraries(${PROJECT_NAME}
     -ldqrobotics
     Eigen3::Eigen
@@ -46,6 +49,11 @@ target_link_libraries(sas_robot_driver_ros_composer_node
     dqrobotics
     dqrobotics-interface-vrep
     dqrobotics-interface-json11
+    ${PROJECT_NAME}
+    Eigen3::Eigen
+    )
+
+target_link_libraries(sas_robot_driver_ros_example
     ${PROJECT_NAME}
     Eigen3::Eigen
     )
@@ -74,5 +82,13 @@ install(
     RUNTIME DESTINATION bin
     INCLUDES DESTINATION include
     )
+
+install(TARGETS
+  sas_robot_driver_ros_composer_node
+  DESTINATION lib/${PROJECT_NAME})
+
+install(TARGETS
+  sas_robot_driver_ros_example
+  DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
