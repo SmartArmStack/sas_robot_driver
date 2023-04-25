@@ -75,12 +75,17 @@ int main(int argc, char** argv)
                                              robot_driver_ros_configuration,
                                              &kill_this_process);
         robot_driver_ros.control_loop();
+
     }
     catch (const std::exception& e)
     {
         //ROS_ERROR_STREAM(ros::this_node::getName() + "::Exception::" + e.what());
         RCLCPP_ERROR_STREAM_ONCE(node->get_logger(), std::string("::Exception::") + e.what());
     }
+
+    //The [rclcpp] error is a known issue in Humble, possibly already fixed in rolling.
+    //https://github.com/ros2/rclcpp/pull/2019
+    RCLCPP_WARN_STREAM_ONCE(node->get_logger(), "::Ignore the [rclcpp] error below, it is a bug in ROS 2 Humble.");
 
     return 0;
 }
