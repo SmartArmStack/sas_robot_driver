@@ -77,40 +77,41 @@ void RobotDriverProvider::_callback_clear_positions_signal(const std_msgs::msg::
     //currently_active_functionality_ = RobotDriver::Functionality::ClearPositions;
 }
 
-RobotDriverProvider::RobotDriverProvider(Node &node, const std::string &topic_prefix):
+RobotDriverProvider::RobotDriverProvider(std::shared_ptr<Node> &node, const std::string &topic_prefix):
     sas::Object("sas::RobotDriverProvider"),
-    node_prefix_(topic_prefix == "GET_FROM_NODE"? node.get_name() : topic_prefix),
+    node_(node),
+    node_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix),
     currently_active_functionality_(RobotDriver::Functionality::None)
 {
-    RCLCPP_INFO_STREAM_ONCE(node.get_logger(), "::Initializing RobotDriverProvider with prefix " + topic_prefix);
+    RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Initializing RobotDriverProvider with prefix " + topic_prefix);
 
     //publisher_joint_states_ = publisher_nodehandle.advertise<sensor_msgs::JointState>(node_prefix + "/get/joint_states", 1);
-    publisher_joint_states_ = node.create_publisher<sensor_msgs::msg::JointState>(topic_prefix + "/get/joint_states",1);
+    publisher_joint_states_ = node->create_publisher<sensor_msgs::msg::JointState>(topic_prefix + "/get/joint_states",1);
     //publisher_joint_limits_min_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_min", 1);
-    publisher_joint_limits_min_ = node.create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/get/joint_positions_min", 1);
+    publisher_joint_limits_min_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/get/joint_positions_min", 1);
     //publisher_joint_limits_max_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_max", 1);
-    publisher_joint_limits_max_ = node.create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/get/joint_positions_max", 1);
+    publisher_joint_limits_max_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/get/joint_positions_max", 1);
     //publisher_home_state_ = publisher_nodehandle.advertise<std_msgs::Int32MultiArray>(node_prefix + "/get/home_states", 1);
-    publisher_home_state_ = node.create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/get/home_states", 1);
+    publisher_home_state_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/get/home_states", 1);
 
     //subscriber_target_joint_positions_ = subscriber_nodehandle.subscribe(node_prefix + "/set/target_joint_positions", 1, &RobotDriverProvider::_callback_target_joint_positions, this);
-    subscriber_target_joint_positions_ = node.create_subscription<std_msgs::msg::Float64MultiArray>(
+    subscriber_target_joint_positions_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
                 topic_prefix + "/set/target_joint_positions", 1, std::bind(&RobotDriverProvider::_callback_target_joint_positions, this, _1)
                 );
     //subscriber_target_joint_velocities_ = subscriber_nodehandle.subscribe(node_prefix + "/set/target_joint_velocities", 1, &RobotDriverProvider::_callback_target_joint_velocities, this);
-    subscriber_target_joint_velocities_ = node.create_subscription<std_msgs::msg::Float64MultiArray>(
+    subscriber_target_joint_velocities_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
                 topic_prefix + "/set/target_joint_velocities", 1, std::bind(&RobotDriverProvider::_callback_target_joint_velocities, this, _1)
                 );
     //subscriber_target_joint_forces_ = subscriber_nodehandle.subscribe(node_prefix + "/set/target_joint_forces", 1, &RobotDriverProvider::_callback_target_joint_forces, this);
-    subscriber_target_joint_forces_ = node.create_subscription<std_msgs::msg::Float64MultiArray>(
+    subscriber_target_joint_forces_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
                 topic_prefix + "/set/target_joint_forces", 1, std::bind(&RobotDriverProvider::_callback_target_joint_forces, this, _1)
                 );
     //subscriber_homing_signal_ = subscriber_nodehandle.subscribe(node_prefix + "/set/homing_signal", 1, &RobotDriverProvider::_callback_homing_signal, this);
-    subscriber_homing_signal_ = node.create_subscription<std_msgs::msg::Int32MultiArray>(
+    subscriber_homing_signal_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
                 topic_prefix + "/set/homing_signal", 1, std::bind(&RobotDriverProvider::_callback_homing_signal, this, _1)
                 );
     //Clear positions was missing!
-    subscriber_clear_positions_signal_ = node.create_subscription<std_msgs::msg::Int32MultiArray>(
+    subscriber_clear_positions_signal_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
                 topic_prefix + "/set/clear_positions", 1, std::bind(&RobotDriverProvider::_callback_clear_positions_signal, this, _1)
                 );
 }

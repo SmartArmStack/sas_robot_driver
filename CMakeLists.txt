@@ -21,7 +21,7 @@ add_library(${PROJECT_NAME} SHARED
     src/sas_robot_driver.cpp
     src/sas_robot_driver_provider.cpp
     src/sas_robot_driver_interface.cpp
-    #src/sas_robot_driver_ros.cpp
+    src/sas_robot_driver_ros.cpp
     )
 
 ament_target_dependencies(${PROJECT_NAME} rclcpp geometry_msgs std_msgs sensor_msgs sas_common sas_core sas_conversions)
@@ -34,22 +34,22 @@ target_include_directories(${PROJECT_NAME}
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(Eigen3 rclcpp geometry_msgs std_msgs sensor_msgs sas_common sas_core sas_conversions)
 
-#add_executable(sas_robot_driver_ros_composer_node
-#   src/sas_robot_driver_ros_composer_node.cpp
-#   src/sas_robot_driver_ros_composer.cpp)
+add_executable(sas_robot_driver_ros_composer_node
+   src/sas_robot_driver_ros_composer_node.cpp
+   src/sas_robot_driver_ros_composer.cpp)
 
 target_link_libraries(${PROJECT_NAME}
     -ldqrobotics
     Eigen3::Eigen
     )
 
-#target_link_libraries(sas_robot_driver_ros_composer_node
-#    dqrobotics
-#    dqrobotics-interface-vrep
-#    dqrobotics-interface-json11
-#    ${PROJECT_NAME}
-#    Eigen3::Eigen
-#    )
+target_link_libraries(sas_robot_driver_ros_composer_node
+    dqrobotics
+    dqrobotics-interface-vrep
+    dqrobotics-interface-json11
+    ${PROJECT_NAME}
+    Eigen3::Eigen
+    )
 
 pybind11_add_module(_sas_robot_driver SHARED src/sas_robot_driver_py.cpp src/sas_robot_driver.cpp src/sas_robot_driver_interface.cpp src/sas_robot_driver_provider.cpp)
 

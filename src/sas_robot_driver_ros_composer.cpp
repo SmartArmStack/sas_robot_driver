@@ -22,25 +22,28 @@
 #
 # ################################################################*/
 #include "sas_robot_driver_ros_composer.h"
-#include <ros/callback_queue_interface.h>
+//#include <ros/callback_queue_interface.h>
 #include <dqrobotics/interfaces/json11/DQ_JsonReader.h>
-#include <sas_common/sas_common.h>
+//#include <sas_common/sas_common.h>
+#include <sas_core/sas_core.hpp>
 
 namespace sas
 {
 RobotDriverROSComposer::RobotDriverROSComposer(const RobotDriverROSComposerConfiguration &configuration,
-                                               ros::NodeHandle &node_handle,
+                                               std::shared_ptr<Node> &node,
                                                std::atomic_bool *break_loops):
+    RobotDriver(break_loops),
+    node_(node),
     configuration_(configuration),
-    vi_(break_loops),
-    RobotDriver(break_loops)
+    vi_(break_loops)
 {
     if(configuration.use_real_robot)
     {
         for(const std::string& topic_prefix: configuration.robot_driver_interface_topic_prefixes)
         {
-            ROS_INFO_STREAM(ros::this_node::getName()+"::Adding subrobot driver with prefix "+topic_prefix);
-            robot_driver_interface_vector_.push_back(std::unique_ptr<RobotDriverInterface>(new RobotDriverInterface(node_handle,topic_prefix)));
+            //ROS_INFO_STREAM(ros::this_node::getName()+"::Adding subrobot driver with prefix "+topic_prefix);
+            RCLCPP_INFO_STREAM(node_->get_logger(),"::Adding subrobot driver with prefix "+topic_prefix);
+            robot_driver_interface_vector_.push_back(std::unique_ptr<RobotDriverInterface>(new RobotDriverInterface(node,topic_prefix)));
         }
     }
     DQ_SerialManipulatorDH smdh = DQ_JsonReader::get_from_json<DQ_SerialManipulatorDH>(configuration_.robot_parameter_file_path);
@@ -86,7 +89,7 @@ void RobotDriverROSComposer::set_target_joint_positions(const VectorXd &set_targ
     }
 }
 
-void RobotDriverROSComposer::set_joint_limits(const std::tuple<VectorXd, VectorXd> &joint_limits)
+void RobotDriverROSComposer::set_joint_limits(const std::tuple<VectorXd, VectorXd>&)
 {
     throw std::runtime_error("RobotDriverROSComposer::set_joint_limits::Not accepted.");
 }
@@ -98,9 +101,11 @@ void RobotDriverROSComposer::connect()
                     100,
                     10))
     {
-        throw std::runtime_error(ros::this_node::getName()+"::Unable to connect to CoppeliaSim.");
+        //throw std::runtime_error(ros::this_node::getName()+"::Unable to connect to CoppeliaSim.");
+        throw std::runtime_error("::Unable to connect to CoppeliaSim.");
     }
-    ROS_INFO_STREAM(ros::this_node::getName()+"::Connected to CoppeliaSim");
+    //ROS_INFO_STREAM(ros::this_node::getName()+"::Connected to CoppeliaSim");
+    RCLCPP_INFO_STREAM(node_->get_logger(),"::Connected to CoppeliaSim");
 }
 
 void RobotDriverROSComposer::disconnect()
@@ -115,7 +120,8 @@ void RobotDriverROSComposer::initialize()
         bool initialized = false;
         while(not initialized and not (*break_loops_))
         {
-            ros::spinOnce();
+            //ros::spinOnce();
+            rclcpp::spin_some(node_);
             initialized = true;
             for(const auto& interface : robot_driver_interface_vector_)
             {

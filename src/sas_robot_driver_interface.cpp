@@ -24,6 +24,7 @@
 #include <sas_robot_driver/sas_robot_driver_interface.h>
 #include <sas_conversions/sas_conversions.hpp>
 //#include <sas_common/sas_common.h>
+using std::placeholders::_1;
 
 namespace sas
 {
@@ -58,11 +59,41 @@ void RobotDriverInterface::_callback_home_states(const std_msgs::msg::Int32Multi
 //}
 //#endif
 
-RobotDriverInterface::RobotDriverInterface(Node &node, const std::string topic_prefix):
+RobotDriverInterface::RobotDriverInterface(std::shared_ptr<Node> &node, const std::string topic_prefix):
     sas::Object("sas::RobotDriverInterface"),
-    topic_prefix_(topic_prefix == "GET_FROM_NODE"? node.get_name() : topic_prefix)
+    node_(node),
+    topic_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix)
 {
+    //    ROS_INFO_STREAM(ros::this_node::getName() + "::Initializing RobotDriverInterface with prefix " + topic_prefix);
+    RCLCPP_INFO_STREAM(node_->get_logger(),"::Initializing RobotDriverInterface with prefix " + topic_prefix);
 
+    //    publisher_target_joint_positions_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(topic_prefix_ + "/set/target_joint_positions", 1);
+    publisher_target_joint_positions_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_positions",1);
+    //    publisher_target_joint_velocities_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(topic_prefix_ + "/set/target_joint_velocities", 1);
+    publisher_target_joint_velocities_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_velocities",1);
+    //    publisher_target_joint_forces_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(topic_prefix_ + "/set/target_joint_forces", 1);
+    publisher_target_joint_forces_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_forces",1);
+    //    publisher_homing_signal_ = publisher_nodehandle.advertise<std_msgs::Int32MultiArray>(topic_prefix_ + "/set/homing_signal", 1);
+    publisher_homing_signal_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/set/homing_signal",1);
+    //    publisher_clear_positions_signal_ = publisher_nodehandle.advertise<std_msgs::Int32MultiArray>(topic_prefix_ + "/set/clear_positions_signal", 1);
+    publisher_clear_positions_signal_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/set/clear_positions_signal",1);
+
+    //    subscriber_joint_states_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/joint_states", 1, &RobotDriverInterface::_callback_joint_states, this);
+    subscriber_joint_states_ = node->create_subscription<sensor_msgs::msg::JointState>(
+                topic_prefix + "/get/joint_states", 1, std::bind(&RobotDriverInterface::_callback_joint_states, this, _1)
+                );
+    //    subscriber_joint_limits_min_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/joint_positions_min", 1, &RobotDriverInterface::_callback_joint_limits_min, this);
+    subscriber_joint_limits_min_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
+                topic_prefix + "/get/joint_positions_min", 1, std::bind(&RobotDriverInterface::_callback_joint_limits_min, this, _1)
+                );
+    //    subscriber_joint_limits_max_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/joint_positions_max", 1, &RobotDriverInterface::_callback_joint_limits_max, this);
+    subscriber_joint_limits_max_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
+                topic_prefix + "/get/joint_positions_max", 1, std::bind(&RobotDriverInterface::_callback_joint_limits_max, this, _1)
+                );
+    //    subscriber_home_state_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/home_states", 1, &RobotDriverInterface::_callback_home_states, this);
+    subscriber_home_state_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
+                topic_prefix + "/get/home_states", 1, std::bind(&RobotDriverInterface::_callback_home_states, this, _1)
+                );
 }
 
 //RobotDriverInterface::RobotDriverInterface(ros::NodeHandle &publisher_nodehandle, ros::NodeHandle &subscriber_nodehandle, const std::string topic_prefix):
@@ -178,7 +209,7 @@ bool RobotDriverInterface::is_enabled(const RobotDriver::Functionality &control_
         throw std::runtime_error(topic_prefix_+"::is_enabled() RobotDriver::Functionality::ClearPositions has no meaning in RobotDriverInterface::is_enabled().");
     case RobotDriver::Functionality::None:
         throw std::runtime_error(topic_prefix_+"::is_enabled() RobotDriver::Functionality::None has no meaning in RobotDriverInterface::is_enabled().");
-    }    
+    }
     throw std::runtime_error(topic_prefix_+"::is_enabled() Unknown RobotDriver::Functionality.");
 }
 

@@ -52,6 +52,8 @@ struct RobotDriverROSComposerConfiguration
 class RobotDriverROSComposer: public RobotDriver
 {
 protected:
+    std::shared_ptr<Node> node_;
+
     RobotDriverROSComposerConfiguration configuration_;
     DQ_VrepInterface vi_;
     std::vector<std::unique_ptr<sas::RobotDriverInterface>> robot_driver_interface_vector_;
@@ -62,11 +64,12 @@ protected:
     RobotDriverROSComposer(const RobotDriverROSComposer&)=delete;
 public:
     RobotDriverROSComposer(const RobotDriverROSComposerConfiguration& configuration,
-                           ros::NodeHandle& node_handle,
+                           std::shared_ptr<Node>& node,
                            std::atomic_bool *break_loops);
+
     VectorXd get_joint_positions() override;
     void set_target_joint_positions(const VectorXd& set_target_joint_positions_rad) override;
-    void set_joint_limits(const std::tuple<VectorXd, VectorXd>& joint_limits) override;
+    void set_joint_limits(const std::tuple<VectorXd, VectorXd>&) override;
 
     void connect() override;
     void disconnect() override;

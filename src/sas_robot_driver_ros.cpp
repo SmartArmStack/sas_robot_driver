@@ -28,15 +28,16 @@
 namespace sas
 {
 
-RobotDriverROS::RobotDriverROS(ros::NodeHandle &nodehandle,
-                               RobotDriver* robot_driver,
+RobotDriverROS::RobotDriverROS(std::shared_ptr<Node> &node,
+                               const std::shared_ptr<RobotDriver> &robot_driver,
                                const RobotDriverROSConfiguration &configuration,
                                std::atomic_bool *kill_this_node):
+    node_(node),
     configuration_(configuration),
     kill_this_node_(kill_this_node),
     robot_driver_(robot_driver),
-    clock_(configuration.thread_sampling_time_nsec),
-    robot_driver_provider_(nodehandle,configuration_.robot_driver_provider_prefix)
+    clock_(configuration.thread_sampling_time_sec),
+    robot_driver_provider_(node,configuration_.robot_driver_provider_prefix)
 {
 
 }
@@ -45,18 +46,22 @@ int RobotDriverROS::control_loop()
 {
     try{
         clock_.init();
-        ROS_INFO_STREAM(ros::this_node::getName() << "::Waiting to connect with robot...");
+        //ROS_INFO_STREAM(ros::this_node::getName() << "::Waiting to connect with robot...");
+        RCLCPP_INFO_STREAM(node_->get_logger(),"::Waiting to connect with robot...");
         robot_driver_->connect();
-        ROS_INFO_STREAM(ros::this_node::getName() << "::Connected to robot.");
-        ROS_INFO_STREAM(ros::this_node::getName() << "::Initializing robot...");
+        //ROS_INFO_STREAM(ros::this_node::getName() << "::Connected to robot.");
+        RCLCPP_INFO_STREAM(node_->get_logger(),"::Connected to robot.");
+        //ROS_INFO_STREAM(ros::this_node::getName() << "::Initializing robot...");
+        RCLCPP_INFO_STREAM(node_->get_logger(),"::Connected to robot.");
         robot_driver_->initialize();
-        ROS_INFO_STREAM(ros::this_node::getName() << "::Robot initialized.");
+        //ROS_INFO_STREAM(ros::this_node::getName() << "::Robot initialized.");
+        RCLCPP_INFO_STREAM(node_->get_logger(),"::Robot initialized.");
 
         while(not _should_shutdown())
         {
             clock_.update_and_sleep();
 
-            ros::spinOnce();
+            rclcpp::spin_some(node_);
             if(robot_driver_provider_.is_enabled())
             {
                 robot_driver_->set_target_joint_positions(robot_driver_provider_.get_target_joint_positions());
@@ -64,16 +69,18 @@ int RobotDriverROS::control_loop()
 
             robot_driver_provider_.send_joint_positions(robot_driver_->get_joint_positions());
             robot_driver_provider_.send_joint_limits(robot_driver_->get_joint_limits());
-            ros::spinOnce();
+            rclcpp::spin_some(node_);
         }
     }
     catch(const std::exception& e)
     {
-        ROS_WARN_STREAM(ros::this_node::getName() + "::Error or exception caught::" << e.what());
+        //ROS_WARN_STREAM(ros::this_node::getName() + "::Error or exception caught::" << e.what());
+        RCLCPP_WARN_STREAM(node_->get_logger(),"::Error or exception caught::" << e.what());
     }
     catch(...)
     {
-        ROS_WARN_STREAM(ros::this_node::getName() + "::Unexpected error or exception caught");
+        //ROS_WARN_STREAM(ros::this_node::getName() + "::Unexpected error or exception caught");
+        RCLCPP_WARN_STREAM(node_->get_logger(),"::Unexpected error or exception caught");
     }
 
     return 0;

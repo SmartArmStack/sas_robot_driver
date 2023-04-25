@@ -25,14 +25,15 @@
 
 #include <atomic>
 #include <vector>
+#include <memory>
 
-//ROS related
-#include <ros/ros.h>
-#include <ros/callback_queue.h>
+#include <rclcpp/rclcpp.hpp>
 
+#include <sas_core/sas_clock.hpp>
 #include <sas_robot_driver/sas_robot_driver.h>
 #include <sas_robot_driver/sas_robot_driver_provider.h>
-#include <sas_clock/sas_clock.h>
+
+using namespace rclcpp;
 
 namespace sas
 {
@@ -40,7 +41,7 @@ namespace sas
 struct RobotDriverROSConfiguration
 {
     std::string robot_driver_provider_prefix;
-    int thread_sampling_time_nsec;
+    double thread_sampling_time_sec;
     std::vector<double> q_min;
     std::vector<double> q_max;
 };
@@ -48,9 +49,11 @@ struct RobotDriverROSConfiguration
 class RobotDriverROS
 {
 private:
+    std::shared_ptr<Node> node_;
+
     RobotDriverROSConfiguration configuration_;
     std::atomic_bool* kill_this_node_;
-    RobotDriver* robot_driver_;
+    std::shared_ptr<RobotDriver> robot_driver_;
     Clock clock_;
     RobotDriverProvider robot_driver_provider_;
 
@@ -60,9 +63,10 @@ public:
     RobotDriverROS(const RobotDriverROS&)=delete;
     RobotDriverROS()=delete;
 
-    RobotDriverROS(ros::NodeHandle& nodehandle, RobotDriver *robot_driver,
-              const RobotDriverROSConfiguration& configuration,
-              std::atomic_bool* kill_this_node);
+    RobotDriverROS(std::shared_ptr<Node>& node,
+                   const std::shared_ptr<RobotDriver>& robot_driver,
+                   const RobotDriverROSConfiguration& configuration,
+                   std::atomic_bool* kill_this_node);
     ~RobotDriverROS();
 
     int control_loop();
