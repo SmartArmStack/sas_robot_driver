@@ -27,7 +27,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include <sas_robot_driver/sas_robot_driver.hpp>
+#include <sas_core/sas_robot_driver.hpp>
 #include <sas_robot_driver/sas_robot_driver_client.hpp>
 #include <sas_robot_driver/sas_robot_driver_server.hpp>
 

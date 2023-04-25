@@ -28,7 +28,7 @@
 
 #include <eigen3/Eigen/Dense>
 
-#include <sas_robot_driver/sas_robot_driver.hpp>
+#include <sas_core/sas_robot_driver.hpp>
 #include <sas_robot_driver/sas_robot_driver_client.hpp>
 
 #include <dqrobotics/interfaces/vrep/DQ_VrepInterface.h>
