@@ -55,7 +55,7 @@ private:
     std::atomic_bool* kill_this_node_;
     std::shared_ptr<RobotDriver> robot_driver_;
     Clock clock_;
-    RobotDriverProvider robot_driver_provider_;
+    RobotDriverServer robot_driver_provider_;
 
     bool _should_shutdown() const;
 

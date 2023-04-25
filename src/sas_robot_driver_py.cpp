@@ -32,8 +32,8 @@
 #include <sas_robot_driver/sas_robot_driver_provider.h>
 
 namespace py = pybind11;
-using RDI = sas::RobotDriverInterface;
-using RDP = sas::RobotDriverProvider;
+using RDI = sas::RobotDriverClient;
+using RDP = sas::RobotDriverServer;
 
 PYBIND11_MODULE(_sas_robot_driver, m) {
 

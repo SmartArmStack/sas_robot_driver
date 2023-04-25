@@ -40,7 +40,7 @@ using namespace rclcpp;
 namespace sas
 {
 
-class RobotDriverInterface: private sas::Object
+class RobotDriverClient: private sas::Object
 {
 private:
     std::shared_ptr<Node> node_;
@@ -70,13 +70,13 @@ private:
     void _callback_joint_limits_max(const std_msgs::msg::Float64MultiArray& msg);
     void _callback_home_states(const std_msgs::msg::Int32MultiArray& msg);
 public:
-    RobotDriverInterface() = delete;
-    RobotDriverInterface(const RobotDriverInterface&) = delete;
+    RobotDriverClient() = delete;
+    RobotDriverClient(const RobotDriverClient&) = delete;
 
 //#ifdef IS_SAS_PYTHON_BUILD
 //    RobotDriverInterface(const std::string& topic_prefix);
 //#endif
-    RobotDriverInterface(std::shared_ptr<Node> &node, const std::string topic_prefix="GET_FROM_NODE");
+    RobotDriverClient(std::shared_ptr<Node> &node, const std::string topic_prefix="GET_FROM_NODE");
 //    RobotDriverInterface(ros::NodeHandle& publisher_nodehandle, ros::NodeHandle& subscriber_nodehandle, const std::string topic_prefix);
 
     void send_target_joint_positions(const VectorXd& target_joint_positions);

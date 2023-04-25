@@ -29,24 +29,24 @@ using std::placeholders::_1;
 namespace sas
 {
 
-void RobotDriverInterface::_callback_joint_states(const sensor_msgs::msg::JointState &msg)
+void RobotDriverClient::_callback_joint_states(const sensor_msgs::msg::JointState &msg)
 {
     joint_positions_ = std_vector_double_to_vectorxd(msg.position);
     joint_velocities_ = std_vector_double_to_vectorxd(msg.velocity);
     joint_forces_ = std_vector_double_to_vectorxd(msg.effort);
 }
 
-void RobotDriverInterface::_callback_joint_limits_min(const std_msgs::msg::Float64MultiArray &msg)
+void RobotDriverClient::_callback_joint_limits_min(const std_msgs::msg::Float64MultiArray &msg)
 {
     joint_limits_min_ = std_vector_double_to_vectorxd(msg.data);
 }
 
-void RobotDriverInterface::_callback_joint_limits_max(const std_msgs::msg::Float64MultiArray &msg)
+void RobotDriverClient::_callback_joint_limits_max(const std_msgs::msg::Float64MultiArray &msg)
 {
     joint_limits_max_ = std_vector_double_to_vectorxd(msg.data);
 }
 
-void RobotDriverInterface::_callback_home_states(const std_msgs::msg::Int32MultiArray &msg)
+void RobotDriverClient::_callback_home_states(const std_msgs::msg::Int32MultiArray &msg)
 {
     home_states_ = std_vector_int_to_vectorxi(msg.data);
 }
@@ -59,7 +59,7 @@ void RobotDriverInterface::_callback_home_states(const std_msgs::msg::Int32Multi
 //}
 //#endif
 
-RobotDriverInterface::RobotDriverInterface(std::shared_ptr<Node> &node, const std::string topic_prefix):
+RobotDriverClient::RobotDriverClient(std::shared_ptr<Node> &node, const std::string topic_prefix):
     sas::Object("sas::RobotDriverInterface"),
     node_(node),
     topic_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix)
@@ -80,19 +80,19 @@ RobotDriverInterface::RobotDriverInterface(std::shared_ptr<Node> &node, const st
 
     //    subscriber_joint_states_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/joint_states", 1, &RobotDriverInterface::_callback_joint_states, this);
     subscriber_joint_states_ = node->create_subscription<sensor_msgs::msg::JointState>(
-                topic_prefix + "/get/joint_states", 1, std::bind(&RobotDriverInterface::_callback_joint_states, this, _1)
+                topic_prefix + "/get/joint_states", 1, std::bind(&RobotDriverClient::_callback_joint_states, this, _1)
                 );
     //    subscriber_joint_limits_min_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/joint_positions_min", 1, &RobotDriverInterface::_callback_joint_limits_min, this);
     subscriber_joint_limits_min_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
-                topic_prefix + "/get/joint_positions_min", 1, std::bind(&RobotDriverInterface::_callback_joint_limits_min, this, _1)
+                topic_prefix + "/get/joint_positions_min", 1, std::bind(&RobotDriverClient::_callback_joint_limits_min, this, _1)
                 );
     //    subscriber_joint_limits_max_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/joint_positions_max", 1, &RobotDriverInterface::_callback_joint_limits_max, this);
     subscriber_joint_limits_max_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
-                topic_prefix + "/get/joint_positions_max", 1, std::bind(&RobotDriverInterface::_callback_joint_limits_max, this, _1)
+                topic_prefix + "/get/joint_positions_max", 1, std::bind(&RobotDriverClient::_callback_joint_limits_max, this, _1)
                 );
     //    subscriber_home_state_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/home_states", 1, &RobotDriverInterface::_callback_home_states, this);
     subscriber_home_state_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
-                topic_prefix + "/get/home_states", 1, std::bind(&RobotDriverInterface::_callback_home_states, this, _1)
+                topic_prefix + "/get/home_states", 1, std::bind(&RobotDriverClient::_callback_home_states, this, _1)
                 );
 }
 
@@ -113,42 +113,42 @@ RobotDriverInterface::RobotDriverInterface(std::shared_ptr<Node> &node, const st
 //    subscriber_home_state_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/home_states", 1, &RobotDriverInterface::_callback_home_states, this);
 //}
 
-void RobotDriverInterface::send_target_joint_positions(const VectorXd &target_joint_positions)
+void RobotDriverClient::send_target_joint_positions(const VectorXd &target_joint_positions)
 {
     std_msgs::msg::Float64MultiArray ros_msg;
     ros_msg.data = vectorxd_to_std_vector_double(target_joint_positions);
     publisher_target_joint_positions_->publish(ros_msg);
 }
 
-void RobotDriverInterface::send_target_joint_velocities(const VectorXd &target_joint_velocities)
+void RobotDriverClient::send_target_joint_velocities(const VectorXd &target_joint_velocities)
 {
     std_msgs::msg::Float64MultiArray ros_msg;
     ros_msg.data = vectorxd_to_std_vector_double(target_joint_velocities);
     publisher_target_joint_velocities_->publish(ros_msg);
 }
 
-void RobotDriverInterface::send_target_joint_forces(const VectorXd &target_joint_efforts)
+void RobotDriverClient::send_target_joint_forces(const VectorXd &target_joint_efforts)
 {
     std_msgs::msg::Float64MultiArray ros_msg;
     ros_msg.data = vectorxd_to_std_vector_double(target_joint_efforts);
     publisher_target_joint_forces_->publish(ros_msg);
 }
 
-void RobotDriverInterface::send_homing_signal(const VectorXi &homing_signal)
+void RobotDriverClient::send_homing_signal(const VectorXi &homing_signal)
 {
     std_msgs::msg::Int32MultiArray ros_msg;
     ros_msg.data = vectorxi_to_std_vector_int(homing_signal);
     publisher_homing_signal_->publish(ros_msg);
 }
 
-void RobotDriverInterface::send_clear_positions_signal(const VectorXi &clear_positions_signal)
+void RobotDriverClient::send_clear_positions_signal(const VectorXi &clear_positions_signal)
 {
     std_msgs::msg::Int32MultiArray ros_msg;
     ros_msg.data = vectorxi_to_std_vector_int(clear_positions_signal);
     publisher_clear_positions_signal_->publish(ros_msg);
 }
 
-VectorXd RobotDriverInterface::get_joint_positions() const
+VectorXd RobotDriverClient::get_joint_positions() const
 {
     if(is_enabled())
         return joint_positions_;
@@ -156,7 +156,7 @@ VectorXd RobotDriverInterface::get_joint_positions() const
         throw std::runtime_error(topic_prefix_ + "::RobotDriverInterface::get_joint_positions()::trying to get joint positions but uninitialized.");
 }
 
-VectorXd RobotDriverInterface::get_joint_velocities() const
+VectorXd RobotDriverClient::get_joint_velocities() const
 {
     if(is_enabled(RobotDriver::Functionality::VelocityControl))
         return joint_velocities_;
@@ -164,7 +164,7 @@ VectorXd RobotDriverInterface::get_joint_velocities() const
         throw std::runtime_error(topic_prefix_ + "::RobotDriverInterface::get_joint_velocities()::trying to get joint velocities but uninitialized.");
 }
 
-VectorXd RobotDriverInterface::get_joint_forces() const
+VectorXd RobotDriverClient::get_joint_forces() const
 {
     if(is_enabled(RobotDriver::Functionality::ForceControl))
         return joint_forces_;
@@ -172,7 +172,7 @@ VectorXd RobotDriverInterface::get_joint_forces() const
         throw std::runtime_error(topic_prefix_ + "::RobotDriverInterface::get_joint_efforts()::trying to get joint efforts but uninitialized.");
 }
 
-std::tuple<VectorXd, VectorXd> RobotDriverInterface::get_joint_limits() const
+std::tuple<VectorXd, VectorXd> RobotDriverClient::get_joint_limits() const
 {
     if(is_enabled())
     {
@@ -182,7 +182,7 @@ std::tuple<VectorXd, VectorXd> RobotDriverInterface::get_joint_limits() const
         throw std::runtime_error(topic_prefix_ + "::RobotDriverInterface::get_joint_limits()::trying to get joint limits but uninitialized.");
 }
 
-VectorXi RobotDriverInterface::get_home_states() const
+VectorXi RobotDriverClient::get_home_states() const
 {
     if(is_enabled(RobotDriver::Functionality::Homing))
     {
@@ -193,7 +193,7 @@ VectorXi RobotDriverInterface::get_home_states() const
 }
 
 
-bool RobotDriverInterface::is_enabled(const RobotDriver::Functionality &control_mode) const
+bool RobotDriverClient::is_enabled(const RobotDriver::Functionality &control_mode) const
 {
     switch(control_mode)
     {
@@ -213,7 +213,7 @@ bool RobotDriverInterface::is_enabled(const RobotDriver::Functionality &control_
     throw std::runtime_error(topic_prefix_+"::is_enabled() Unknown RobotDriver::Functionality.");
 }
 
-std::string RobotDriverInterface::get_topic_prefix() const
+std::string RobotDriverClient::get_topic_prefix() const
 {
     return topic_prefix_;
 }

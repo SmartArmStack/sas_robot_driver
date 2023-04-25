@@ -56,7 +56,7 @@ protected:
 
     RobotDriverROSComposerConfiguration configuration_;
     DQ_VrepInterface vi_;
-    std::vector<std::unique_ptr<sas::RobotDriverInterface>> robot_driver_interface_vector_;
+    std::vector<std::unique_ptr<sas::RobotDriverClient>> robot_driver_interface_vector_;
     //std::atomic_bool* break_loops_;
     //std::tuple<VectorXd, VectorXd> joint_limits_;
     //RobotDriver(std::atomic_bool* break_loops);

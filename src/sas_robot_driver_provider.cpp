@@ -29,25 +29,25 @@ using std::placeholders::_1;
 namespace sas
 {
 
-void RobotDriverProvider::_callback_target_joint_positions(const std_msgs::msg::Float64MultiArray& msg)
+void RobotDriverServer::_callback_target_joint_positions(const std_msgs::msg::Float64MultiArray& msg)
 {
     target_joint_positions_ = std_vector_double_to_vectorxd(msg.data);
     currently_active_functionality_ = RobotDriver::Functionality::PositionControl;
 }
 
-void RobotDriverProvider::_callback_target_joint_velocities(const std_msgs::msg::Float64MultiArray &msg)
+void RobotDriverServer::_callback_target_joint_velocities(const std_msgs::msg::Float64MultiArray &msg)
 {
     target_joint_velocities_ = std_vector_double_to_vectorxd(msg.data);
     currently_active_functionality_ = RobotDriver::Functionality::VelocityControl;
 }
 
-void RobotDriverProvider::_callback_target_joint_forces(const std_msgs::msg::Float64MultiArray& msg)
+void RobotDriverServer::_callback_target_joint_forces(const std_msgs::msg::Float64MultiArray& msg)
 {
     target_joint_forces_ = std_vector_double_to_vectorxd(msg.data);
     currently_active_functionality_ = RobotDriver::Functionality::ForceControl;
 }
 
-void RobotDriverProvider::_callback_homing_signal(const std_msgs::msg::Int32MultiArray &msg)
+void RobotDriverServer::_callback_homing_signal(const std_msgs::msg::Int32MultiArray &msg)
 {
     homing_signal_ = std_vector_int_to_vectorxi(msg.data);
     currently_active_functionality_ = RobotDriver::Functionality::Homing;
@@ -59,7 +59,7 @@ void RobotDriverProvider::_callback_homing_signal(const std_msgs::msg::Int32Mult
  * to send 0s or 1s because in the same message only some of the joints should be cleared.
  * @param msg a suitable std::msgs::Int32MultiArrayConstPtr that will be managed by ROS.
  */
-void RobotDriverProvider::_callback_clear_positions_signal(const std_msgs::msg::Int32MultiArray& msg)
+void RobotDriverServer::_callback_clear_positions_signal(const std_msgs::msg::Int32MultiArray& msg)
 {
     VectorXi clear_positions_signal_temp(msg.data.size());
 
@@ -77,7 +77,7 @@ void RobotDriverProvider::_callback_clear_positions_signal(const std_msgs::msg::
     //currently_active_functionality_ = RobotDriver::Functionality::ClearPositions;
 }
 
-RobotDriverProvider::RobotDriverProvider(std::shared_ptr<Node> &node, const std::string &topic_prefix):
+RobotDriverServer::RobotDriverServer(std::shared_ptr<Node> &node, const std::string &topic_prefix):
     sas::Object("sas::RobotDriverProvider"),
     node_(node),
     node_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix),
@@ -96,23 +96,23 @@ RobotDriverProvider::RobotDriverProvider(std::shared_ptr<Node> &node, const std:
 
     //subscriber_target_joint_positions_ = subscriber_nodehandle.subscribe(node_prefix + "/set/target_joint_positions", 1, &RobotDriverProvider::_callback_target_joint_positions, this);
     subscriber_target_joint_positions_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
-                topic_prefix + "/set/target_joint_positions", 1, std::bind(&RobotDriverProvider::_callback_target_joint_positions, this, _1)
+                topic_prefix + "/set/target_joint_positions", 1, std::bind(&RobotDriverServer::_callback_target_joint_positions, this, _1)
                 );
     //subscriber_target_joint_velocities_ = subscriber_nodehandle.subscribe(node_prefix + "/set/target_joint_velocities", 1, &RobotDriverProvider::_callback_target_joint_velocities, this);
     subscriber_target_joint_velocities_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
-                topic_prefix + "/set/target_joint_velocities", 1, std::bind(&RobotDriverProvider::_callback_target_joint_velocities, this, _1)
+                topic_prefix + "/set/target_joint_velocities", 1, std::bind(&RobotDriverServer::_callback_target_joint_velocities, this, _1)
                 );
     //subscriber_target_joint_forces_ = subscriber_nodehandle.subscribe(node_prefix + "/set/target_joint_forces", 1, &RobotDriverProvider::_callback_target_joint_forces, this);
     subscriber_target_joint_forces_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
-                topic_prefix + "/set/target_joint_forces", 1, std::bind(&RobotDriverProvider::_callback_target_joint_forces, this, _1)
+                topic_prefix + "/set/target_joint_forces", 1, std::bind(&RobotDriverServer::_callback_target_joint_forces, this, _1)
                 );
     //subscriber_homing_signal_ = subscriber_nodehandle.subscribe(node_prefix + "/set/homing_signal", 1, &RobotDriverProvider::_callback_homing_signal, this);
     subscriber_homing_signal_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
-                topic_prefix + "/set/homing_signal", 1, std::bind(&RobotDriverProvider::_callback_homing_signal, this, _1)
+                topic_prefix + "/set/homing_signal", 1, std::bind(&RobotDriverServer::_callback_homing_signal, this, _1)
                 );
     //Clear positions was missing!
     subscriber_clear_positions_signal_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
-                topic_prefix + "/set/clear_positions", 1, std::bind(&RobotDriverProvider::_callback_clear_positions_signal, this, _1)
+                topic_prefix + "/set/clear_positions", 1, std::bind(&RobotDriverServer::_callback_clear_positions_signal, this, _1)
                 );
 }
 
@@ -146,7 +146,7 @@ RobotDriverProvider::RobotDriverProvider(std::shared_ptr<Node> &node, const std:
 //    subscriber_homing_signal_ = subscriber_nodehandle.subscribe(node_prefix + "/set/homing_signal", 1, &RobotDriverProvider::_callback_homing_signal, this);
 //}
 
-VectorXd RobotDriverProvider::get_target_joint_positions() const
+VectorXd RobotDriverServer::get_target_joint_positions() const
 {
     if(is_enabled(RobotDriver::Functionality::PositionControl))
         return target_joint_positions_;
@@ -154,7 +154,7 @@ VectorXd RobotDriverProvider::get_target_joint_positions() const
         throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_target_joint_positions() trying to get an uninitialized vector");
 }
 
-VectorXd RobotDriverProvider::get_target_joint_velocities() const
+VectorXd RobotDriverServer::get_target_joint_velocities() const
 {
     if(is_enabled(RobotDriver::Functionality::VelocityControl))
         return target_joint_velocities_;
@@ -162,7 +162,7 @@ VectorXd RobotDriverProvider::get_target_joint_velocities() const
         throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_target_joint_velocities() trying to get an uninitialized vector");
 }
 
-VectorXd RobotDriverProvider::get_target_joint_forces() const
+VectorXd RobotDriverServer::get_target_joint_forces() const
 {
     if(is_enabled(RobotDriver::Functionality::ForceControl))
         return target_joint_forces_;
@@ -174,7 +174,7 @@ VectorXd RobotDriverProvider::get_target_joint_forces() const
  * @brief get_homing_signal
  * @return a VectorXi with 1s for the joints that should be homed and 0s for the joints that should not be homed.
  */
-VectorXi RobotDriverProvider::get_homing_signal() const
+VectorXi RobotDriverServer::get_homing_signal() const
 {
     if(is_enabled(RobotDriver::Functionality::Homing))
         return homing_signal_;
@@ -186,7 +186,7 @@ VectorXi RobotDriverProvider::get_homing_signal() const
  * @brief RobotDriverProvider::get_clear_positions_signal. Getting the clear positions signal also clears it.
  * @return a VectorXi with 0s for configurations that should not be cleared and 1 for positions that should be cleared.
  */
-VectorXi RobotDriverProvider::get_clear_positions_signal()
+VectorXi RobotDriverServer::get_clear_positions_signal()
 {
     if(is_enabled(RobotDriver::Functionality::ClearPositions))
     {
@@ -198,12 +198,12 @@ VectorXi RobotDriverProvider::get_clear_positions_signal()
         throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_clear_positions_signal() trying to get an uninitialized vector");
 }
 
-RobotDriver::Functionality RobotDriverProvider::get_currently_active_functionality() const
+RobotDriver::Functionality RobotDriverServer::get_currently_active_functionality() const
 {
     return currently_active_functionality_;
 }
 
-void RobotDriverProvider::send_joint_positions(const VectorXd &joint_positions)
+void RobotDriverServer::send_joint_positions(const VectorXd &joint_positions)
 {
     send_joint_states(joint_positions, VectorXd(), VectorXd());
 }
@@ -214,7 +214,7 @@ void RobotDriverProvider::send_joint_positions(const VectorXd &joint_positions)
  * @param joint_velocities. If not needed, use joint_velocities=VectorXd().
  * @param joint_forces. If not needed, use joint_forces=VectorXd().
  */
-void RobotDriverProvider::send_joint_states(const VectorXd &joint_positions, const VectorXd &joint_velocities, const VectorXd &joint_forces)
+void RobotDriverServer::send_joint_states(const VectorXd &joint_positions, const VectorXd &joint_velocities, const VectorXd &joint_forces)
 {
     sensor_msgs::msg::JointState ros_msg;
     if(joint_positions.size()>0)
@@ -226,7 +226,7 @@ void RobotDriverProvider::send_joint_states(const VectorXd &joint_positions, con
     publisher_joint_states_->publish(ros_msg);
 }
 
-void RobotDriverProvider::send_joint_limits(const std::tuple<VectorXd, VectorXd> &joint_limits)
+void RobotDriverServer::send_joint_limits(const std::tuple<VectorXd, VectorXd> &joint_limits)
 {
     std_msgs::msg::Float64MultiArray ros_msg_min;
     ros_msg_min.data = vectorxd_to_std_vector_double(std::get<0>(joint_limits));
@@ -237,14 +237,14 @@ void RobotDriverProvider::send_joint_limits(const std::tuple<VectorXd, VectorXd>
     publisher_joint_limits_max_->publish(ros_msg_max);
 }
 
-void RobotDriverProvider::send_home_state(const VectorXi &home_state)
+void RobotDriverServer::send_home_state(const VectorXi &home_state)
 {
     std_msgs::msg::Int32MultiArray ros_msg_home_state;
     ros_msg_home_state.data = vectorxi_to_std_vector_int(home_state);
     publisher_home_state_->publish(ros_msg_home_state);
 }
 
-bool RobotDriverProvider::is_enabled(const RobotDriver::Functionality& supported_functionality) const
+bool RobotDriverServer::is_enabled(const RobotDriver::Functionality& supported_functionality) const
 {
     switch(supported_functionality)
     {

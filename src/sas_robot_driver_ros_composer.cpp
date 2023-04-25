@@ -43,7 +43,7 @@ RobotDriverROSComposer::RobotDriverROSComposer(const RobotDriverROSComposerConfi
         {
             //ROS_INFO_STREAM(ros::this_node::getName()+"::Adding subrobot driver with prefix "+topic_prefix);
             RCLCPP_INFO_STREAM(node_->get_logger(),"::Adding subrobot driver with prefix "+topic_prefix);
-            robot_driver_interface_vector_.push_back(std::unique_ptr<RobotDriverInterface>(new RobotDriverInterface(node,topic_prefix)));
+            robot_driver_interface_vector_.push_back(std::unique_ptr<RobotDriverClient>(new RobotDriverClient(node,topic_prefix)));
         }
     }
     DQ_SerialManipulatorDH smdh = DQ_JsonReader::get_from_json<DQ_SerialManipulatorDH>(configuration_.robot_parameter_file_path);

@@ -39,7 +39,7 @@ using namespace rclcpp;
 namespace sas
 {
 
-class RobotDriverProvider: private sas::Object
+class RobotDriverServer: private sas::Object
 {
 private:
     std::shared_ptr<Node> node_;
@@ -69,13 +69,13 @@ private:
     void _callback_homing_signal(const std_msgs::msg::Int32MultiArray& msg);
     void _callback_clear_positions_signal(const std_msgs::msg::Int32MultiArray &msg);
 public:
-    RobotDriverProvider() = delete;
-    RobotDriverProvider(const RobotDriverProvider&) = delete;
+    RobotDriverServer() = delete;
+    RobotDriverServer(const RobotDriverServer&) = delete;
 
 //#ifdef IS_SAS_PYTHON_BUILD
 //    RobotDriverProvider(const std::string& node_prefix);
 //#endif
-    RobotDriverProvider(std::shared_ptr<Node>& node, const std::string& node_prefix="GET_FROM_NODE");
+    RobotDriverServer(std::shared_ptr<Node>& node, const std::string& node_prefix="GET_FROM_NODE");
 //    RobotDriverProvider(Node& node_publisher, Node& node_subscriber, const std::string& node_prefix="GET_FROM_NODE");
 
     VectorXd get_target_joint_positions() const;
