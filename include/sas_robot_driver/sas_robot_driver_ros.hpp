@@ -30,8 +30,8 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <sas_core/sas_clock.hpp>
-#include <sas_robot_driver/sas_robot_driver.h>
-#include <sas_robot_driver/sas_robot_driver_provider.h>
+#include <sas_robot_driver/sas_robot_driver.hpp>
+#include <sas_robot_driver/sas_robot_driver_server.hpp>
 
 using namespace rclcpp;
 

@@ -19,8 +19,8 @@ find_package(Eigen3 REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
     src/sas_robot_driver.cpp
-    src/sas_robot_driver_provider.cpp
-    src/sas_robot_driver_interface.cpp
+    src/sas_robot_driver_server.cpp
+    src/sas_robot_driver_client.cpp
     src/sas_robot_driver_ros.cpp
     )
 
@@ -51,7 +51,7 @@ target_link_libraries(sas_robot_driver_ros_composer_node
     Eigen3::Eigen
     )
 
-pybind11_add_module(_sas_robot_driver SHARED src/sas_robot_driver_py.cpp src/sas_robot_driver.cpp src/sas_robot_driver_interface.cpp src/sas_robot_driver_provider.cpp)
+pybind11_add_module(_sas_robot_driver SHARED src/sas_robot_driver_py.cpp src/sas_robot_driver.cpp src/sas_robot_driver_client.cpp src/sas_robot_driver_server.cpp)
 
 target_include_directories(_sas_robot_driver
   PUBLIC

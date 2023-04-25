@@ -27,9 +27,9 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include <sas_robot_driver/sas_robot_driver.h>
-#include <sas_robot_driver/sas_robot_driver_interface.h>
-#include <sas_robot_driver/sas_robot_driver_provider.h>
+#include <sas_robot_driver/sas_robot_driver.hpp>
+#include <sas_robot_driver/sas_robot_driver_client.hpp>
+#include <sas_robot_driver/sas_robot_driver_server.hpp>
 
 namespace py = pybind11;
 using RDI = sas::RobotDriverClient;
@@ -46,7 +46,7 @@ PYBIND11_MODULE(_sas_robot_driver, m) {
             .value("ClearPositions",sas::RobotDriver::Functionality::ClearPositions)
             .export_values();
 
-    py::class_<RDI>(m, "RobotDriverInterface")
+    py::class_<RDI>(m, "RobotDriverClient")
             .def(py::init<std::shared_ptr<rclcpp::Node>&, const std::string&>())
             .def("send_target_joint_positions",&RDI::send_target_joint_positions)
             .def("send_target_joint_velocities",&RDI::send_target_joint_velocities)
@@ -61,7 +61,7 @@ PYBIND11_MODULE(_sas_robot_driver, m) {
             .def("is_enabled",&RDI::is_enabled,"Returns true if the RobotDriverInterface is enabled.",py::arg("supported_functionality")=sas::RobotDriver::Functionality::PositionControl)
             .def("get_topic_prefix",&RDI::get_topic_prefix);
 
-    py::class_<RDP>(m, "RobotDriverProvider")
+    py::class_<RDP>(m, "RobotDriverServer")
             .def(py::init<std::shared_ptr<rclcpp::Node>&, const std::string&>())
             .def("get_target_joint_positions",&RDP::get_target_joint_positions)
             .def("get_target_joint_velocities",&RDP::get_target_joint_velocities)

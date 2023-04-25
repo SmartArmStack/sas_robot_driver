@@ -21,7 +21,7 @@
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
 # ################################################################*/
-#include <sas_robot_driver/sas_robot_driver_ros.h>
+#include <sas_robot_driver/sas_robot_driver_ros.hpp>
 #include <dqrobotics/utils/DQ_Math.h>
 #include <dqrobotics/interfaces/json11/DQ_JsonReader.h>
 

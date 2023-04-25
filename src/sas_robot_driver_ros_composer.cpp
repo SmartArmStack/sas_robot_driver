@@ -21,7 +21,7 @@
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
 # ################################################################*/
-#include "sas_robot_driver_ros_composer.h"
+#include "sas_robot_driver_ros_composer.hpp"
 //#include <ros/callback_queue_interface.h>
 #include <dqrobotics/interfaces/json11/DQ_JsonReader.h>
 //#include <sas_common/sas_common.h>

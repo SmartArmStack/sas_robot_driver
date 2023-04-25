@@ -32,7 +32,7 @@
 #include <std_msgs/msg/int32_multi_array.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 
-#include <sas_robot_driver/sas_robot_driver.h>
+#include <sas_robot_driver/sas_robot_driver.hpp>
 #include <sas_core/sas_object.hpp>
 
 using namespace rclcpp;

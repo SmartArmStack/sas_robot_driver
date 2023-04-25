@@ -21,7 +21,7 @@
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
 # ################################################################*/
-#include <sas_robot_driver/sas_robot_driver.h>
+#include <sas_robot_driver/sas_robot_driver.hpp>
 
 namespace sas
 {

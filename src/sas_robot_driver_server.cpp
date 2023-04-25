@@ -21,7 +21,7 @@
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
 # ################################################################*/
-#include <sas_robot_driver/sas_robot_driver_provider.h>
+#include <sas_robot_driver/sas_robot_driver_server.hpp>
 #include <sas_conversions/sas_conversions.hpp>
 //#include <sas_common/sas_common.hpp>
 using std::placeholders::_1;
