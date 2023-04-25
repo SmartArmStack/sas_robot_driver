@@ -25,6 +25,8 @@
 #include <pybind11/stl.h>
 #include <pybind11/eigen.h>
 
+#include <rclcpp/rclcpp.hpp>
+
 #include <sas_robot_driver/sas_robot_driver.h>
 #include <sas_robot_driver/sas_robot_driver_interface.h>
 #include <sas_robot_driver/sas_robot_driver_provider.h>
@@ -45,7 +47,7 @@ PYBIND11_MODULE(_sas_robot_driver, m) {
             .export_values();
 
     py::class_<RDI>(m, "RobotDriverInterface")
-            .def(py::init<const std::string&>())
+            .def(py::init<rclcpp::Node&, const std::string&>())
             .def("send_target_joint_positions",&RDI::send_target_joint_positions)
             .def("send_target_joint_velocities",&RDI::send_target_joint_velocities)
             .def("send_target_joint_forces",&RDI::send_target_joint_forces)
@@ -60,7 +62,7 @@ PYBIND11_MODULE(_sas_robot_driver, m) {
             .def("get_topic_prefix",&RDI::get_topic_prefix);
 
     py::class_<RDP>(m, "RobotDriverProvider")
-            .def(py::init<const std::string&>())
+            .def(py::init<rclcpp::Node&, const std::string&>())
             .def("get_target_joint_positions",&RDP::get_target_joint_positions)
             .def("get_target_joint_velocities",&RDP::get_target_joint_velocities)
             .def("get_target_joint_forces",&RDP::get_target_joint_forces)

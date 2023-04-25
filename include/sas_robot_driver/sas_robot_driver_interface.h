@@ -26,54 +26,56 @@
 #include <atomic>
 #include <tuple>
 
-#include <ros/ros.h>
-
-#include <sensor_msgs/JointState.h>
-#include <std_msgs/Float64MultiArray.h>
-#include <std_msgs/Int32MultiArray.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <rclcpp/rclcpp.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <std_msgs/msg/float64_multi_array.hpp>
+#include <std_msgs/msg/int32_multi_array.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
 
 #include <sas_robot_driver/sas_robot_driver.h>
+#include <sas_core/sas_object.hpp>
+
+using namespace rclcpp;
 
 namespace sas
 {
 
-class RobotDriverInterface
+class RobotDriverInterface: private sas::Object
 {
 private:
     std::atomic_bool enabled_;
     std::string topic_prefix_;
 
-    ros::Subscriber subscriber_joint_states_;
+    Subscription<sensor_msgs::msg::JointState>::SharedPtr subscriber_joint_states_;
     VectorXd joint_positions_;
     VectorXd joint_velocities_;
     VectorXd joint_forces_;
-    ros::Subscriber subscriber_joint_limits_min_;
+    Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr subscriber_joint_limits_min_;
     VectorXd joint_limits_min_;
-    ros::Subscriber subscriber_joint_limits_max_;
+    Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr subscriber_joint_limits_max_;
     VectorXd joint_limits_max_;
-    ros::Subscriber subscriber_home_state_;
+    Subscription<std_msgs::msg::Int32MultiArray>::SharedPtr subscriber_home_state_;
     VectorXi home_states_;
 
-    ros::Publisher publisher_target_joint_positions_;
-    ros::Publisher publisher_target_joint_velocities_;
-    ros::Publisher publisher_target_joint_forces_;
-    ros::Publisher publisher_homing_signal_;
-    ros::Publisher publisher_clear_positions_signal_;
+    Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_target_joint_positions_;
+    Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_target_joint_velocities_;
+    Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_target_joint_forces_;
+    Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr publisher_homing_signal_;
+    Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr publisher_clear_positions_signal_;
 
-    void _callback_joint_states(const sensor_msgs::JointStateConstPtr& msg);
-    void _callback_joint_limits_min(const std_msgs::Float64MultiArrayConstPtr& msg);
-    void _callback_joint_limits_max(const std_msgs::Float64MultiArrayConstPtr& msg);
-    void _callback_home_states(const std_msgs::Int32MultiArrayConstPtr &msg);
+    void _callback_joint_states(const sensor_msgs::msg::JointState& msg);
+    void _callback_joint_limits_min(const std_msgs::msg::Float64MultiArray& msg);
+    void _callback_joint_limits_max(const std_msgs::msg::Float64MultiArray& msg);
+    void _callback_home_states(const std_msgs::msg::Int32MultiArray& msg);
 public:
     RobotDriverInterface() = delete;
     RobotDriverInterface(const RobotDriverInterface&) = delete;
 
-#ifdef IS_SAS_PYTHON_BUILD
-    RobotDriverInterface(const std::string& topic_prefix);
-#endif
-    RobotDriverInterface(ros::NodeHandle& nodehandle, const std::string topic_prefix);
-    RobotDriverInterface(ros::NodeHandle& publisher_nodehandle, ros::NodeHandle& subscriber_nodehandle, const std::string topic_prefix);
+//#ifdef IS_SAS_PYTHON_BUILD
+//    RobotDriverInterface(const std::string& topic_prefix);
+//#endif
+    RobotDriverInterface(Node &node, const std::string topic_prefix="GET_FROM_NODE");
+//    RobotDriverInterface(ros::NodeHandle& publisher_nodehandle, ros::NodeHandle& subscriber_nodehandle, const std::string topic_prefix);
 
     void send_target_joint_positions(const VectorXd& target_joint_positions);
     void send_target_joint_velocities(const VectorXd& target_joint_velocities);
