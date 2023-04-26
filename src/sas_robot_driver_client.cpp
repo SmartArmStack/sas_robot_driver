@@ -23,7 +23,7 @@
 # ################################################################*/
 #include <sas_robot_driver/sas_robot_driver_client.hpp>
 #include <sas_conversions/sas_conversions.hpp>
-//#include <sas_common/sas_common.h>
+#include <sas_common/sas_common.hpp>
 using std::placeholders::_1;
 
 namespace sas
@@ -51,21 +51,22 @@ void RobotDriverClient::_callback_home_states(const std_msgs::msg::Int32MultiArr
     home_states_ = std_vector_int_to_vectorxi(msg.data);
 }
 
+//see the discussion in sas_common to understand why this is commented out
 //#ifdef IS_SAS_PYTHON_BUILD
-//RobotDriverInterface::RobotDriverInterface(const std::string &topic_prefix):
-//    RobotDriverInterface(sas::common::get_static_node_handle(),topic_prefix)
+//RobotDriverClient::RobotDriverClient(const std::string &topic_prefix):
+//    RobotDriverClient(sas::common::get_static_node(),topic_prefix)
 //{
 //
 //}
 //#endif
 
-RobotDriverClient::RobotDriverClient(std::shared_ptr<Node> &node, const std::string topic_prefix):
+RobotDriverClient::RobotDriverClient(const std::shared_ptr<Node> &node, const std::string topic_prefix):
     sas::Object("sas::RobotDriverClient"),
     node_(node),
     topic_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix)
 {
     //    ROS_INFO_STREAM(ros::this_node::getName() + "::Initializing RobotDriverInterface with prefix " + topic_prefix);
-    RCLCPP_INFO_STREAM(node_->get_logger(),"::Initializing RobotDriverInterface with prefix " + topic_prefix);
+    RCLCPP_INFO_STREAM(node_->get_logger(),"::Initializing RobotDriverClient with prefix " + topic_prefix);
 
     //    publisher_target_joint_positions_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(topic_prefix_ + "/set/target_joint_positions", 1);
     publisher_target_joint_positions_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_positions",1);
@@ -95,23 +96,6 @@ RobotDriverClient::RobotDriverClient(std::shared_ptr<Node> &node, const std::str
                 topic_prefix + "/get/home_states", 1, std::bind(&RobotDriverClient::_callback_home_states, this, _1)
                 );
 }
-
-//RobotDriverInterface::RobotDriverInterface(ros::NodeHandle &publisher_nodehandle, ros::NodeHandle &subscriber_nodehandle, const std::string topic_prefix):
-//    enabled_(false),
-//    topic_prefix_(topic_prefix)
-//{
-//    ROS_INFO_STREAM(ros::this_node::getName() + "::Initializing RobotDriverInterface with prefix " + topic_prefix);
-//    publisher_target_joint_positions_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(topic_prefix_ + "/set/target_joint_positions", 1);
-//    publisher_target_joint_velocities_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(topic_prefix_ + "/set/target_joint_velocities", 1);
-//    publisher_target_joint_forces_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(topic_prefix_ + "/set/target_joint_forces", 1);
-//    publisher_homing_signal_ = publisher_nodehandle.advertise<std_msgs::Int32MultiArray>(topic_prefix_ + "/set/homing_signal", 1);
-//    publisher_clear_positions_signal_ = publisher_nodehandle.advertise<std_msgs::Int32MultiArray>(topic_prefix_ + "/set/clear_positions_signal", 1);
-
-//    subscriber_joint_states_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/joint_states", 1, &RobotDriverInterface::_callback_joint_states, this);
-//    subscriber_joint_limits_min_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/joint_positions_min", 1, &RobotDriverInterface::_callback_joint_limits_min, this);
-//    subscriber_joint_limits_max_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/joint_positions_max", 1, &RobotDriverInterface::_callback_joint_limits_max, this);
-//    subscriber_home_state_ = subscriber_nodehandle.subscribe(topic_prefix_ + "/get/home_states", 1, &RobotDriverInterface::_callback_home_states, this);
-//}
 
 void RobotDriverClient::send_target_joint_positions(const VectorXd &target_joint_positions)
 {

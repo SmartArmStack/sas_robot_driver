@@ -72,11 +72,12 @@ public:
     RobotDriverServer() = delete;
     RobotDriverServer(const RobotDriverServer&) = delete;
 
+//see the discussion in sas_common to understand why this is commented out
 //#ifdef IS_SAS_PYTHON_BUILD
-//    RobotDriverProvider(const std::string& node_prefix);
+//    RobotDriverServer(const std::string& node_prefix);
 //#endif
-    RobotDriverServer(std::shared_ptr<Node>& node, const std::string& node_prefix="GET_FROM_NODE");
-//    RobotDriverProvider(Node& node_publisher, Node& node_subscriber, const std::string& node_prefix="GET_FROM_NODE");
+
+    RobotDriverServer(const std::shared_ptr<Node> &node, const std::string& node_prefix="GET_FROM_NODE");
 
     VectorXd get_target_joint_positions() const;
     VectorXd get_target_joint_velocities() const;
@@ -92,9 +93,6 @@ public:
                            const VectorXd& joint_forces);
     void send_joint_limits(const std::tuple<VectorXd, VectorXd>& joint_limits);
     void send_home_state(const VectorXi& home_state);
-
-    //Deprecated
-    void send_joint_positions(const VectorXd& joint_positions);
 };
 
 }

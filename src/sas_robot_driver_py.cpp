@@ -32,8 +32,8 @@
 #include <sas_robot_driver/sas_robot_driver_server.hpp>
 
 namespace py = pybind11;
-using RDI = sas::RobotDriverClient;
-using RDP = sas::RobotDriverServer;
+using RDC = sas::RobotDriverClient;
+using RDS = sas::RobotDriverServer;
 
 PYBIND11_MODULE(_sas_robot_driver, m) {
 
@@ -46,32 +46,32 @@ PYBIND11_MODULE(_sas_robot_driver, m) {
             .value("ClearPositions",sas::RobotDriver::Functionality::ClearPositions)
             .export_values();
 
-    py::class_<RDI>(m, "RobotDriverClient")
-            .def(py::init<std::shared_ptr<rclcpp::Node>&, const std::string&>())
-            .def("send_target_joint_positions",&RDI::send_target_joint_positions)
-            .def("send_target_joint_velocities",&RDI::send_target_joint_velocities)
-            .def("send_target_joint_forces",&RDI::send_target_joint_forces)
-            .def("send_homing_signal",&RDI::send_homing_signal)
-            .def("send_clear_positions_signal",&RDI::send_clear_positions_signal)
-            .def("get_joint_positions",&RDI::get_joint_positions)
-            .def("get_joint_velocities",&RDI::get_joint_velocities)
-            .def("get_joint_forces",&RDI::get_joint_forces)
-            .def("get_joint_limits",&RDI::get_joint_limits)
-            .def("get_home_states",&RDI::get_home_states)
-            .def("is_enabled",&RDI::is_enabled,"Returns true if the RobotDriverInterface is enabled.",py::arg("supported_functionality")=sas::RobotDriver::Functionality::PositionControl)
-            .def("get_topic_prefix",&RDI::get_topic_prefix);
+    py::class_<RDC>(m, "RobotDriverClient")
+            .def(py::init<const std::shared_ptr<rclcpp::Node>&,const std::string&>())
+            .def("send_target_joint_positions",&RDC::send_target_joint_positions)
+            .def("send_target_joint_velocities",&RDC::send_target_joint_velocities)
+            .def("send_target_joint_forces",&RDC::send_target_joint_forces)
+            .def("send_homing_signal",&RDC::send_homing_signal)
+            .def("send_clear_positions_signal",&RDC::send_clear_positions_signal)
+            .def("get_joint_positions",&RDC::get_joint_positions)
+            .def("get_joint_velocities",&RDC::get_joint_velocities)
+            .def("get_joint_forces",&RDC::get_joint_forces)
+            .def("get_joint_limits",&RDC::get_joint_limits)
+            .def("get_home_states",&RDC::get_home_states)
+            .def("is_enabled",&RDC::is_enabled,"Returns true if the RobotDriverInterface is enabled.",py::arg("supported_functionality")=sas::RobotDriver::Functionality::PositionControl)
+            .def("get_topic_prefix",&RDC::get_topic_prefix);
 
-    py::class_<RDP>(m, "RobotDriverServer")
-            .def(py::init<std::shared_ptr<rclcpp::Node>&, const std::string&>())
-            .def("get_target_joint_positions",&RDP::get_target_joint_positions)
-            .def("get_target_joint_velocities",&RDP::get_target_joint_velocities)
-            .def("get_target_joint_forces",&RDP::get_target_joint_forces)
-            .def("get_homing_signal",&RDP::get_homing_signal)
-            .def("get_clear_positions_signal",&RDP::get_clear_positions_signal)
-            .def("get_currently_active_functionality",&RDP::get_currently_active_functionality)
-            .def("is_enabled",&RDP::is_enabled,"Returns true if the RobotDriverProvider is enabled.",py::arg("supported_functionality")=sas::RobotDriver::Functionality::PositionControl)
-            .def("send_joint_states",&RDP::send_joint_states)
-            .def("send_joint_limits",&RDP::send_joint_limits)
-            .def("send_home_state",&RDP::send_home_state);
+    py::class_<RDS>(m, "RobotDriverServer")
+            .def(py::init<const std::shared_ptr<rclcpp::Node>&,const std::string&>())
+            .def("get_target_joint_positions",&RDS::get_target_joint_positions)
+            .def("get_target_joint_velocities",&RDS::get_target_joint_velocities)
+            .def("get_target_joint_forces",&RDS::get_target_joint_forces)
+            .def("get_homing_signal",&RDS::get_homing_signal)
+            .def("get_clear_positions_signal",&RDS::get_clear_positions_signal)
+            .def("get_currently_active_functionality",&RDS::get_currently_active_functionality)
+            .def("is_enabled",&RDS::is_enabled,"Returns true if the RobotDriverProvider is enabled.",py::arg("supported_functionality")=sas::RobotDriver::Functionality::PositionControl)
+            .def("send_joint_states",&RDS::send_joint_states)
+            .def("send_joint_limits",&RDS::send_joint_limits)
+            .def("send_home_state",&RDS::send_home_state);
 
 }

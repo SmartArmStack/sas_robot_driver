@@ -58,6 +58,8 @@ target_link_libraries(sas_robot_driver_ros_example
     Eigen3::Eigen
     )
 
+ament_python_install_package(${PROJECT_NAME})
+
 pybind11_add_module(_sas_robot_driver SHARED src/sas_robot_driver_py.cpp src/sas_robot_driver_client.cpp src/sas_robot_driver_server.cpp)
 
 target_include_directories(_sas_robot_driver
@@ -94,6 +96,10 @@ install(TARGETS
 install(DIRECTORY
   launch
   DESTINATION share/${PROJECT_NAME}/
+)
+
+install(TARGETS _sas_robot_driver
+  DESTINATION "${PYTHON_INSTALL_DIR}/${PROJECT_NAME}"
 )
 
 ament_package()

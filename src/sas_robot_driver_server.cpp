@@ -23,7 +23,7 @@
 # ################################################################*/
 #include <sas_robot_driver/sas_robot_driver_server.hpp>
 #include <sas_conversions/sas_conversions.hpp>
-//#include <sas_common/sas_common.hpp>
+#include <sas_common/sas_common.hpp>
 using std::placeholders::_1;
 
 namespace sas
@@ -77,7 +77,7 @@ void RobotDriverServer::_callback_clear_positions_signal(const std_msgs::msg::In
     //currently_active_functionality_ = RobotDriver::Functionality::ClearPositions;
 }
 
-RobotDriverServer::RobotDriverServer(std::shared_ptr<Node> &node, const std::string &topic_prefix):
+RobotDriverServer::RobotDriverServer(const std::shared_ptr<Node> &node, const std::string &topic_prefix):
     sas::Object("sas::RobotDriverServer"),
     node_(node),
     node_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix),
@@ -116,35 +116,14 @@ RobotDriverServer::RobotDriverServer(std::shared_ptr<Node> &node, const std::str
                 );
 }
 
-//    RobotDriverProvider(node, node, node_prefix)
-//{
-    //Delegated
-//}
-
+//see the discussion in sas_common to understand why this is commented out
 //#ifdef IS_SAS_PYTHON_BUILD
-//RobotDriverProvider::RobotDriverProvider(const std::string &node_prefix):
-//    RobotDriverProvider(sas::common::get_static_node_handle(),node_prefix)
+//RobotDriverServer::RobotDriverServer(const std::string &node_prefix):
+//    RobotDriverServer(sas::common::get_static_node(),node_prefix)
 //{
-    //Delegated
+  //Delegated
 //}
 //#endif
-
-//RobotDriverProvider::RobotDriverProvider(Node& node_publisher, Node& node_subscriber, const std::string& node_prefix):
-//    sas::Object("sas::RobotDriverProvider"),
-//    node_prefix_(node_prefix),
-//    currently_active_functionality_(RobotDriver::Functionality::None)
-//{
-//    ROS_INFO_STREAM(ros::this_node::getName() + "::Initializing RobotDriverProvider with prefix " + node_prefix);
-//    publisher_joint_states_ = publisher_nodehandle.advertise<sensor_msgs::JointState>(node_prefix + "/get/joint_states", 1);
-//    publisher_joint_limits_min_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_min", 1);
-//    publisher_joint_limits_max_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_max", 1);
-//   publisher_home_state_ = publisher_nodehandle.advertise<std_msgs::Int32MultiArray>(node_prefix + "/get/home_states", 1);
-
-//    subscriber_target_joint_positions_ = subscriber_nodehandle.subscribe(node_prefix + "/set/target_joint_positions", 1, &RobotDriverProvider::_callback_target_joint_positions, this);
-//    subscriber_target_joint_velocities_ = subscriber_nodehandle.subscribe(node_prefix + "/set/target_joint_velocities", 1, &RobotDriverProvider::_callback_target_joint_velocities, this);
-//    subscriber_target_joint_forces_ = subscriber_nodehandle.subscribe(node_prefix + "/set/target_joint_forces", 1, &RobotDriverProvider::_callback_target_joint_forces, this);
-//    subscriber_homing_signal_ = subscriber_nodehandle.subscribe(node_prefix + "/set/homing_signal", 1, &RobotDriverProvider::_callback_homing_signal, this);
-//}
 
 VectorXd RobotDriverServer::get_target_joint_positions() const
 {
@@ -201,11 +180,6 @@ VectorXi RobotDriverServer::get_clear_positions_signal()
 RobotDriver::Functionality RobotDriverServer::get_currently_active_functionality() const
 {
     return currently_active_functionality_;
-}
-
-void RobotDriverServer::send_joint_positions(const VectorXd &joint_positions)
-{
-    send_joint_states(joint_positions, VectorXd(), VectorXd());
 }
 
 /**

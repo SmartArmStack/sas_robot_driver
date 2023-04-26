@@ -73,11 +73,11 @@ public:
     RobotDriverClient() = delete;
     RobotDriverClient(const RobotDriverClient&) = delete;
 
+//see the discussion in sas_common to understand why this is commented out
 //#ifdef IS_SAS_PYTHON_BUILD
-//    RobotDriverInterface(const std::string& topic_prefix);
+//    RobotDriverClient(const std::string& topic_prefix);
 //#endif
-    RobotDriverClient(std::shared_ptr<Node> &node, const std::string topic_prefix="GET_FROM_NODE");
-//    RobotDriverInterface(ros::NodeHandle& publisher_nodehandle, ros::NodeHandle& subscriber_nodehandle, const std::string topic_prefix);
+    RobotDriverClient(const std::shared_ptr<Node> &node, const std::string topic_prefix="GET_FROM_NODE");
 
     void send_target_joint_positions(const VectorXd& target_joint_positions);
     void send_target_joint_velocities(const VectorXd& target_joint_velocities);
