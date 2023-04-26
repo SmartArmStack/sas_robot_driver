@@ -23,7 +23,7 @@
 # ################################################################*/
 #include <exception>
 #include <rclcpp/rclcpp.hpp>
-//#include <sas_common/sas_common.h>
+#include <sas_common/sas_common.hpp>
 #include "sas_robot_driver_ros_composer.hpp"
 #include <sas_robot_driver/sas_robot_driver_ros.hpp>
 using namespace sas;
@@ -37,17 +37,6 @@ void sig_int_handler(int)
 {
     kill_this_process = true;
 }
-
-template<class T>
-void get_ros_param(std::shared_ptr<rclcpp::Node>& node, const std::string& name, T& t, const bool& is_local_name=true)
-{
-    const std::string prefix = is_local_name?node->get_name():"";
-    if(!node->get_parameter(prefix+name,t))
-    {
-        throw std::runtime_error(prefix + "::Error loading " + name);
-    }
-}
-
 
 int main(int argc, char** argv)
 {
@@ -68,15 +57,36 @@ int main(int argc, char** argv)
         //ROS_INFO_STREAM(node->get_name()+"::Loading parameters from parameter server.");
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Loading parameters from parameter server.");
         RobotDriverROSComposerConfiguration robot_driver_ros_composer_configuration;
-        get_ros_param(node,"/use_real_robot",robot_driver_ros_composer_configuration.use_real_robot);
-        get_ros_param(node,"/vrep_robot_joint_names",robot_driver_ros_composer_configuration.vrep_robot_joint_names);
-        get_ros_param(node,"/vrep_ip",robot_driver_ros_composer_configuration.vrep_ip);
-        get_ros_param(node,"/vrep_port",robot_driver_ros_composer_configuration.vrep_port);
-        get_ros_param(node,"/vrep_dynamically_enabled",robot_driver_ros_composer_configuration.vrep_dynamically_enabled_);
-        get_ros_param(node,"/robot_driver_interface_node_prefixes",robot_driver_ros_composer_configuration.robot_driver_interface_topic_prefixes);
-        get_ros_param(node,"/robot_parameter_file_path",robot_driver_ros_composer_configuration.robot_parameter_file_path);
+
+        get_ros_parameter(node,"/use_real_robot",robot_driver_ros_composer_configuration.use_real_robot);
+        get_ros_parameter(node,"/use_coppeliasim",robot_driver_ros_composer_configuration.use_coppeliasim);
+
+        if((robot_driver_ros_composer_configuration.use_real_robot == false)
+                && robot_driver_ros_composer_configuration.use_coppeliasim == false)
+        {
+            throw std::runtime_error("Both use_real_robot or use_coppeliasim cannot be false at the same time, otherwise this node does nothing.");
+        }
+
+        if(robot_driver_ros_composer_configuration.use_coppeliasim)
+        {
+            get_ros_parameter(node,"/vrep_robot_joint_names",robot_driver_ros_composer_configuration.coppeliasim_robot_joint_names);
+            get_ros_parameter(node,"/vrep_ip",robot_driver_ros_composer_configuration.coppeliasim_ip);
+            get_ros_parameter(node,"/vrep_port",robot_driver_ros_composer_configuration.coppeliasim_port);
+            get_ros_parameter(node,"/vrep_dynamically_enabled",robot_driver_ros_composer_configuration.coppeliasim_dynamically_enabled_);
+            get_ros_parameter(node,"/robot_driver_interface_node_prefixes",robot_driver_ros_composer_configuration.robot_driver_interface_topic_prefixes);
+        }
+        else
+        {
+            RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::CoppeliaSim not used (use_coppeliasim==false), skipped related parameter loading.");
+        }
+
+
+
+        get_ros_parameter(node,"/robot_parameter_file_path",robot_driver_ros_composer_configuration.robot_parameter_file_path);
+
         RobotDriverROSConfiguration robot_driver_ros_configuration;
-        get_ros_param(node,"/thread_sampling_time_sec",robot_driver_ros_configuration.thread_sampling_time_sec);
+        get_ros_parameter(node,"/thread_sampling_time_sec",robot_driver_ros_configuration.thread_sampling_time_sec);
+
         robot_driver_ros_configuration.robot_driver_provider_prefix = node->get_name();
         //ROS_INFO_STREAM(ros::this_node::getName()+"::Parameters OK.");
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Parameters OK.");
@@ -99,5 +109,7 @@ int main(int argc, char** argv)
         RCLCPP_ERROR_STREAM_ONCE(node->get_logger(), std::string("::Exception::") + e.what());
     }
 
+
+    sas::display_signal_handler_none_bug_info(node);
     return 0;
 }

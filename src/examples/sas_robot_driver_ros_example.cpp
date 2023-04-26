@@ -25,6 +25,7 @@
 #include <sas_core/examples/sas_robot_driver_example.hpp>
 #include <sas_conversions/eigen3_std_conversions.hpp>
 #include <sas_robot_driver/sas_robot_driver_ros.hpp>
+#include <sas_common/sas_common.hpp>
 
 /*********************************************
  * SIGNAL HANDLER
@@ -83,9 +84,6 @@ int main(int argc, char** argv)
         RCLCPP_ERROR_STREAM_ONCE(node->get_logger(), std::string("::Exception::") + e.what());
     }
 
-    //The [rclcpp] error is a known issue in Humble, possibly already fixed in rolling.
-    //https://github.com/ros2/rclcpp/pull/2019
-    RCLCPP_WARN_STREAM_ONCE(node->get_logger(), "::Ignore the [rclcpp] error below, it is a bug in ROS 2 Humble.");
-
+    sas::display_signal_handler_none_bug_info(node);
     return 0;
 }

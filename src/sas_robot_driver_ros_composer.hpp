@@ -41,11 +41,15 @@ namespace sas
 struct RobotDriverROSComposerConfiguration
 {
     bool use_real_robot;
-    std::vector<std::string> vrep_robot_joint_names;
-    std::string vrep_ip;
-    int vrep_port;
-    bool vrep_dynamically_enabled_ = false;
+
+    bool use_coppeliasim;
+    std::vector<std::string> coppeliasim_robot_joint_names;
+    std::string coppeliasim_ip;
+    int coppeliasim_port;
+    bool coppeliasim_dynamically_enabled_ = false;
+
     std::vector<std::string> robot_driver_interface_topic_prefixes;
+
     std::string robot_parameter_file_path;
 };
 

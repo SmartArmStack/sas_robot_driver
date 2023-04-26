@@ -63,7 +63,7 @@ VectorXd RobotDriverROSComposer::get_joint_positions()
     }
     else
     {
-        return vi_.get_joint_positions(configuration_.vrep_robot_joint_names);
+        return vi_.get_joint_positions(configuration_.coppeliasim_robot_joint_names);
     }
 }
 
@@ -79,13 +79,16 @@ void RobotDriverROSComposer::set_target_joint_positions(const VectorXd &set_targ
         }
     }
 
-    if(configuration_.vrep_dynamically_enabled_)
+    if(configuration_.use_coppeliasim)
     {
-        vi_.set_joint_target_positions(configuration_.vrep_robot_joint_names,set_target_joint_positions_rad);
-    }
-    else
-    {
-        vi_.set_joint_positions(configuration_.vrep_robot_joint_names,set_target_joint_positions_rad);
+        if(configuration_.coppeliasim_dynamically_enabled_)
+        {
+            vi_.set_joint_target_positions(configuration_.coppeliasim_robot_joint_names,set_target_joint_positions_rad);
+        }
+        else
+        {
+            vi_.set_joint_positions(configuration_.coppeliasim_robot_joint_names,set_target_joint_positions_rad);
+        }
     }
 }
 
@@ -96,21 +99,25 @@ void RobotDriverROSComposer::set_joint_limits(const std::tuple<VectorXd, VectorX
 
 void RobotDriverROSComposer::connect()
 {
-    if(!vi_.connect(configuration_.vrep_ip,
-                    configuration_.vrep_port,
-                    100,
-                    10))
+    if(configuration_.use_coppeliasim)
     {
-        //throw std::runtime_error(ros::this_node::getName()+"::Unable to connect to CoppeliaSim.");
-        throw std::runtime_error("::Unable to connect to CoppeliaSim.");
+        if(!vi_.connect(configuration_.coppeliasim_ip,
+                        configuration_.coppeliasim_port,
+                        100,
+                        10))
+        {
+            //throw std::runtime_error(ros::this_node::getName()+"::Unable to connect to CoppeliaSim.");
+            throw std::runtime_error("::Unable to connect to CoppeliaSim.");
+        }
+        //ROS_INFO_STREAM(ros::this_node::getName()+"::Connected to CoppeliaSim");
+        RCLCPP_INFO_STREAM(node_->get_logger(),"::Connected to CoppeliaSim");
     }
-    //ROS_INFO_STREAM(ros::this_node::getName()+"::Connected to CoppeliaSim");
-    RCLCPP_INFO_STREAM(node_->get_logger(),"::Connected to CoppeliaSim");
 }
 
 void RobotDriverROSComposer::disconnect()
 {
-    vi_.disconnect();
+    if(configuration_.use_coppeliasim)
+        vi_.disconnect();
 }
 
 void RobotDriverROSComposer::initialize()
@@ -130,14 +137,14 @@ void RobotDriverROSComposer::initialize()
             }
         }
         //Send initial values to CoppeliaSim
-        vi_.set_joint_positions(configuration_.vrep_robot_joint_names,get_joint_positions());
-        if(configuration_.vrep_dynamically_enabled_)
-            vi_.set_joint_target_positions(configuration_.vrep_robot_joint_names,get_joint_positions());
+        vi_.set_joint_positions(configuration_.coppeliasim_robot_joint_names,get_joint_positions());
+        if(configuration_.coppeliasim_dynamically_enabled_)
+            vi_.set_joint_target_positions(configuration_.coppeliasim_robot_joint_names,get_joint_positions());
     }
     else
     {
         //Call it once to initialize the CoppeliaSim streaming.
-        vi_.get_joint_positions(configuration_.vrep_robot_joint_names);
+        vi_.get_joint_positions(configuration_.coppeliasim_robot_joint_names);
     }
 }
 
