@@ -48,8 +48,9 @@ struct RobotDriverROSComposerConfiguration
     int coppeliasim_port;
     bool coppeliasim_dynamically_enabled_ = false;
 
-    std::vector<std::string> robot_driver_interface_topic_prefixes;
+    std::vector<std::string> robot_driver_client_names;
 
+    bool override_joint_limits_with_robot_parameter_file;
     std::string robot_parameter_file_path;
 };
 
@@ -60,7 +61,7 @@ protected:
 
     RobotDriverROSComposerConfiguration configuration_;
     DQ_VrepInterface vi_;
-    std::vector<std::unique_ptr<sas::RobotDriverClient>> robot_driver_interface_vector_;
+    std::vector<std::unique_ptr<sas::RobotDriverClient>> robot_driver_clients_;
     //std::atomic_bool* break_loops_;
     //std::tuple<VectorXd, VectorXd> joint_limits_;
     //RobotDriver(std::atomic_bool* break_loops);
@@ -73,6 +74,7 @@ public:
 
     VectorXd get_joint_positions() override;
     void set_target_joint_positions(const VectorXd& set_target_joint_positions_rad) override;
+    std::tuple<VectorXd, VectorXd> get_joint_limits();
     void set_joint_limits(const std::tuple<VectorXd, VectorXd>&) override;
 
     void connect() override;

@@ -39,15 +39,19 @@ RobotDriverROSComposer::RobotDriverROSComposer(const RobotDriverROSComposerConfi
 {
     if(configuration.use_real_robot)
     {
-        for(const std::string& topic_prefix: configuration.robot_driver_interface_topic_prefixes)
+        for(const std::string& topic_prefix: configuration.robot_driver_client_names)
         {
             //ROS_INFO_STREAM(ros::this_node::getName()+"::Adding subrobot driver with prefix "+topic_prefix);
-            RCLCPP_INFO_STREAM(node_->get_logger(),"::Adding subrobot driver with prefix "+topic_prefix);
-            robot_driver_interface_vector_.push_back(std::unique_ptr<RobotDriverClient>(new RobotDriverClient(node,topic_prefix)));
+            RCLCPP_INFO_STREAM(node_->get_logger(),"::Adding RobotDriverClient driver with prefix "+topic_prefix);
+            robot_driver_clients_.push_back(std::unique_ptr<RobotDriverClient>(new RobotDriverClient(node,topic_prefix)));
         }
     }
-    DQ_SerialManipulatorDH smdh = DQ_JsonReader::get_from_json<DQ_SerialManipulatorDH>(configuration_.robot_parameter_file_path);
-    joint_limits_ = {smdh.get_lower_q_limit(),smdh.get_upper_q_limit()};
+
+    if(configuration_.override_joint_limits_with_robot_parameter_file)
+    {
+        DQ_SerialManipulatorDH smdh = DQ_JsonReader::get_from_json<DQ_SerialManipulatorDH>(configuration_.robot_parameter_file_path);
+        joint_limits_ = {smdh.get_lower_q_limit(),smdh.get_upper_q_limit()};
+    }
 }
 
 VectorXd RobotDriverROSComposer::get_joint_positions()
@@ -55,7 +59,7 @@ VectorXd RobotDriverROSComposer::get_joint_positions()
     if(configuration_.use_real_robot)
     {
         VectorXd joint_positions;
-        for(const auto& interface : robot_driver_interface_vector_)
+        for(const auto& interface : robot_driver_clients_)
         {
             joint_positions = concatenate(joint_positions, interface->get_joint_positions());
         }
@@ -72,7 +76,7 @@ void RobotDriverROSComposer::set_target_joint_positions(const VectorXd &set_targ
     if(configuration_.use_real_robot)
     {
         int accumulator = 0;
-        for(const auto& interface : robot_driver_interface_vector_)
+        for(const auto& interface : robot_driver_clients_)
         {
             interface->send_target_joint_positions(set_target_joint_positions_rad.segment(accumulator,interface->get_joint_positions().size()));
             accumulator+=interface->get_joint_positions().size();
@@ -130,16 +134,19 @@ void RobotDriverROSComposer::initialize()
             //ros::spinOnce();
             rclcpp::spin_some(node_);
             initialized = true;
-            for(const auto& interface : robot_driver_interface_vector_)
+            for(const auto& interface : robot_driver_clients_)
             {
                 if(not interface->is_enabled())
                     initialized = false;
             }
         }
-        //Send initial values to CoppeliaSim
-        vi_.set_joint_positions(configuration_.coppeliasim_robot_joint_names,get_joint_positions());
-        if(configuration_.coppeliasim_dynamically_enabled_)
-            vi_.set_joint_target_positions(configuration_.coppeliasim_robot_joint_names,get_joint_positions());
+        if(configuration_.use_coppeliasim)
+        {
+            //Send initial values of the real robot to CoppeliaSim
+            vi_.set_joint_positions(configuration_.coppeliasim_robot_joint_names,get_joint_positions());
+            if(configuration_.coppeliasim_dynamically_enabled_)
+                vi_.set_joint_target_positions(configuration_.coppeliasim_robot_joint_names,get_joint_positions());
+        }
     }
     else
     {
@@ -154,5 +161,24 @@ void RobotDriverROSComposer::deinitialize()
 }
 
 RobotDriverROSComposer::~RobotDriverROSComposer()=default;
+
+//Defined last because QTCreator messes up the identation because of the auto [,] operator.
+std::tuple<VectorXd, VectorXd> RobotDriverROSComposer::get_joint_limits()
+{
+    if(!configuration_.override_joint_limits_with_robot_parameter_file)
+    {
+        VectorXd joint_positions_min;
+        VectorXd joint_positions_max;
+        for(const auto& interface : robot_driver_clients_)
+        {
+            auto [joint_positions_min_l, joint_positions_max_l] = interface->get_joint_limits();
+                    joint_positions_min = concatenate(joint_positions_min, joint_positions_min_l);
+                    joint_positions_max = concatenate(joint_positions_max, joint_positions_max_l);
+        }
+                    joint_limits_ = {joint_positions_min,joint_positions_max};
+        }
+        return joint_limits_;
+    }
+
 
 }

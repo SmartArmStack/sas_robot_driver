@@ -91,4 +91,9 @@ install(TARGETS
   sas_robot_driver_ros_example
   DESTINATION lib/${PROJECT_NAME})
 
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+
 ament_package()

@@ -217,6 +217,7 @@ void RobotDriverServer::send_joint_positions(const VectorXd &joint_positions)
 void RobotDriverServer::send_joint_states(const VectorXd &joint_positions, const VectorXd &joint_velocities, const VectorXd &joint_forces)
 {
     sensor_msgs::msg::JointState ros_msg;
+    ros_msg.header.stamp = node_->get_clock()->now();
     if(joint_positions.size()>0)
         ros_msg.position = vectorxd_to_std_vector_double(joint_positions);
     if(joint_velocities.size()>0)

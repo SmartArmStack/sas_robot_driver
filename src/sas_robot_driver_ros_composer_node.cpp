@@ -18,7 +18,7 @@
 #
 # ################################################################
 #
-#   Author: Murilo M. Marinodeo, email: murilomarinodeo@ieee.org
+#   Author: Murilo M. Marinho, email: murilomarinodeo@ieee.org
 #
 # ################################################################*/
 #include <exception>
@@ -58,8 +58,8 @@ int main(int argc, char** argv)
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Loading parameters from parameter server.");
         RobotDriverROSComposerConfiguration robot_driver_ros_composer_configuration;
 
-        get_ros_parameter(node,"/use_real_robot",robot_driver_ros_composer_configuration.use_real_robot);
-        get_ros_parameter(node,"/use_coppeliasim",robot_driver_ros_composer_configuration.use_coppeliasim);
+        get_ros_parameter(node,"use_real_robot",robot_driver_ros_composer_configuration.use_real_robot);
+        get_ros_parameter(node,"use_coppeliasim",robot_driver_ros_composer_configuration.use_coppeliasim);
 
         if((robot_driver_ros_composer_configuration.use_real_robot == false)
                 && robot_driver_ros_composer_configuration.use_coppeliasim == false)
@@ -69,23 +69,29 @@ int main(int argc, char** argv)
 
         if(robot_driver_ros_composer_configuration.use_coppeliasim)
         {
-            get_ros_parameter(node,"/vrep_robot_joint_names",robot_driver_ros_composer_configuration.coppeliasim_robot_joint_names);
-            get_ros_parameter(node,"/vrep_ip",robot_driver_ros_composer_configuration.coppeliasim_ip);
-            get_ros_parameter(node,"/vrep_port",robot_driver_ros_composer_configuration.coppeliasim_port);
-            get_ros_parameter(node,"/vrep_dynamically_enabled",robot_driver_ros_composer_configuration.coppeliasim_dynamically_enabled_);
-            get_ros_parameter(node,"/robot_driver_interface_node_prefixes",robot_driver_ros_composer_configuration.robot_driver_interface_topic_prefixes);
+            get_ros_parameter(node,"vrep_robot_joint_names",robot_driver_ros_composer_configuration.coppeliasim_robot_joint_names);
+            get_ros_parameter(node,"vrep_ip",robot_driver_ros_composer_configuration.coppeliasim_ip);
+            get_ros_parameter(node,"vrep_port",robot_driver_ros_composer_configuration.coppeliasim_port);
+            get_ros_parameter(node,"vrep_dynamically_enabled",robot_driver_ros_composer_configuration.coppeliasim_dynamically_enabled_);
         }
         else
         {
             RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::CoppeliaSim not used (use_coppeliasim==false), skipped related parameter loading.");
         }
 
+        get_ros_parameter(node,"robot_driver_client_names",robot_driver_ros_composer_configuration.robot_driver_client_names);
 
-
-        get_ros_parameter(node,"/robot_parameter_file_path",robot_driver_ros_composer_configuration.robot_parameter_file_path);
+        get_ros_parameter(node,"override_joint_limits_with_robot_parameter_file",robot_driver_ros_composer_configuration.override_joint_limits_with_robot_parameter_file);
+        if(robot_driver_ros_composer_configuration.override_joint_limits_with_robot_parameter_file)
+        {
+            get_ros_parameter(node,"robot_parameter_file_path",robot_driver_ros_composer_configuration.robot_parameter_file_path);
+            RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Overriding joint limits with " + robot_driver_ros_composer_configuration.robot_parameter_file_path);
+        }
+        else
+            RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Concatenating the joint limits from each robot.");
 
         RobotDriverROSConfiguration robot_driver_ros_configuration;
-        get_ros_parameter(node,"/thread_sampling_time_sec",robot_driver_ros_configuration.thread_sampling_time_sec);
+        get_ros_parameter(node,"thread_sampling_time_sec",robot_driver_ros_configuration.thread_sampling_time_sec);
 
         robot_driver_ros_configuration.robot_driver_provider_prefix = node->get_name();
         //ROS_INFO_STREAM(ros::this_node::getName()+"::Parameters OK.");

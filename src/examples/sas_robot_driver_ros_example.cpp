@@ -59,6 +59,13 @@ int main(int argc, char** argv)
         node->get_parameter_or("initial_joint_positions",initial_jointpositions,initial_joint_positions_or);
         configuration.initial_joint_positions = sas::std_vector_double_to_vectorxd(initial_jointpositions);
 
+        std::vector<double> joint_limits_min;
+        std::vector<double> joint_limits_max;
+        node->get_parameter_or("joint_limits_min",joint_limits_min,{-7,-7,-7,-7,-7,-7,-7});
+        node->get_parameter_or("joint_limits_max",joint_limits_max,{7,7,7,7,7,7,7});
+        configuration.joint_limits = {sas::std_vector_double_to_vectorxd(joint_limits_min),
+                                     sas::std_vector_double_to_vectorxd(joint_limits_max)};
+
         sas::RobotDriverROSConfiguration robot_driver_ros_configuration;
         node->get_parameter_or("thread_sampling_time_sec",robot_driver_ros_configuration.thread_sampling_time_sec,0.001);
         robot_driver_ros_configuration.robot_driver_provider_prefix = node->get_name();
