@@ -17,6 +17,8 @@ find_package(sas_core REQUIRED)
 find_package(sas_conversions REQUIRED)
 find_package(Eigen3 REQUIRED)
 
+##### CPP LIBRARY #####
+
 add_library(${PROJECT_NAME} SHARED
     src/sas_robot_driver_server.cpp
     src/sas_robot_driver_client.cpp
@@ -32,6 +34,43 @@ target_include_directories(${PROJECT_NAME}
 
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(Eigen3 rclcpp geometry_msgs std_msgs sensor_msgs sas_common sas_core sas_conversions)
+
+install(
+    DIRECTORY include/
+    DESTINATION include
+    )
+
+install(
+    TARGETS ${PROJECT_NAME}
+    EXPORT export_${PROJECT_NAME}
+    LIBRARY DESTINATION lib
+    #ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
+    )
+
+##END## CPP LIBRARY #####
+
+##### PYBIND11 LIBRARY #####
+
+ament_python_install_package(${PROJECT_NAME})
+
+pybind11_add_module(_sas_robot_driver SHARED src/sas_robot_driver_py.cpp src/sas_robot_driver_client.cpp src/sas_robot_driver_server.cpp)
+
+target_include_directories(_sas_robot_driver
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+
+target_compile_definitions(_sas_robot_driver PRIVATE IS_SAS_PYTHON_BUILD)
+# https://github.com/pybind/pybind11/issues/387
+target_link_libraries(_sas_robot_driver PRIVATE ${PROJECT_NAME} -ldqrobotics)
+
+install(TARGETS _sas_robot_driver
+  DESTINATION "${PYTHON_INSTALL_DIR}/${PROJECT_NAME}"
+)
+
+##END## PYBIND11 LIBRARY #####
 
 add_executable(sas_robot_driver_ros_composer_node
    src/sas_robot_driver_ros_composer_node.cpp
@@ -58,32 +97,8 @@ target_link_libraries(sas_robot_driver_ros_example
     Eigen3::Eigen
     )
 
-ament_python_install_package(${PROJECT_NAME})
 
-pybind11_add_module(_sas_robot_driver SHARED src/sas_robot_driver_py.cpp src/sas_robot_driver_client.cpp src/sas_robot_driver_server.cpp)
 
-target_include_directories(_sas_robot_driver
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
-
-target_compile_definitions(_sas_robot_driver PRIVATE IS_SAS_PYTHON_BUILD)
-# https://github.com/pybind/pybind11/issues/387
-target_link_libraries(_sas_robot_driver PRIVATE ${PROJECT_NAME} -ldqrobotics)
-
-install(
-    DIRECTORY include/
-    DESTINATION include
-    )
-
-install(
-    TARGETS ${PROJECT_NAME}
-    EXPORT export_${PROJECT_NAME}
-    LIBRARY DESTINATION lib
-    #ARCHIVE DESTINATION lib
-    RUNTIME DESTINATION bin
-    INCLUDES DESTINATION include
-    )
 
 install(TARGETS
   sas_robot_driver_ros_composer_node
@@ -98,8 +113,6 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/
 )
 
-install(TARGETS _sas_robot_driver
-  DESTINATION "${PYTHON_INSTALL_DIR}/${PROJECT_NAME}"
-)
+
 
 ament_package()
