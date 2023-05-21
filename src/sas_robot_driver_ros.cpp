@@ -66,7 +66,7 @@ namespace sas
  * 
  *      // Create an object of RobotDriverMyRobot, where RobotDriverMyRobot is the class that manages
  *      // the communication with your robot. RobotDriverMyRobot must be a concrete class of RobotDriver()
- *      // An driver example for the Densowave VS050 robot manipulator (RobotDriverDenso) is provided here:
+ *      // A driver example for the Densowave VS050 robot manipulator (RobotDriverDenso) is provided here:
  *      // https://github.com/SmartArmStack/sas_robot_driver_denso/blob/master/include/sas_robot_driver_denso/sas_robot_driver_denso.h
  *      
  *      
