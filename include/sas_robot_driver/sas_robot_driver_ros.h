@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2016-2022 Murilo Marques Marinho
+# Copyright (c) 2016-2023 Murilo Marques Marinho
 #
 #    This file is part of sas_robot_driver.
 #
@@ -20,7 +20,20 @@
 #
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
-# ################################################################*/
+# ################################################################
+#
+#
+#
+# Contributors:
+#      1. Murilo M. Marinho (murilomarinho@ieee.org)
+#         Responsible for the original implementation.
+#
+#      2. Juan Jose Quiroz Omana (juanjqogm@gmail.com) 
+#         Added documentation.
+#      
+# ################################################################
+*/
+
 #pragma once
 
 #include <atomic>
