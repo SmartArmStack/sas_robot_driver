@@ -21,7 +21,19 @@
 #
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
-# ################################################################*/
+# ################################################################
+#
+#
+#
+# Contributors:
+#      1. Murilo M. Marinho (murilomarinho@ieee.org)
+#         Responsible for the original implementation.
+#
+#      2. Juan Jose Quiroz Omana (juanjqogm@gmail.com) 
+#         Added documentation.
+#      
+# ################################################################
+*/
 
 #include <exception>
 #include <atomic>
