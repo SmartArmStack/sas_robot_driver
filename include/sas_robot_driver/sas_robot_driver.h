@@ -1,6 +1,6 @@
 ﻿#pragma once
 /*
-# Copyright (c) 2016-2020 Murilo Marques Marinho
+# Copyright (c) 2016-2023 Murilo Marques Marinho
 #
 #    This file is part of sas_robot_driver.
 #
@@ -21,6 +21,18 @@
 #
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
+# ################################################################
+#
+#
+#
+# Contributors:
+#      1. Murilo M. Marinho (murilomarinho@ieee.org)
+#         - Original implementation.
+#
+#      2. Juan Jose Quiroz Omana (juanjqogm@gmail.com)
+#         - [2023/05/24] Added the methods get_joint_velocities(),
+#                        get_joint_forces(), and set_target_joint_velocities().
+#
 # ################################################################*/
 
 #include <exception>
@@ -38,6 +50,9 @@ protected:
     std::atomic_bool* break_loops_;
     std::tuple<VectorXd, VectorXd> joint_limits_;
 
+    VectorXd joint_velocities_;
+    VectorXd desired_joint_velocities_;
+    VectorXd joint_forces_;
     RobotDriver(std::atomic_bool* break_loops);
 
     RobotDriver()=delete;
@@ -62,6 +77,12 @@ public:
 
     virtual void initialize()=0;
     virtual void deinitialize()=0;
+
+    virtual VectorXd get_joint_velocities();
+    virtual void set_target_joint_velocities(const VectorXd& set_target_joint_velocities_rad_per_second);
+
+    virtual VectorXd get_joint_forces();
+
 };
 }
 
