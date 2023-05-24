@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2016-2022 Murilo Marques Marinho
+# Copyright (c) 2016-2023 Murilo Marques Marinho
 #
 #    This file is part of sas_robot_driver.
 #
@@ -20,7 +20,23 @@
 #
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
-# ################################################################*/
+# ################################################################
+#
+#
+#
+# Contributors:
+#      1. Murilo M. Marinho (murilomarinho@ieee.org)
+#         - Original implementation.
+#         - [2023/05/23] Initializing the robot_driver_'s joint limits in the constructor.
+#
+#      2. Juan Jose Quiroz Omana (juanjqogm@gmail.com)
+#         - [2023/05/20] Added documentation.
+#         - [2023/05/24] Modified the control_loop method to set the joint target velocities and
+#                        Update the joint velocities and joint forces by using send_joint_states().
+#
+# ################################################################
+*/
+
 #pragma once
 
 #include <atomic>
