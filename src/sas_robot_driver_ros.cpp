@@ -29,8 +29,10 @@
 #         - Original implementation.
 #         - [2023/05/23] Initializing the robot_driver_'s joint limits in the constructor.
 #
-#      2. Juan Jose Quiroz Omana (juanjqogm@gmail.com) 
-#         Added documentation.
+#      2. Juan Jose Quiroz Omana (juanjqogm@gmail.com)
+#         - [2023/05/20] Added documentation.
+#         - [2023/05/24] Modified the control_loop method to set the joint target velocities and
+#                        update the joint velocities and joint forces by using send_joint_states().
 #      
 # ################################################################
 */
@@ -133,15 +135,34 @@ int RobotDriverROS::control_loop()
         while(not _should_shutdown())
         {
             clock_.update_and_sleep();
-
             ros::spinOnce();
+
             if(robot_driver_provider_.is_enabled())
             {
-                robot_driver_->set_target_joint_positions(robot_driver_provider_.get_target_joint_positions());
+                robot_driver_->set_target_joint_positions (robot_driver_provider_.get_target_joint_positions());
+
             }
 
-            robot_driver_provider_.send_joint_positions(robot_driver_->get_joint_positions());
+            if(robot_driver_provider_.is_enabled(RobotDriver::Functionality::VelocityControl))
+            {
+                robot_driver_->set_target_joint_velocities(robot_driver_provider_.get_target_joint_velocities());
+            }
+
             robot_driver_provider_.send_joint_limits(robot_driver_->get_joint_limits());
+
+
+            VectorXd joint_velocities;
+            VectorXd joint_forces;
+
+            try{joint_velocities = robot_driver_->get_joint_velocities();} catch(...){}
+            try{joint_forces     = robot_driver_->get_joint_forces    ();} catch(...){}
+
+            robot_driver_provider_.send_joint_states(robot_driver_->get_joint_positions(),
+                                                     joint_velocities,
+                                                     joint_forces);
+
+
+
             ros::spinOnce();
         }
     }
