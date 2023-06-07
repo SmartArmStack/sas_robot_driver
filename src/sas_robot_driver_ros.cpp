@@ -52,7 +52,7 @@ int RobotDriverROS::control_loop()
         //ROS_INFO_STREAM(ros::this_node::getName() << "::Connected to robot.");
         RCLCPP_INFO_STREAM(node_->get_logger(),"::Connected to robot.");
         //ROS_INFO_STREAM(ros::this_node::getName() << "::Initializing robot...");
-        RCLCPP_INFO_STREAM(node_->get_logger(),"::Connected to robot.");
+        RCLCPP_INFO_STREAM(node_->get_logger(),"::Initializing robot...");
         robot_driver_->initialize();
         //ROS_INFO_STREAM(ros::this_node::getName() << "::Robot initialized.");
         RCLCPP_INFO_STREAM(node_->get_logger(),"::Robot initialized.");

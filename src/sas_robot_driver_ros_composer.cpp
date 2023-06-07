@@ -163,7 +163,7 @@ void RobotDriverROSComposer::deinitialize()
 RobotDriverROSComposer::~RobotDriverROSComposer()=default;
 
 //Defined last because QTCreator messes up the identation because of the auto [,] operator.
-std::tuple<VectorXd, VectorXd> RobotDriverROSComposer::get_joint_limits()
+std::tuple<VectorXd, VectorXd> RobotDriverROSComposer::get_joint_limits() const
 {
     if(!configuration_.override_joint_limits_with_robot_parameter_file)
     {
@@ -172,13 +172,13 @@ std::tuple<VectorXd, VectorXd> RobotDriverROSComposer::get_joint_limits()
         for(const auto& interface : robot_driver_clients_)
         {
             auto [joint_positions_min_l, joint_positions_max_l] = interface->get_joint_limits();
-                    joint_positions_min = concatenate(joint_positions_min, joint_positions_min_l);
-                    joint_positions_max = concatenate(joint_positions_max, joint_positions_max_l);
+            joint_positions_min = concatenate(joint_positions_min, joint_positions_min_l);
+            joint_positions_max = concatenate(joint_positions_max, joint_positions_max_l);
         }
-                    joint_limits_ = {joint_positions_min,joint_positions_max};
-        }
-        return joint_limits_;
+        return {joint_positions_min, joint_positions_max};
     }
+    return joint_limits_;
+}
 
 
 }
