@@ -53,21 +53,21 @@ int main(int argc, char** argv)
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Loading parameters from parameter server.");
 
         sas::RobotDriverExampleConfiguration configuration;
-        node->get_parameter_or("robot_name",configuration.name,std::string("ExampleRobotInROS_123"));
-        std::vector<double> initial_jointpositions;
-        std::vector<double> initial_joint_positions_or = {1,2,3,4,5,6,7};
-        node->get_parameter_or("initial_joint_positions",initial_jointpositions,initial_joint_positions_or);
-        configuration.initial_joint_positions = sas::std_vector_double_to_vectorxd(initial_jointpositions);
+        sas::get_ros_parameter(node,"robot_name",configuration.name); // e.g., sd::string("ExampleRobotInROS_123")
+
+        std::vector<double> initial_joint_positions;
+        sas::get_ros_parameter(node,"initial_joint_positions",initial_joint_positions); // e.g., {1,2,3,4,5,6,7}
+        configuration.initial_joint_positions = sas::std_vector_double_to_vectorxd(initial_joint_positions);
 
         std::vector<double> joint_limits_min;
         std::vector<double> joint_limits_max;
-        node->get_parameter_or("joint_limits_min",joint_limits_min,{-7,-7,-7,-7,-7,-7,-7});
-        node->get_parameter_or("joint_limits_max",joint_limits_max,{7,7,7,7,7,7,7});
+        sas::get_ros_parameter(node,"joint_limits_min",joint_limits_min); // e.g., {-7,-7,-7,-7,-7,-7,-7}
+        sas::get_ros_parameter(node,"joint_limits_max",joint_limits_max); // e.g., {7,7,7,7,7,7,7}
         configuration.joint_limits = {sas::std_vector_double_to_vectorxd(joint_limits_min),
                                      sas::std_vector_double_to_vectorxd(joint_limits_max)};
 
         sas::RobotDriverROSConfiguration robot_driver_ros_configuration;
-        node->get_parameter_or("thread_sampling_time_sec",robot_driver_ros_configuration.thread_sampling_time_sec,0.001);
+        sas::get_ros_parameter(node,"thread_sampling_time_sec",robot_driver_ros_configuration.thread_sampling_time_sec); // e.g., 0.001
         robot_driver_ros_configuration.robot_driver_provider_prefix = node->get_name();
 
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Parameters OK.");
