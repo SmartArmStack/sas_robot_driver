@@ -83,7 +83,7 @@ RobotDriverServer::RobotDriverServer(const std::shared_ptr<Node> &node, const st
     node_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix),
     currently_active_functionality_(RobotDriver::Functionality::None)
 {
-    RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Initializing RobotDriverProvider with prefix " + topic_prefix);
+    RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Initializing RobotDriverServer with prefix " + topic_prefix);
 
     //publisher_joint_states_ = publisher_nodehandle.advertise<sensor_msgs::JointState>(node_prefix + "/get/joint_states", 1);
     publisher_joint_states_ = node->create_publisher<sensor_msgs::msg::JointState>(topic_prefix + "/get/joint_states",1);
