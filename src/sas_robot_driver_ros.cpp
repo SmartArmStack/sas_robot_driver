@@ -46,15 +46,13 @@ int RobotDriverROS::control_loop()
 {
     try{
         clock_.init();
-        //ROS_INFO_STREAM(ros::this_node::getName() << "::Waiting to connect with robot...");
+
         RCLCPP_INFO_STREAM(node_->get_logger(),"::Waiting to connect with robot...");
         robot_driver_->connect();
-        //ROS_INFO_STREAM(ros::this_node::getName() << "::Connected to robot.");
         RCLCPP_INFO_STREAM(node_->get_logger(),"::Connected to robot.");
-        //ROS_INFO_STREAM(ros::this_node::getName() << "::Initializing robot...");
+
         RCLCPP_INFO_STREAM(node_->get_logger(),"::Initializing robot...");
         robot_driver_->initialize();
-        //ROS_INFO_STREAM(ros::this_node::getName() << "::Robot initialized.");
         RCLCPP_INFO_STREAM(node_->get_logger(),"::Robot initialized.");
 
         while(not _should_shutdown())
@@ -74,13 +72,11 @@ int RobotDriverROS::control_loop()
     }
     catch(const std::exception& e)
     {
-        //ROS_WARN_STREAM(ros::this_node::getName() + "::Error or exception caught::" << e.what());
-        RCLCPP_WARN_STREAM(node_->get_logger(),"::Error or exception caught::" << e.what());
+        RCLCPP_ERROR_STREAM(node_->get_logger(),"::Exception caught::" << e.what());
     }
     catch(...)
     {
-        //ROS_WARN_STREAM(ros::this_node::getName() + "::Unexpected error or exception caught");
-        RCLCPP_WARN_STREAM(node_->get_logger(),"::Unexpected error or exception caught");
+        RCLCPP_ERROR_STREAM(node_->get_logger(),"::Unexpected error or exception caught");
     }
 
     return 0;

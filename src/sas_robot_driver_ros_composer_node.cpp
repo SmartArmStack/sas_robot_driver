@@ -42,19 +42,14 @@ int main(int argc, char** argv)
 {
     if(signal(SIGINT, sig_int_handler) == SIG_ERR)
     {
-        //throw std::runtime_error(ros::this_node::getName() + "::Error setting the signal int handler.");
         throw std::runtime_error("::Error setting the signal int handler.");
     }
 
-    //ros::init(argc, argv, "sas_robot_driver_ros_composer_node", ros::init_options::NoSigintHandler);
-
     rclcpp::init(argc,argv,rclcpp::InitOptions(),rclcpp::SignalHandlerOptions::None);
-    //ros::NodeHandle node;
     auto node = std::make_shared<rclcpp::Node>("sas_robot_driver_ros_composer_node");
 
     try
     {
-        //ROS_INFO_STREAM(node->get_name()+"::Loading parameters from parameter server.");
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Loading parameters from parameter server.");
         RobotDriverROSComposerConfiguration robot_driver_ros_composer_configuration;
 
@@ -94,15 +89,12 @@ int main(int argc, char** argv)
         get_ros_parameter(node,"thread_sampling_time_sec",robot_driver_ros_configuration.thread_sampling_time_sec);
 
         robot_driver_ros_configuration.robot_driver_provider_prefix = node->get_name();
-        //ROS_INFO_STREAM(ros::this_node::getName()+"::Parameters OK.");
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Parameters OK.");
 
-
-        //ROS_INFO_STREAM(ros::this_node::getName()+"::Instantiating RobotDriverROSComposer.");
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Instantiating RobotDriverROSComposer.");
         auto robot_driver_composer = std::make_shared<sas::RobotDriverROSComposer>(robot_driver_ros_composer_configuration,node,&kill_this_process);
-        //ROS_INFO_STREAM(ros::this_node::getName()+"::Instantiating RobotDriverROS.");
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Instantiating RobotDriverROS.");
+
         sas::RobotDriverROS robot_driver_ros(node,
                                              robot_driver_composer,
                                              robot_driver_ros_configuration,
@@ -111,11 +103,10 @@ int main(int argc, char** argv)
     }
     catch (const std::exception& e)
     {
-        //ROS_ERROR_STREAM(ros::this_node::getName() + "::Exception::" + e.what());
         RCLCPP_ERROR_STREAM_ONCE(node->get_logger(), std::string("::Exception::") + e.what());
     }
 
-
-    sas::display_signal_handler_none_bug_info(node);
+    //Since jazzy, this does not seem needed anymore
+    //sas::display_signal_handler_none_bug_info(node);
     return 0;
 }
