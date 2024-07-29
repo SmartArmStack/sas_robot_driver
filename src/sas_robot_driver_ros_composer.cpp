@@ -41,7 +41,6 @@ RobotDriverROSComposer::RobotDriverROSComposer(const RobotDriverROSComposerConfi
     {
         for(const std::string& topic_prefix: configuration.robot_driver_client_names)
         {
-            //ROS_INFO_STREAM(ros::this_node::getName()+"::Adding subrobot driver with prefix "+topic_prefix);
             RCLCPP_INFO_STREAM(node_->get_logger(),"::Adding RobotDriverClient driver with prefix "+topic_prefix);
             robot_driver_clients_.push_back(std::unique_ptr<RobotDriverClient>(new RobotDriverClient(node,topic_prefix)));
         }
@@ -110,10 +109,8 @@ void RobotDriverROSComposer::connect()
                         100,
                         10))
         {
-            //throw std::runtime_error(ros::this_node::getName()+"::Unable to connect to CoppeliaSim.");
             throw std::runtime_error("::Unable to connect to CoppeliaSim.");
         }
-        //ROS_INFO_STREAM(ros::this_node::getName()+"::Connected to CoppeliaSim");
         RCLCPP_INFO_STREAM(node_->get_logger(),"::Connected to CoppeliaSim");
     }
 }
@@ -131,7 +128,6 @@ void RobotDriverROSComposer::initialize()
         bool initialized = false;
         while(not initialized and not (*break_loops_))
         {
-            //ros::spinOnce();
             rclcpp::spin_some(node_);
             initialized = true;
             for(const auto& interface : robot_driver_clients_)
