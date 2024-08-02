@@ -23,7 +23,6 @@
 #
 # ################################################################*/
 
-#include <exception>
 #include <atomic>
 
 #include <eigen3/Eigen/Dense>
@@ -74,7 +73,7 @@ public:
 
     VectorXd get_joint_positions() override;
     void set_target_joint_positions(const VectorXd& set_target_joint_positions_rad) override;
-    std::tuple<VectorXd, VectorXd> get_joint_limits() const override;
+    std::tuple<VectorXd, VectorXd> get_joint_limits() override;
     void set_joint_limits(const std::tuple<VectorXd, VectorXd>&) override;
 
     void connect() override;

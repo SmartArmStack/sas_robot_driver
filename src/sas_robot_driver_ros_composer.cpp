@@ -25,6 +25,7 @@
 //#include <ros/callback_queue_interface.h>
 #include <dqrobotics/interfaces/json11/DQ_JsonReader.h>
 //#include <sas_common/sas_common.h>
+#include <dqrobotics/utils/DQ_Constants.h>
 #include <sas_core/sas_core.hpp>
 
 namespace sas
@@ -158,10 +159,9 @@ void RobotDriverROSComposer::deinitialize()
 
 RobotDriverROSComposer::~RobotDriverROSComposer()=default;
 
-//Defined last because QTCreator messes up the identation because of the auto [,] operator.
-std::tuple<VectorXd, VectorXd> RobotDriverROSComposer::get_joint_limits() const
+std::tuple<VectorXd, VectorXd> RobotDriverROSComposer::get_joint_limits()
 {
-    if(!configuration_.override_joint_limits_with_robot_parameter_file)
+    if(!configuration_.override_joint_limits_with_robot_parameter_file && configuration_.use_real_robot)
     {
         VectorXd joint_positions_min;
         VectorXd joint_positions_max;
@@ -172,6 +172,17 @@ std::tuple<VectorXd, VectorXd> RobotDriverROSComposer::get_joint_limits() const
             joint_positions_max = concatenate(joint_positions_max, joint_positions_max_l);
         }
         return {joint_positions_min, joint_positions_max};
+    }
+    else
+    {
+        if(configuration_.use_coppeliasim)
+        {
+            //TODO: Obtain the joint limits from the simulator. This does not seem to be trivial as of now.
+            int dof = get_joint_positions().size();
+            auto joint_positions_max = VectorXd::Ones(dof)*2*pi;
+            auto joint_positions_min = -joint_positions_max;
+            return {joint_positions_min, joint_positions_max};
+        }
     }
     return joint_limits_;
 }
