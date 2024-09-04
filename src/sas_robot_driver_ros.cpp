@@ -65,7 +65,13 @@ int RobotDriverROS::control_loop()
                 robot_driver_->set_target_joint_positions(robot_driver_provider_.get_target_joint_positions());
             }
 
-            robot_driver_provider_.send_joint_states(robot_driver_->get_joint_positions(), VectorXd(), VectorXd());
+            auto joint_positions{robot_driver_->get_joint_positions()};
+            VectorXd joint_velocities;
+            try{joint_velocities = robot_driver_->get_joint_velocities();} catch(...){}
+            VectorXd joint_torques;
+            try{joint_torques = robot_driver_->get_joint_torques();} catch(...){}
+
+            robot_driver_provider_.send_joint_states(joint_positions, joint_velocities, joint_torques);
             robot_driver_provider_.send_joint_limits(robot_driver_->get_joint_limits());
             rclcpp::spin_some(node_);
         }
