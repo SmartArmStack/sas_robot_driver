@@ -30,7 +30,7 @@
 #include <sas_core/sas_robot_driver.hpp>
 #include <sas_robot_driver/sas_robot_driver_client.hpp>
 
-#include <dqrobotics/interfaces/vrep/DQ_VrepInterface.h>
+#include <dqrobotics/interfaces/coppeliasim/DQ_CoppeliaSimInterfaceZMQ.h>
 
 using namespace Eigen;
 
@@ -59,11 +59,9 @@ protected:
     std::shared_ptr<Node> node_;
 
     RobotDriverROSComposerConfiguration configuration_;
-    DQ_VrepInterface vi_;
+    DQ_CoppeliaSimInterfaceZMQ vi_;
     std::vector<std::unique_ptr<sas::RobotDriverClient>> robot_driver_clients_;
-    //std::atomic_bool* break_loops_;
-    //std::tuple<VectorXd, VectorXd> joint_limits_;
-    //RobotDriver(std::atomic_bool* break_loops);
+
     RobotDriverROSComposer()=delete;
     RobotDriverROSComposer(const RobotDriverROSComposer&)=delete;
 public:
