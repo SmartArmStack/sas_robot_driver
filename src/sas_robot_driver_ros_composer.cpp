@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2016-2022 Murilo Marques Marinho
+# Copyright (c) 2016-2024 Murilo Marques Marinho
 #
 #    This file is part of sas_robot_driver.
 #
@@ -22,9 +22,7 @@
 #
 # ################################################################*/
 #include "sas_robot_driver_ros_composer.hpp"
-//#include <ros/callback_queue_interface.h>
 #include <dqrobotics/interfaces/json11/DQ_JsonReader.h>
-//#include <sas_common/sas_common.h>
 #include <dqrobotics/utils/DQ_Constants.h>
 #include <sas_core/sas_core.hpp>
 
@@ -36,7 +34,7 @@ RobotDriverROSComposer::RobotDriverROSComposer(const RobotDriverROSComposerConfi
     RobotDriver(break_loops),
     node_(node),
     configuration_(configuration),
-    vi_(break_loops)
+    vi_()
 {
     if(configuration.use_real_robot)
     {
@@ -106,9 +104,8 @@ void RobotDriverROSComposer::connect()
     if(configuration_.use_coppeliasim)
     {
         if(!vi_.connect(configuration_.coppeliasim_ip,
-                        configuration_.coppeliasim_port,
-                        100,
-                        10))
+                         configuration_.coppeliasim_port,
+                         1000))
         {
             throw std::runtime_error("::Unable to connect to CoppeliaSim.");
         }
