@@ -24,6 +24,8 @@
 # ################################################################*/
 
 #include <atomic>
+#include <memory>
+#include <mutex>
 
 #include <eigen3/Eigen/Dense>
 
@@ -59,8 +61,38 @@ protected:
     std::shared_ptr<Node> node_;
 
     RobotDriverROSComposerConfiguration configuration_;
-    DQ_CoppeliaSimInterfaceZMQ vi_;
+    std::shared_ptr<DQ_CoppeliaSimInterfaceZMQ> vi_;
     std::vector<std::unique_ptr<sas::RobotDriverClient>> robot_driver_clients_;
+
+    class CoppeliaSimThreadManager
+    {
+        std::unique_ptr<std::thread> thread_;
+        std::shared_ptr<DQ_CoppeliaSimInterfaceZMQ> vi_;
+        std::vector<std::string> joint_names_;
+
+        std::mutex q_from_ci_mutex_;
+        VectorXd q_from_ci_;
+
+        std::mutex q_to_ci_mutex_;
+        VectorXd q_to_ci_;
+
+        std::atomic_bool *break_loops_;
+
+        CoppeliaSimThreadManager()=delete;
+        CoppeliaSimThreadManager(const CoppeliaSimThreadManager&)=delete;
+
+    public:
+        CoppeliaSimThreadManager(const std::shared_ptr<DQ_CoppeliaSimInterfaceZMQ>& vi,
+                                 const std::vector<std::string>& joint_names,
+                                 std::atomic_bool *break_loops);
+        ~CoppeliaSimThreadManager();
+        VectorXd get_joint_positions();
+        void set_joint_positions(const VectorXd& q);
+        void start_loop();
+        void loop();
+    };
+
+    std::unique_ptr<CoppeliaSimThreadManager> cstm_;
 
     RobotDriverROSComposer()=delete;
     RobotDriverROSComposer(const RobotDriverROSComposer&)=delete;
