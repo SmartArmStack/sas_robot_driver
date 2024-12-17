@@ -64,6 +64,15 @@ int RobotDriverROS::control_loop()
             {
                 robot_driver_->set_target_joint_positions(robot_driver_provider_.get_target_joint_positions());
             }
+            if(robot_driver_provider_.is_enabled(RobotDriver::Functionality::VelocityControl))
+            {
+                 try{robot_driver_->set_target_joint_velocities(robot_driver_provider_.get_target_joint_velocities());} catch(...){}
+            }
+            if(robot_driver_provider_.is_enabled(RobotDriver::Functionality::ForceControl))
+            {
+                try{robot_driver_->set_target_joint_torques(robot_driver_provider_.get_target_joint_forces());} catch(...){}
+            }
+
 
             auto joint_positions{robot_driver_->get_joint_positions()};
             VectorXd joint_velocities;
