@@ -71,7 +71,7 @@ int main(int argc, char** argv)
 
             //25.7.5 Optional parameters to not break compatibility
             node->declare_parameter("vrep_timeout", 1000);
-            node->get_parameter("vrep_timeout",robot_driver_ros_composer_configuration.coppeliasim_timeout)
+            node->get_parameter("vrep_timeout",robot_driver_ros_composer_configuration.coppeliasim_timeout);
         }
         else
         {
