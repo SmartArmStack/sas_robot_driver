@@ -44,6 +44,7 @@ struct RobotDriverROSComposerConfiguration
     bool use_real_robot;
 
     bool use_coppeliasim;
+    int coppeliasim_timeout = 1000;
     std::vector<std::string> coppeliasim_robot_joint_names;
     std::string coppeliasim_ip;
     int coppeliasim_port;

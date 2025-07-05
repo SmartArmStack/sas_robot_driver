@@ -68,6 +68,10 @@ int main(int argc, char** argv)
             get_ros_parameter(node,"vrep_ip",robot_driver_ros_composer_configuration.coppeliasim_ip);
             get_ros_parameter(node,"vrep_port",robot_driver_ros_composer_configuration.coppeliasim_port);
             get_ros_parameter(node,"vrep_dynamically_enabled",robot_driver_ros_composer_configuration.coppeliasim_dynamically_enabled_);
+
+            //25.7.5 Optional parameters to not break compatibility
+            node->declare_parameter("vrep_timeout");
+            node->get_parameter("vrep_timeout",robot_driver_ros_composer_configuration.coppeliasim_timeout)
         }
         else
         {

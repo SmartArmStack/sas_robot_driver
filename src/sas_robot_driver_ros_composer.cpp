@@ -104,7 +104,7 @@ void RobotDriverROSComposer::connect()
     {
         if(!vi_->connect(configuration_.coppeliasim_ip,
                          configuration_.coppeliasim_port,
-                         1000))
+                         configuration_.coppeliasim_timeout))
         {
             throw std::runtime_error("::Unable to connect to CoppeliaSim.");
         }
