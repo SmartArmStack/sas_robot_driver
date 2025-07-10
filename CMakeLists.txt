@@ -84,7 +84,6 @@ add_executable(sas_robot_driver_ros_composer_node
 
 target_link_libraries(sas_robot_driver_ros_composer_node
     dqrobotics
-    dqrobotics-interface-coppeliasim-zmq
     dqrobotics-interface-json11
     ${PROJECT_NAME}
     Eigen3::Eigen
