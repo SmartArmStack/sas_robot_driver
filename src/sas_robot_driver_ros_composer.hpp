@@ -1,6 +1,6 @@
 #pragma once
 /*
-# Copyright (c) 2016-2022 Murilo Marques Marinho
+# Copyright (c) 2016-2025 Murilo Marques Marinho
 #
 #    This file is part of sas_robot_driver.
 #
@@ -21,7 +21,9 @@
 #
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
-# ################################################################*/
+# ################################################################
+# 2025.07.10: Removing CoppeliaSim and moving it to sas_robot_driver_coppeliasim
+*/
 
 #include <atomic>
 #include <memory>
@@ -32,8 +34,6 @@
 #include <sas_core/sas_robot_driver.hpp>
 #include <sas_robot_driver/sas_robot_driver_client.hpp>
 
-#include <dqrobotics/interfaces/coppeliasim/DQ_CoppeliaSimInterfaceZMQ.h>
-
 using namespace Eigen;
 
 namespace sas
@@ -41,17 +41,7 @@ namespace sas
 
 struct RobotDriverROSComposerConfiguration
 {
-    bool use_real_robot;
-
-    bool use_coppeliasim;
-    int coppeliasim_timeout = 1000;
-    std::vector<std::string> coppeliasim_robot_joint_names;
-    std::string coppeliasim_ip;
-    int coppeliasim_port;
-    bool coppeliasim_dynamically_enabled_ = false;
-
     std::vector<std::string> robot_driver_client_names;
-
     bool override_joint_limits_with_robot_parameter_file;
     std::string robot_parameter_file_path;
 };
@@ -62,38 +52,7 @@ protected:
     std::shared_ptr<Node> node_;
 
     RobotDriverROSComposerConfiguration configuration_;
-    std::shared_ptr<DQ_CoppeliaSimInterfaceZMQ> vi_;
     std::vector<std::unique_ptr<sas::RobotDriverClient>> robot_driver_clients_;
-
-    class CoppeliaSimThreadManager
-    {
-        std::unique_ptr<std::thread> thread_;
-        std::shared_ptr<DQ_CoppeliaSimInterfaceZMQ> vi_;
-        std::vector<std::string> joint_names_;
-
-        std::mutex q_from_ci_mutex_;
-        VectorXd q_from_ci_;
-
-        std::mutex q_to_ci_mutex_;
-        VectorXd q_to_ci_;
-
-        std::atomic_bool *break_loops_;
-
-        CoppeliaSimThreadManager()=delete;
-        CoppeliaSimThreadManager(const CoppeliaSimThreadManager&)=delete;
-
-    public:
-        CoppeliaSimThreadManager(const std::shared_ptr<DQ_CoppeliaSimInterfaceZMQ>& vi,
-                                 const std::vector<std::string>& joint_names,
-                                 std::atomic_bool *break_loops);
-        ~CoppeliaSimThreadManager();
-        VectorXd get_joint_positions();
-        void set_joint_positions(const VectorXd& q);
-        void start_loop();
-        void loop();
-    };
-
-    std::unique_ptr<CoppeliaSimThreadManager> cstm_;
 
     RobotDriverROSComposer()=delete;
     RobotDriverROSComposer(const RobotDriverROSComposer&)=delete;

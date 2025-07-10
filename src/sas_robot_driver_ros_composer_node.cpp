@@ -53,31 +53,6 @@ int main(int argc, char** argv)
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Loading parameters from parameter server.");
         RobotDriverROSComposerConfiguration robot_driver_ros_composer_configuration;
 
-        get_ros_parameter(node,"use_real_robot",robot_driver_ros_composer_configuration.use_real_robot);
-        get_ros_parameter(node,"use_coppeliasim",robot_driver_ros_composer_configuration.use_coppeliasim);
-
-        if((robot_driver_ros_composer_configuration.use_real_robot == false)
-                && robot_driver_ros_composer_configuration.use_coppeliasim == false)
-        {
-            throw std::runtime_error("Both use_real_robot or use_coppeliasim cannot be false at the same time, otherwise this node does nothing.");
-        }
-
-        if(robot_driver_ros_composer_configuration.use_coppeliasim)
-        {
-            get_ros_parameter(node,"vrep_robot_joint_names",robot_driver_ros_composer_configuration.coppeliasim_robot_joint_names);
-            get_ros_parameter(node,"vrep_ip",robot_driver_ros_composer_configuration.coppeliasim_ip);
-            get_ros_parameter(node,"vrep_port",robot_driver_ros_composer_configuration.coppeliasim_port);
-            get_ros_parameter(node,"vrep_dynamically_enabled",robot_driver_ros_composer_configuration.coppeliasim_dynamically_enabled_);
-
-            //25.7.5 Optional parameters to not break compatibility
-            node->declare_parameter("vrep_timeout", 1000);
-            node->get_parameter("vrep_timeout",robot_driver_ros_composer_configuration.coppeliasim_timeout);
-        }
-        else
-        {
-            RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::CoppeliaSim not used (use_coppeliasim==false), skipped related parameter loading.");
-        }
-
         get_ros_parameter(node,"robot_driver_client_names",robot_driver_ros_composer_configuration.robot_driver_client_names);
 
         get_ros_parameter(node,"override_joint_limits_with_robot_parameter_file",robot_driver_ros_composer_configuration.override_joint_limits_with_robot_parameter_file);
@@ -110,7 +85,5 @@ int main(int argc, char** argv)
         RCLCPP_ERROR_STREAM_ONCE(node->get_logger(), std::string("::Exception::") + e.what());
     }
 
-    //Since jazzy, this does not seem needed anymore
-    //sas::display_signal_handler_none_bug_info(node);
     return 0;
 }
