@@ -21,6 +21,7 @@
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
 # ################################################################*/
+#include <rclcpp/rclcpp.hpp>
 #include <sas_robot_driver/sas_robot_driver_server.hpp>
 #include <sas_conversions/sas_conversions.hpp>
 #include <sas_common/sas_common.hpp>
@@ -31,18 +32,30 @@ namespace sas
 
 void RobotDriverServer::_callback_target_joint_positions(const std_msgs::msg::Float64MultiArray& msg)
 {
+    const std::string this_topic(node_prefix_ + "/set/target_joint_positions");
+    if(node_->count_publishers(this_topic)>1)
+        throw std::runtime_error(this_topic + " must be exclusively published and there is more than one publisher connected.");
+
     target_joint_positions_ = std_vector_double_to_vectorxd(msg.data);
     currently_active_functionality_ = RobotDriver::Functionality::PositionControl;
 }
 
 void RobotDriverServer::_callback_target_joint_velocities(const std_msgs::msg::Float64MultiArray &msg)
 {
+    const std::string this_topic(node_prefix_ + "/set/target_joint_velocities");
+    if(node_->count_publishers(this_topic)>1)
+        throw std::runtime_error(this_topic + " must be exclusively published and there is more than one publisher connected.");
+
     target_joint_velocities_ = std_vector_double_to_vectorxd(msg.data);
     currently_active_functionality_ = RobotDriver::Functionality::VelocityControl;
 }
 
 void RobotDriverServer::_callback_target_joint_forces(const std_msgs::msg::Float64MultiArray& msg)
 {
+    const std::string this_topic(node_prefix_ + "/set/target_joint_forces");
+    if(node_->count_publishers(this_topic)>1)
+        throw std::runtime_error(this_topic + " must be exclusively published and there is more than one publisher connected.");
+
     target_joint_forces_ = std_vector_double_to_vectorxd(msg.data);
     currently_active_functionality_ = RobotDriver::Functionality::ForceControl;
 }
@@ -85,45 +98,27 @@ RobotDriverServer::RobotDriverServer(const std::shared_ptr<Node> &node, const st
 {
     RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Initializing RobotDriverServer with prefix " + topic_prefix);
 
-    //publisher_joint_states_ = publisher_nodehandle.advertise<sensor_msgs::JointState>(node_prefix + "/get/joint_states", 1);
     publisher_joint_states_ = node->create_publisher<sensor_msgs::msg::JointState>(topic_prefix + "/get/joint_states",1);
-    //publisher_joint_limits_min_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_min", 1);
     publisher_joint_limits_min_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/get/joint_positions_min", 1);
-    //publisher_joint_limits_max_ = publisher_nodehandle.advertise<std_msgs::Float64MultiArray>(node_prefix + "/get/joint_positions_max", 1);
     publisher_joint_limits_max_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/get/joint_positions_max", 1);
-    //publisher_home_state_ = publisher_nodehandle.advertise<std_msgs::Int32MultiArray>(node_prefix + "/get/home_states", 1);
     publisher_home_state_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/get/home_states", 1);
 
-    //subscriber_target_joint_positions_ = subscriber_nodehandle.subscribe(node_prefix + "/set/target_joint_positions", 1, &RobotDriverProvider::_callback_target_joint_positions, this);
     subscriber_target_joint_positions_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
                 topic_prefix + "/set/target_joint_positions", 1, std::bind(&RobotDriverServer::_callback_target_joint_positions, this, _1)
                 );
-    //subscriber_target_joint_velocities_ = subscriber_nodehandle.subscribe(node_prefix + "/set/target_joint_velocities", 1, &RobotDriverProvider::_callback_target_joint_velocities, this);
     subscriber_target_joint_velocities_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
                 topic_prefix + "/set/target_joint_velocities", 1, std::bind(&RobotDriverServer::_callback_target_joint_velocities, this, _1)
                 );
-    //subscriber_target_joint_forces_ = subscriber_nodehandle.subscribe(node_prefix + "/set/target_joint_forces", 1, &RobotDriverProvider::_callback_target_joint_forces, this);
     subscriber_target_joint_forces_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
                 topic_prefix + "/set/target_joint_forces", 1, std::bind(&RobotDriverServer::_callback_target_joint_forces, this, _1)
                 );
-    //subscriber_homing_signal_ = subscriber_nodehandle.subscribe(node_prefix + "/set/homing_signal", 1, &RobotDriverProvider::_callback_homing_signal, this);
     subscriber_homing_signal_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
                 topic_prefix + "/set/homing_signal", 1, std::bind(&RobotDriverServer::_callback_homing_signal, this, _1)
                 );
-    //Clear positions was missing!
     subscriber_clear_positions_signal_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
                 topic_prefix + "/set/clear_positions", 1, std::bind(&RobotDriverServer::_callback_clear_positions_signal, this, _1)
                 );
 }
-
-//see the discussion in sas_common to understand why this is commented out
-//#ifdef IS_SAS_PYTHON_BUILD
-//RobotDriverServer::RobotDriverServer(const std::string &node_prefix):
-//    RobotDriverServer(sas::common::get_static_node(),node_prefix)
-//{
-  //Delegated
-//}
-//#endif
 
 VectorXd RobotDriverServer::get_target_joint_positions() const
 {
