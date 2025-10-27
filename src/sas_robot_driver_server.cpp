@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2016-2023 Murilo Marques Marinho
+# Copyright (c) 2016-2025 Murilo Marques Marinho
 #
 #    This file is part of sas_robot_driver.
 #
@@ -20,7 +20,14 @@
 #
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
-# ################################################################*/
+# ################################################################
+# Contributors:
+#
+#   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
+#      Added the Watchdog functionaly.
+#
+*/
+
 #include <rclcpp/rclcpp.hpp>
 #include <sas_robot_driver/sas_robot_driver_server.hpp>
 #include <sas_conversions/sas_conversions.hpp>
@@ -29,6 +36,7 @@ using std::placeholders::_1;
 
 namespace sas
 {
+
 
 void RobotDriverServer::_callback_target_joint_positions(const std_msgs::msg::Float64MultiArray& msg)
 {
@@ -90,7 +98,7 @@ void RobotDriverServer::_callback_clear_positions_signal(const std_msgs::msg::In
     //currently_active_functionality_ = RobotDriver::Functionality::ClearPositions;
 }
 
-void RobotDriverServer::_callback_watchdog_trigger_state(const sas_msgs::msg::Heartbeat &msg)
+void RobotDriverServer::_callback_watchdog_trigger_state(const sas_msgs::msg::WatchdogTrigger &msg)
 {
     watchdog_enabled_ = true;
     watchdog_trigger_status_ = msg.status;
@@ -127,7 +135,7 @@ RobotDriverServer::RobotDriverServer(const std::shared_ptr<Node> &node, const st
     subscriber_clear_positions_signal_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
                 topic_prefix + "/set/clear_positions", 1, std::bind(&RobotDriverServer::_callback_clear_positions_signal, this, _1)
                 );
-    subscriber_watchdog_trigger_ = node->create_subscription<sas_msgs::msg::Heartbeat>(
+    subscriber_watchdog_trigger_ = node->create_subscription<sas_msgs::msg::WatchdogTrigger>(
         topic_prefix + "/get/heartbeat_state", 1, std::bind(&RobotDriverServer::_callback_watchdog_trigger_state, this, _1)
         );
 }
@@ -240,28 +248,46 @@ bool RobotDriverServer::is_enabled(const RobotDriver::Functionality& supported_f
         return homing_signal_.size() > 0;
     case RobotDriver::Functionality::ClearPositions:
         return clear_positions_signal_.size() > 0;
+    case sas::RobotDriver::Functionality::Watchdog:
+        return is_watchdog_enabled();
     default:
         throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::is_enabled() unknown control mode");
     }
 }
 
-/*
+/**
+ * @brief RobotDriverServer::get_watchdog_trigger_time_point returns the time point received by the Watchdog functionality.
+ * @return The desired time point
+ */
 std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> RobotDriverServer::get_watchdog_trigger_time_point() const
 {
-    if (is_heartbeat_enabled())
+    if (is_enabled(RobotDriver::Functionality::Watchdog))
         return watchdog_trigger_time_point_;
     else
-        throw std::runtime_error(node_prefix_ + "::RobotDriverServer::get_heartbeat_time_point()::trying to get hearbeat data but uninitialized.");
+        throw std::runtime_error(node_prefix_ + "::RobotDriverServer::get_watchdog_trigger_time_point()::trying to get Watchdog data but uninitialized.");
 }
 
+/**
+ * @brief RobotDriverServer::get_watchdog_trigger_status returns the status received by the Watchdog functionality.
+ * @return The Watchdog status
+ */
 bool RobotDriverServer::get_watchdog_trigger_status() const
 {
-    if (is_heartbeat_enabled())
-        return heartbeat_status_;
+    if (is_enabled(RobotDriver::Functionality::Watchdog))
+        return watchdog_trigger_status_;
     else
-        throw std::runtime_error(node_prefix_ + "::RobotDriverInterface::get_heartbeat_status()::trying to get hearbeat data but uninitialized.");
+        throw std::runtime_error(node_prefix_ + "::RobotDriverInterface::get_watchdog_trigger_status()::trying to get Watchdog data but uninitialized.");
 }
-*/
+
+/**
+ * @brief RobotDriverServer::is_watchdog_enabled returns true if the Watchdog functionality is enabled.
+ * @return A flag denoting if the Watchdog functionality is enabled.
+ */
+bool RobotDriverServer::is_watchdog_enabled() const
+{
+    return watchdog_enabled_;
+}
+
 
 
 }
