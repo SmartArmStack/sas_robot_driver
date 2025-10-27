@@ -68,9 +68,9 @@ private:
     Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_target_joint_positions_;
     Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_target_joint_velocities_;
     Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_target_joint_forces_;
-    Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr publisher_homing_signal_;
-    Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr publisher_clear_positions_signal_;
-    Publisher<sas_msgs::msg::WatchdogTrigger>::SharedPtr publisher_watchdog_trigger_;
+    Publisher<std_msgs::msg::Int32MultiArray>  ::SharedPtr publisher_homing_signal_;
+    Publisher<std_msgs::msg::Int32MultiArray>  ::SharedPtr publisher_clear_positions_signal_;
+    Publisher<sas_msgs::msg::WatchdogTrigger>  ::SharedPtr publisher_watchdog_trigger_;
 
     void _callback_joint_states(const sensor_msgs::msg::JointState& msg);
     void _callback_joint_limits_min(const std_msgs::msg::Float64MultiArray& msg);

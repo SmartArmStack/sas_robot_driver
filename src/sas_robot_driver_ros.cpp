@@ -37,7 +37,7 @@ RobotDriverROS::RobotDriverROS(std::shared_ptr<Node> &node,
     kill_this_node_(kill_this_node),
     robot_driver_(robot_driver),
     clock_(configuration.thread_sampling_time_sec),
-    robot_driver_provider_(node,configuration_.robot_driver_provider_prefix)
+    robot_driver_server_(node,configuration_.robot_driver_provider_prefix)
 {
 
 }
@@ -60,17 +60,24 @@ int RobotDriverROS::control_loop()
             clock_.update_and_sleep();
 
             rclcpp::spin_some(node_);
-            if(robot_driver_provider_.is_enabled())
+            if(robot_driver_server_.is_enabled())
             {
-                robot_driver_->set_target_joint_positions(robot_driver_provider_.get_target_joint_positions());
+                robot_driver_->set_target_joint_positions(robot_driver_server_.get_target_joint_positions());
             }
-            if(robot_driver_provider_.is_enabled(RobotDriver::Functionality::VelocityControl))
+            if(robot_driver_server_.is_enabled(RobotDriver::Functionality::VelocityControl))
             {
-                 try{robot_driver_->set_target_joint_velocities(robot_driver_provider_.get_target_joint_velocities());} catch(...){}
+                 try{robot_driver_->set_target_joint_velocities(robot_driver_server_.get_target_joint_velocities());} catch(...){}
             }
-            if(robot_driver_provider_.is_enabled(RobotDriver::Functionality::ForceControl))
+            if(robot_driver_server_.is_enabled(RobotDriver::Functionality::ForceControl))
             {
-                try{robot_driver_->set_target_joint_torques(robot_driver_provider_.get_target_joint_forces());} catch(...){}
+                try{robot_driver_->set_target_joint_torques(robot_driver_server_.get_target_joint_forces());} catch(...){}
+            }
+            if(robot_driver_server_.is_enabled(RobotDriver::Functionality::Watchdog))
+            {
+                try{
+                    robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_trigger_time_point());
+
+                }catch(...){}
             }
 
 
@@ -80,8 +87,8 @@ int RobotDriverROS::control_loop()
             VectorXd joint_torques;
             try{joint_torques = robot_driver_->get_joint_torques();} catch(...){}
 
-            robot_driver_provider_.send_joint_states(joint_positions, joint_velocities, joint_torques);
-            robot_driver_provider_.send_joint_limits(robot_driver_->get_joint_limits());
+            robot_driver_server_.send_joint_states(joint_positions, joint_velocities, joint_torques);
+            robot_driver_server_.send_joint_limits(robot_driver_->get_joint_limits());
             rclcpp::spin_some(node_);
         }
     }

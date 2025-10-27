@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2016-2022 Murilo Marques Marinho
+# Copyright (c) 2016-2025 Murilo Marques Marinho
 #
 #    This file is part of sas_robot_driver.
 #
@@ -20,7 +20,15 @@
 #
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
-# ################################################################*/
+# ################################################################
+# Contributors:
+#
+#   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
+#      - Added the Watchdog functionality.
+#      - Renamed robot_driver_provider_ to robot_driver_server_
+#
+*/
+
 #pragma once
 
 #include <atomic>
@@ -55,7 +63,7 @@ private:
     std::atomic_bool* kill_this_node_;
     std::shared_ptr<RobotDriver> robot_driver_;
     Clock clock_;
-    RobotDriverServer robot_driver_provider_;
+    RobotDriverServer robot_driver_server_;
 
     bool _should_shutdown() const;
 
