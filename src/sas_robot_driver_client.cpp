@@ -20,7 +20,14 @@
 #
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
-# ################################################################*/
+# ################################################################
+# Contributors:
+#
+#   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
+#      Added the Watchdog functionality.
+#
+*/
+
 #include <sas_robot_driver/sas_robot_driver_client.hpp>
 #include <sas_conversions/sas_conversions.hpp>
 #include <sas_common/sas_common.hpp>

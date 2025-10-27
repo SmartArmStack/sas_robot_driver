@@ -25,7 +25,7 @@
 # Contributors:
 #
 #   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
-#      Added the Watchdog functionaly.
+#      Added the Watchdog functionality.
 #
 */
 

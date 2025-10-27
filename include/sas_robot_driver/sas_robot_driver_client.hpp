@@ -21,7 +21,13 @@
 #
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
-# ################################################################*/
+# ################################################################
+# Contributors:
+#
+#   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
+#      Added the Watchdog functionality.
+#
+*/
 
 #include <atomic>
 #include <tuple>
