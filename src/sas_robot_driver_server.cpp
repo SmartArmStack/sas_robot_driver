@@ -103,7 +103,7 @@ void RobotDriverServer::_callback_watchdog_trigger_state(const sas_msgs::msg::Wa
     watchdog_enabled_ = true;
     watchdog_trigger_status_ = msg.status;
     watchdog_trigger_time_point_ = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>(
-        std::chrono::seconds(msg.header.stamp.nanosec)
+        std::chrono::seconds(msg.header.stamp.sec) + std::chrono::nanoseconds(msg.header.stamp.nanosec)
         );
 }
 
