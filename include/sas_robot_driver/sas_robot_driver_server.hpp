@@ -33,6 +33,7 @@
 
 #include <sas_core/sas_robot_driver.hpp>
 #include <sas_core/sas_object.hpp>
+#include <sas_msgs/msg/heartbeat.hpp>
 
 using namespace rclcpp;
 
@@ -62,12 +63,20 @@ private:
     VectorXi homing_signal_;
     Subscription<std_msgs::msg::Int32MultiArray>::SharedPtr subscriber_clear_positions_signal_;
     VectorXi clear_positions_signal_;
+    Subscription<sas_msgs::msg::Heartbeat>::SharedPtr subscriber_watchdog_trigger_;
+    bool watchdog_trigger_status_;
+    bool watchdog_enabled_;
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> watchdog_trigger_time_point_;
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> get_watchdog_trigger_time_point() const;
+    bool get_watchdog_trigger_status() const;
+    bool is_watchdog_enabled() const;
 
     void _callback_target_joint_positions(const std_msgs::msg::Float64MultiArray &msg);
     void _callback_target_joint_velocities(const std_msgs::msg::Float64MultiArray &msg);
     void _callback_target_joint_forces(const std_msgs::msg::Float64MultiArray &msg);
     void _callback_homing_signal(const std_msgs::msg::Int32MultiArray& msg);
     void _callback_clear_positions_signal(const std_msgs::msg::Int32MultiArray &msg);
+    void _callback_watchdog_trigger_state(const sas_msgs::msg::Heartbeat& msg);
 public:
     RobotDriverServer() = delete;
     RobotDriverServer(const RobotDriverServer&) = delete;
