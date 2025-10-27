@@ -136,7 +136,7 @@ RobotDriverServer::RobotDriverServer(const std::shared_ptr<Node> &node, const st
                 topic_prefix + "/set/clear_positions", 1, std::bind(&RobotDriverServer::_callback_clear_positions_signal, this, _1)
                 );
     subscriber_watchdog_trigger_ = node->create_subscription<sas_msgs::msg::WatchdogTrigger>(
-        topic_prefix + "/get/heartbeat_state", 1, std::bind(&RobotDriverServer::_callback_watchdog_trigger_state, this, _1)
+        topic_prefix + "/get/watchdog_trigger", 1, std::bind(&RobotDriverServer::_callback_watchdog_trigger_state, this, _1)
         );
 }
 
