@@ -21,7 +21,13 @@
 #
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
-# ################################################################*/
+# ################################################################
+# Contributors:
+#
+#   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
+#      Added the Watchdog functionality.
+#
+*/
 
 #include <atomic>
 #include <tuple>
@@ -31,7 +37,7 @@
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <std_msgs/msg/int32_multi_array.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
-
+#include <sas_msgs/msg/watchdog_trigger.hpp>
 #include <sas_core/sas_robot_driver.hpp>
 #include <sas_core/sas_object.hpp>
 
@@ -62,8 +68,9 @@ private:
     Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_target_joint_positions_;
     Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_target_joint_velocities_;
     Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_target_joint_forces_;
-    Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr publisher_homing_signal_;
-    Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr publisher_clear_positions_signal_;
+    Publisher<std_msgs::msg::Int32MultiArray>  ::SharedPtr publisher_homing_signal_;
+    Publisher<std_msgs::msg::Int32MultiArray>  ::SharedPtr publisher_clear_positions_signal_;
+    Publisher<sas_msgs::msg::WatchdogTrigger>  ::SharedPtr publisher_watchdog_trigger_;
 
     void _callback_joint_states(const sensor_msgs::msg::JointState& msg);
     void _callback_joint_limits_min(const std_msgs::msg::Float64MultiArray& msg);
@@ -84,6 +91,7 @@ public:
     void send_target_joint_forces(const VectorXd& target_joint_forces);
     void send_homing_signal(const VectorXi& homing_signal);
     void send_clear_positions_signal(const VectorXi& clear_positions_signal);
+    void send_watchdog_trigger(const bool& watchdog_trigger_status);
 
     VectorXd get_joint_positions() const;
     VectorXd get_joint_velocities() const;

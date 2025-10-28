@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2016-2022 Murilo Marques Marinho
+# Copyright (c) 2016-2025 Murilo Marques Marinho
 #
 #    This file is part of sas_robot_driver.
 #
@@ -20,7 +20,16 @@
 #
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
-# ################################################################*/
+# ################################################################
+# Contributors:
+#
+#   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
+#      - Added the Watchdog functionality.
+#      - Renamed robot_driver_provider_ to robot_driver_server_
+#
+*/
+
+#include <sas_common/sas_common.hpp>
 #include <sas_robot_driver/sas_robot_driver_ros.hpp>
 #include <dqrobotics/utils/DQ_Math.h>
 #include <dqrobotics/interfaces/json11/DQ_JsonReader.h>
@@ -37,7 +46,8 @@ RobotDriverROS::RobotDriverROS(std::shared_ptr<Node> &node,
     kill_this_node_(kill_this_node),
     robot_driver_(robot_driver),
     clock_(configuration.thread_sampling_time_sec),
-    robot_driver_provider_(node,configuration_.robot_driver_provider_prefix)
+    robot_driver_server_(node,configuration_.robot_driver_provider_prefix),
+    watchdog_started_{false}
 {
 
 }
@@ -46,7 +56,6 @@ int RobotDriverROS::control_loop()
 {
     try{
         clock_.init();
-
         RCLCPP_INFO_STREAM(node_->get_logger(),"::Waiting to connect with robot...");
         robot_driver_->connect();
         RCLCPP_INFO_STREAM(node_->get_logger(),"::Connected to robot.");
@@ -60,17 +69,36 @@ int RobotDriverROS::control_loop()
             clock_.update_and_sleep();
 
             rclcpp::spin_some(node_);
-            if(robot_driver_provider_.is_enabled())
+            if(robot_driver_server_.is_enabled())
             {
-                robot_driver_->set_target_joint_positions(robot_driver_provider_.get_target_joint_positions());
+                robot_driver_->set_target_joint_positions(robot_driver_server_.get_target_joint_positions());
             }
-            if(robot_driver_provider_.is_enabled(RobotDriver::Functionality::VelocityControl))
+            if(robot_driver_server_.is_enabled(RobotDriver::Functionality::VelocityControl))
             {
-                 try{robot_driver_->set_target_joint_velocities(robot_driver_provider_.get_target_joint_velocities());} catch(...){}
+                 try{robot_driver_->set_target_joint_velocities(robot_driver_server_.get_target_joint_velocities());} catch(...){}
             }
-            if(robot_driver_provider_.is_enabled(RobotDriver::Functionality::ForceControl))
+            if(robot_driver_server_.is_enabled(RobotDriver::Functionality::ForceControl))
             {
-                try{robot_driver_->set_target_joint_torques(robot_driver_provider_.get_target_joint_forces());} catch(...){}
+                try{robot_driver_->set_target_joint_torques(robot_driver_server_.get_target_joint_forces());} catch(...){}
+            }
+            if(robot_driver_server_.is_enabled(RobotDriver::Functionality::Watchdog))
+            {
+                if (!watchdog_started_)
+                {   // This portion of code is executed only one time
+                    // Initialize the watchdog.
+                    double watchdog_period;
+                    // If the "watchdog_period_in_seconds" is not defined, we use a default value.
+                    get_ros_optional_parameter(node_, "watchdog_period_in_seconds", watchdog_period, 1.0);
+                    RCLCPP_INFO_STREAM(node_->get_logger(), "Watchdog initialized with a " << watchdog_period << " second period");
+                    const std::chrono::nanoseconds period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::duration<double>(watchdog_period));
+                    watchdog_started_ = true;
+                    robot_driver_->watchdog_start(period);
+                }
+                try{
+                    robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_trigger_time_point(),
+                                                    robot_driver_server_.get_watchdog_trigger_status());
+                }catch(...){}
             }
 
 
@@ -80,8 +108,8 @@ int RobotDriverROS::control_loop()
             VectorXd joint_torques;
             try{joint_torques = robot_driver_->get_joint_torques();} catch(...){}
 
-            robot_driver_provider_.send_joint_states(joint_positions, joint_velocities, joint_torques);
-            robot_driver_provider_.send_joint_limits(robot_driver_->get_joint_limits());
+            robot_driver_server_.send_joint_states(joint_positions, joint_velocities, joint_torques);
+            robot_driver_server_.send_joint_limits(robot_driver_->get_joint_limits());
             rclcpp::spin_some(node_);
         }
     }
