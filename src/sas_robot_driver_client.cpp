@@ -140,7 +140,7 @@ void RobotDriverClient::send_clear_positions_signal(const VectorXi &clear_positi
 void RobotDriverClient::send_watchdog_trigger(const bool& watchdog_trigger_status)
 {
     sas_msgs::msg::WatchdogTrigger ros_msg;
-    ros_msg.header.stamp = node_->now();
+    ros_msg.header = std_msgs::msg::Header();
     ros_msg.status = watchdog_trigger_status;
     publisher_watchdog_trigger_->publish(ros_msg);
 }
