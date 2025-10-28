@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2016-2022 Murilo Marques Marinho
+# Copyright (c) 2016-2025 Murilo Marques Marinho
 #
 #    This file is part of sas_robot_driver.
 #
@@ -20,7 +20,15 @@
 #
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
-# ################################################################*/
+# ################################################################
+# Contributors:
+#
+#   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
+#      - Added the Watchdog functionality.
+#      - Renamed robot_driver_provider_ to robot_driver_server_
+#
+*/
+
 #include <sas_robot_driver/sas_robot_driver_ros.hpp>
 #include <dqrobotics/utils/DQ_Math.h>
 #include <dqrobotics/interfaces/json11/DQ_JsonReader.h>
@@ -74,6 +82,25 @@ int RobotDriverROS::control_loop()
             }
             if(robot_driver_server_.is_enabled(RobotDriver::Functionality::Watchdog))
             {
+                static bool first_run = true;
+                if (first_run)
+                {   // This portion of code is executed only one time
+                    double watchdog_period_in_seconds;
+                    if (configuration_.watchdog_period_in_seconds.has_value())
+                        watchdog_period_in_seconds = configuration_.watchdog_period_in_seconds.value();
+                    else// If the watchdog_period is not specified by the user, the default value is defined as
+                        // 500 times the period of the main control loop. This value was selected Ad hoc in
+                        // experimental setups running a 2ms period control loop. I found that a one-second watchdog period
+                        // was suitable.
+                        watchdog_period_in_seconds = 500.0*configuration_.thread_sampling_time_sec;
+
+                    // Initialize the watchdog.
+                    RCLCPP_INFO_STREAM(node_->get_logger(), "Watchdog initialized with a " << watchdog_period_in_seconds << " second period");
+                    const std::chrono::nanoseconds period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::duration<double>(watchdog_period_in_seconds));
+                    robot_driver_->watchdog_start(period);
+                    first_run = false;
+                }
                 try{
                     robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_trigger_time_point());
                     robot_driver_->watchdog_status(robot_driver_server_.get_watchdog_trigger_status());

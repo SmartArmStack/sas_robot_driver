@@ -203,7 +203,7 @@ bool RobotDriverClient::is_enabled(const RobotDriver::Functionality &control_mod
     case RobotDriver::Functionality::Homing:
         return home_states_.size() > 0;
     case sas::RobotDriver::Functionality::Watchdog:
-        return true; // The watchdog in the client is enabled by default.
+        return true; // The watchdog in the client is always enabled.
     case RobotDriver::Functionality::ClearPositions:
         throw std::runtime_error(topic_prefix_+"::is_enabled() RobotDriver::Functionality::ClearPositions has no meaning in RobotDriverInterface::is_enabled().");
     case RobotDriver::Functionality::None:

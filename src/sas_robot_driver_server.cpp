@@ -234,6 +234,7 @@ void RobotDriverServer::send_home_state(const VectorXi &home_state)
     publisher_home_state_->publish(ros_msg_home_state);
 }
 
+
 bool RobotDriverServer::is_enabled(const RobotDriver::Functionality& supported_functionality) const
 {
     switch(supported_functionality)
@@ -287,6 +288,7 @@ bool RobotDriverServer::is_watchdog_enabled() const
 {
     return watchdog_enabled_;
 }
+
 
 
 
