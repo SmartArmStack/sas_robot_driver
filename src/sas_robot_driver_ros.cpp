@@ -29,6 +29,7 @@
 #
 */
 
+#include <sas_common/sas_common.hpp>
 #include <sas_robot_driver/sas_robot_driver_ros.hpp>
 #include <dqrobotics/utils/DQ_Math.h>
 #include <dqrobotics/interfaces/json11/DQ_JsonReader.h>
@@ -45,7 +46,8 @@ RobotDriverROS::RobotDriverROS(std::shared_ptr<Node> &node,
     kill_this_node_(kill_this_node),
     robot_driver_(robot_driver),
     clock_(configuration.thread_sampling_time_sec),
-    robot_driver_server_(node,configuration_.robot_driver_provider_prefix)
+    robot_driver_server_(node,configuration_.robot_driver_provider_prefix),
+    watchdog_started_{false}
 {
 
 }
@@ -54,7 +56,6 @@ int RobotDriverROS::control_loop()
 {
     try{
         clock_.init();
-
         RCLCPP_INFO_STREAM(node_->get_logger(),"::Waiting to connect with robot...");
         robot_driver_->connect();
         RCLCPP_INFO_STREAM(node_->get_logger(),"::Connected to robot.");
@@ -82,24 +83,17 @@ int RobotDriverROS::control_loop()
             }
             if(robot_driver_server_.is_enabled(RobotDriver::Functionality::Watchdog))
             {
-                static bool first_run = true;
-                if (first_run)
+                if (!watchdog_started_)
                 {   // This portion of code is executed only one time
-                    double watchdog_period_in_seconds;
-                    if (configuration_.watchdog_period_in_seconds.has_value())
-                        watchdog_period_in_seconds = configuration_.watchdog_period_in_seconds.value();
-                    else// If the watchdog_period is not specified by the user, the default value is defined as
-                        // 500 times the period of the main control loop. This value was selected Ad hoc in
-                        // experimental setups running a 2ms period control loop. I found that a one-second watchdog period
-                        // was suitable.
-                        watchdog_period_in_seconds = 500.0*configuration_.thread_sampling_time_sec;
-
                     // Initialize the watchdog.
-                    RCLCPP_INFO_STREAM(node_->get_logger(), "Watchdog initialized with a " << watchdog_period_in_seconds << " second period");
+                    double watchdog_period;
+                    // If the "watchdog_period_in_seconds" is not defined, we use a default value.
+                    get_ros_optional_parameter(node_, "watchdog_period_in_seconds", watchdog_period, 1.0);
+                    RCLCPP_INFO_STREAM(node_->get_logger(), "Watchdog initialized with a " << watchdog_period << " second period");
                     const std::chrono::nanoseconds period = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        std::chrono::duration<double>(watchdog_period_in_seconds));
+                        std::chrono::duration<double>(watchdog_period));
+                    watchdog_started_ = true;
                     robot_driver_->watchdog_start(period);
-                    first_run = false;
                 }
                 try{
                     robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_trigger_time_point(),
