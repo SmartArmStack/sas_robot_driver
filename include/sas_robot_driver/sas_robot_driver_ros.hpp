@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2016-2022 Murilo Marques Marinho
+# Copyright (c) 2016-2025 Murilo Marques Marinho
 #
 #    This file is part of sas_robot_driver.
 #
@@ -20,7 +20,16 @@
 #
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
-# ################################################################*/
+# ################################################################
+# Contributors:
+#
+#   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
+#      - Added the Watchdog functionality.
+#      - Renamed robot_driver_provider_ to robot_driver_server_
+#      - Added a new std::optional parameter in RobotDriverROSConfiguration to define the watchdog period
+#
+*/
+
 #pragma once
 
 #include <atomic>
@@ -28,7 +37,6 @@
 #include <memory>
 
 #include <rclcpp/rclcpp.hpp>
-
 #include <sas_core/sas_clock.hpp>
 #include <sas_core/sas_robot_driver.hpp>
 #include <sas_robot_driver/sas_robot_driver_server.hpp>
@@ -42,6 +50,7 @@ struct RobotDriverROSConfiguration
 {
     std::string robot_driver_provider_prefix;
     double thread_sampling_time_sec;
+    double  watchdog_period_in_seconds;
     std::vector<double> q_min;
     std::vector<double> q_max;
 };
@@ -55,8 +64,9 @@ private:
     std::atomic_bool* kill_this_node_;
     std::shared_ptr<RobotDriver> robot_driver_;
     Clock clock_;
-    RobotDriverServer robot_driver_provider_;
-
+    RobotDriverServer robot_driver_server_;
+    bool watchdog_started_;
+    std::string watchdog_parameter_name_{"watchdog_period_in_seconds"};
     bool _should_shutdown() const;
 
 public:

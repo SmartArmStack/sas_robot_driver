@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2016-2022 Murilo Marques Marinho
+# Copyright (c) 2016-2025 Murilo Marques Marinho
 #
 #    This file is part of sas_robot_driver.
 #
@@ -20,7 +20,14 @@
 #
 #   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
 #
-# ################################################################*/
+# ################################################################
+# Contributors:
+#
+#   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
+#      Added the Watchdog functionality.
+#
+*/
+
 #include <sas_robot_driver/sas_robot_driver_client.hpp>
 #include <sas_conversions/sas_conversions.hpp>
 #include <sas_common/sas_common.hpp>
@@ -75,6 +82,7 @@ RobotDriverClient::RobotDriverClient(const std::shared_ptr<Node> &node, const st
     publisher_target_joint_forces_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_forces",1);
     publisher_homing_signal_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/set/homing_signal",1);
     publisher_clear_positions_signal_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/set/clear_positions_signal",1);
+    publisher_watchdog_trigger_ = node->create_publisher<sas_msgs::msg::WatchdogTrigger>(topic_prefix + "/set/watchdog_trigger", 1);
 
     subscriber_joint_states_ = node->create_subscription<sensor_msgs::msg::JointState>(
                 topic_prefix + "/get/joint_states", 1, std::bind(&RobotDriverClient::_callback_joint_states, this, _1)
@@ -123,6 +131,19 @@ void RobotDriverClient::send_clear_positions_signal(const VectorXi &clear_positi
     std_msgs::msg::Int32MultiArray ros_msg;
     ros_msg.data = vectorxi_to_std_vector_int(clear_positions_signal);
     publisher_clear_positions_signal_->publish(ros_msg);
+}
+
+/**
+ * @brief RobotDriverClient::send_watchdog_trigger sends the Watchdog trigger
+ * @param watchdog_trigger_status The desired status for the Watchdog
+ */
+void RobotDriverClient::send_watchdog_trigger(const bool& watchdog_trigger_status)
+{
+    sas_msgs::msg::WatchdogTrigger ros_msg;
+    ros_msg.header = std_msgs::msg::Header();
+    ros_msg.header.stamp = rclcpp::Clock().now();
+    ros_msg.status = watchdog_trigger_status;
+    publisher_watchdog_trigger_->publish(ros_msg);
 }
 
 VectorXd RobotDriverClient::get_joint_positions() const
@@ -182,6 +203,8 @@ bool RobotDriverClient::is_enabled(const RobotDriver::Functionality &control_mod
         return joint_forces_.size() > 0;
     case RobotDriver::Functionality::Homing:
         return home_states_.size() > 0;
+    case sas::RobotDriver::Functionality::Watchdog:
+        throw std::runtime_error(topic_prefix_+"::is_enabled() RobotDriver::Functionality::Watchdog has no meaning in RobotDriverInterface::is_enabled().");
     case RobotDriver::Functionality::ClearPositions:
         throw std::runtime_error(topic_prefix_+"::is_enabled() RobotDriver::Functionality::ClearPositions has no meaning in RobotDriverInterface::is_enabled().");
     case RobotDriver::Functionality::None:
