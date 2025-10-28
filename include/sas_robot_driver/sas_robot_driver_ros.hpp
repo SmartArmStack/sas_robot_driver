@@ -37,7 +37,6 @@
 #include <memory>
 
 #include <rclcpp/rclcpp.hpp>
-#include <optional>
 #include <sas_core/sas_clock.hpp>
 #include <sas_core/sas_robot_driver.hpp>
 #include <sas_robot_driver/sas_robot_driver_server.hpp>
@@ -51,7 +50,7 @@ struct RobotDriverROSConfiguration
 {
     std::string robot_driver_provider_prefix;
     double thread_sampling_time_sec;
-    std::optional<double>  watchdog_period_in_seconds;
+    double  watchdog_period_in_seconds;
     std::vector<double> q_min;
     std::vector<double> q_max;
 };
@@ -66,7 +65,8 @@ private:
     std::shared_ptr<RobotDriver> robot_driver_;
     Clock clock_;
     RobotDriverServer robot_driver_server_;
-
+    bool watchdog_started_;
+    std::string watchdog_parameter_name_{"watchdog_period_in_seconds"};
     bool _should_shutdown() const;
 
 public:
