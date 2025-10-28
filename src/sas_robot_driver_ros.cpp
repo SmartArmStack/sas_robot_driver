@@ -102,9 +102,8 @@ int RobotDriverROS::control_loop()
                     first_run = false;
                 }
                 try{
-                    robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_trigger_time_point());
-                    robot_driver_->watchdog_status(robot_driver_server_.get_watchdog_trigger_status());
-
+                    robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_trigger_time_point(),
+                                                    robot_driver_server_.get_watchdog_trigger_status());
                 }catch(...){}
             }
 
