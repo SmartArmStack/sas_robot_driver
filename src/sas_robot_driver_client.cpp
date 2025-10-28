@@ -141,6 +141,7 @@ void RobotDriverClient::send_watchdog_trigger(const bool& watchdog_trigger_statu
 {
     sas_msgs::msg::WatchdogTrigger ros_msg;
     ros_msg.header = std_msgs::msg::Header();
+    ros_msg.header.stamp = rclcpp::Clock().now();
     ros_msg.status = watchdog_trigger_status;
     publisher_watchdog_trigger_->publish(ros_msg);
 }
@@ -203,7 +204,7 @@ bool RobotDriverClient::is_enabled(const RobotDriver::Functionality &control_mod
     case RobotDriver::Functionality::Homing:
         return home_states_.size() > 0;
     case sas::RobotDriver::Functionality::Watchdog:
-        return true; // The watchdog in the client is always enabled.
+        throw std::runtime_error(topic_prefix_+"::is_enabled() RobotDriver::Functionality::Watchdog has no meaning in RobotDriverInterface::is_enabled().");
     case RobotDriver::Functionality::ClearPositions:
         throw std::runtime_error(topic_prefix_+"::is_enabled() RobotDriver::Functionality::ClearPositions has no meaning in RobotDriverInterface::is_enabled().");
     case RobotDriver::Functionality::None:
