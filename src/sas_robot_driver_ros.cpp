@@ -89,7 +89,7 @@ int RobotDriverROS::control_loop()
                     double watchdog_period;
                     // If the "watchdog_period_in_seconds" is not defined, we use a default value.
                     get_ros_optional_parameter(node_, "watchdog_period_in_seconds", watchdog_period, 1.0);
-                    RCLCPP_INFO_STREAM(node_->get_logger(), "Watchdog initialized with a " << watchdog_period << " second period");
+                    RCLCPP_INFO_STREAM(node_->get_logger(), "::Watchdog initialized with a " << watchdog_period << " second period");
                     const std::chrono::nanoseconds period = std::chrono::duration_cast<std::chrono::nanoseconds>(
                         std::chrono::duration<double>(watchdog_period));
                     watchdog_started_ = true;
@@ -97,6 +97,7 @@ int RobotDriverROS::control_loop()
                 }
                 try{
                     robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_trigger_time_point(),
+                                                    robot_driver_server_.get_watchdog_trigger_time_point_when_received(),
                                                     robot_driver_server_.get_watchdog_trigger_status());
                 }catch(...){}
             }
