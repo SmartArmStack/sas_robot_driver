@@ -102,9 +102,14 @@ void RobotDriverServer::_callback_watchdog_trigger_state(const sas_msgs::msg::Wa
 {
     watchdog_enabled_ = true;
     watchdog_trigger_status_ = msg.status;
+
+    //This time point corresponds to the moment the signal was sent, as recorded by the client computer's clock.
     watchdog_trigger_time_point_ = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>(
         std::chrono::seconds(msg.header.stamp.sec) + std::chrono::nanoseconds(msg.header.stamp.nanosec)
         );
+
+    //This time point corresponds to the moment the sigal was received, as recorded by the server computer's clock.
+    watchdog_trigger_time_point_when_received_ = std::chrono::system_clock::now();
 }
 
 RobotDriverServer::RobotDriverServer(const std::shared_ptr<Node> &node, const std::string &topic_prefix):
@@ -257,7 +262,9 @@ bool RobotDriverServer::is_enabled(const RobotDriver::Functionality& supported_f
 }
 
 /**
- * @brief RobotDriverServer::get_watchdog_trigger_time_point returns the time point received by the Watchdog functionality.
+ * @brief RobotDriverServer::get_watchdog_trigger_time_point returns the time point received by the Watchdog functionality. This time point corresponds
+ *                  to the moment the signal was sent, as recorded by the client computer's clock.
+ *
  * @return The desired time point
  */
 std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> RobotDriverServer::get_watchdog_trigger_time_point() const
@@ -266,6 +273,19 @@ std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> Rob
         return watchdog_trigger_time_point_;
     else
         throw std::runtime_error(node_prefix_ + "::RobotDriverServer::get_watchdog_trigger_time_point()::trying to get Watchdog data but uninitialized.");
+}
+
+/**
+ * @brief RobotDriverServer::get_watchdog_trigger_time_point_when_received returns the time point when the watchdog signal is received.
+ *                  This time point uses the computer's clock on which the server (robot) is running.
+ * @return The time point when the watchdog signal is received.
+ */
+std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> RobotDriverServer::get_watchdog_trigger_time_point_when_received() const
+{
+    if (is_enabled(RobotDriver::Functionality::Watchdog))
+        return watchdog_trigger_time_point_when_received_;
+    else
+        throw std::runtime_error(node_prefix_ + "::RobotDriverServer::get_watchdog_trigger_time_point_when_received()::trying to get Watchdog data but uninitialized.");
 }
 
 /**

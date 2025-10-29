@@ -73,6 +73,7 @@ private:
     bool watchdog_trigger_status_;
     bool watchdog_enabled_;
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> watchdog_trigger_time_point_;
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> watchdog_trigger_time_point_when_received_;
 
 
     void _callback_target_joint_positions(const std_msgs::msg::Float64MultiArray &msg);
@@ -108,6 +109,7 @@ public:
     void send_home_state(const VectorXi& home_state);
 
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> get_watchdog_trigger_time_point() const;
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> get_watchdog_trigger_time_point_when_received() const;
     bool get_watchdog_trigger_status() const;
     bool is_watchdog_enabled() const;
 };
