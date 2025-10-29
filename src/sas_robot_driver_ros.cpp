@@ -87,13 +87,28 @@ int RobotDriverROS::control_loop()
                 {   // This portion of code is executed only one time
                     // Initialize the watchdog.
                     double watchdog_period;
+                    double watchdog_maximum_acceptable_delay;
                     // If the "watchdog_period_in_seconds" is not defined, we use a default value.
                     get_ros_optional_parameter(node_, "watchdog_period_in_seconds", watchdog_period, 1.0);
                     RCLCPP_INFO_STREAM(node_->get_logger(), "::Watchdog initialized with a " << watchdog_period << " second period");
+                    // If the elapsed time between the triggers is higher than the watchdog period, an exception is thrown
+
+
+                    // If the "watchdog_maximum_acceptable_delay" is not defined, we use a default value.
+                    get_ros_optional_parameter(node_, "watchdog_maximum_acceptable_delay", watchdog_maximum_acceptable_delay, 1.0);
+                    RCLCPP_INFO_STREAM(node_->get_logger(), "::Watchdog initialized with a maximum acceptable delay of " << watchdog_maximum_acceptable_delay<< " seconds");
+                    // If the time difference between the time point of signal that was sent (using the client computer's clock) and the time point
+                    // when the watchdog signal was received (using the computer's clock on which the server is running) is higher than the watchdog_maximum_acceptable_delay,
+                    // an exception is thrown by the robot driver.
+
                     const std::chrono::nanoseconds period = std::chrono::duration_cast<std::chrono::nanoseconds>(
                         std::chrono::duration<double>(watchdog_period));
                     watchdog_started_ = true;
+                    robot_driver_->watchdog_set_maximum_acceptable_delay(watchdog_maximum_acceptable_delay);
+
+                    //-----------------------------------------------------------------------------------------/
                     robot_driver_->watchdog_start(period);
+                    //--- For developers: Do not put more code after this point---//
                 }
                 try{
                     robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_trigger_time_point(),
