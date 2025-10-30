@@ -111,8 +111,8 @@ int RobotDriverROS::control_loop()
                     //--- For developers: Do not put more code after this point---//
                 }
                 try{
-                    robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_trigger_time_point(),
-                                                    robot_driver_server_.get_watchdog_trigger_time_point_when_received(),
+                    robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_time_point_from_the_client(),
+                                                    robot_driver_server_.get_watchdog_time_point_from_the_server(),
                                                     robot_driver_server_.get_watchdog_trigger_status());
                 }catch(...){}
             }

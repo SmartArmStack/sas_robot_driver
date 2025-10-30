@@ -72,8 +72,8 @@ private:
     Subscription<sas_msgs::msg::WatchdogTrigger>::SharedPtr subscriber_watchdog_trigger_;
     bool watchdog_trigger_status_;
     bool watchdog_enabled_;
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> watchdog_trigger_time_point_;
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> watchdog_trigger_time_point_when_received_;
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> time_point_from_the_client_;
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> time_point_from_the_server_;
 
 
     void _callback_target_joint_positions(const std_msgs::msg::Float64MultiArray &msg);
@@ -108,8 +108,8 @@ public:
     void send_joint_limits(const std::tuple<VectorXd, VectorXd>& joint_limits);
     void send_home_state(const VectorXi& home_state);
 
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> get_watchdog_trigger_time_point() const;
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> get_watchdog_trigger_time_point_when_received() const;
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> get_watchdog_time_point_from_the_client() const;
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> get_watchdog_time_point_from_the_server() const;
     bool get_watchdog_trigger_status() const;
     bool is_watchdog_enabled() const;
 };
