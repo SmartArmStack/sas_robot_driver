@@ -116,7 +116,8 @@ RobotDriverServer::RobotDriverServer(const std::shared_ptr<Node> &node, const st
     sas::Object("sas::RobotDriverServer"),
     node_(node),
     node_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix),
-    currently_active_functionality_(RobotDriver::Functionality::None)
+    currently_active_functionality_(RobotDriver::Functionality::None),
+    watchdog_enabled_{false}
 {
     RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Initializing RobotDriverServer with prefix " + topic_prefix);
 
