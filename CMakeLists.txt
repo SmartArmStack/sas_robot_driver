@@ -99,8 +99,6 @@ install(TARGETS
 add_executable(sas_robot_watchdog_commander_node
     src/sas_robot_watchdog_commander_node.cpp)
 target_link_libraries(sas_robot_watchdog_commander_node
-    dqrobotics
-    dqrobotics-interface-json11
     ${PROJECT_NAME}
     Eigen3::Eigen
     )
