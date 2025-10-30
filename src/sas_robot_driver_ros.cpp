@@ -110,11 +110,12 @@ int RobotDriverROS::control_loop()
                     robot_driver_->watchdog_start(period);
                     //--- For developers: Do not put more code after this point---//
                 }
-                try{
-                    robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_time_point_from_the_client(),
-                                                    robot_driver_server_.get_watchdog_time_point_from_the_server(),
-                                                    robot_driver_server_.get_watchdog_trigger_status());
-                }catch(...){}
+                // Any exception from the watchdog thread control loop will be rethrown by watchdog_trigger(), and
+                // consequently the main control loop must stop.
+                robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_time_point_from_the_client(),
+                                                robot_driver_server_.get_watchdog_time_point_from_the_server(),
+                                                robot_driver_server_.get_watchdog_trigger_status());
+
             }
 
 
