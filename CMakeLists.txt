@@ -96,6 +96,19 @@ install(TARGETS
 ##END## CPP BINARY #####
 
 ##### CPP BINARY #####
+add_executable(sas_robot_watchdog_commander_node
+    src/sas_robot_watchdog_commander_node.cpp)
+target_link_libraries(sas_robot_watchdog_commander_node
+    ${PROJECT_NAME}
+    Eigen3::Eigen
+    )
+install(TARGETS
+  sas_robot_watchdog_commander_node
+  DESTINATION lib/${PROJECT_NAME})
+
+##END## CPP BINARY #####
+
+##### CPP BINARY #####
 
 add_executable(sas_robot_driver_ros_example
     src/examples/sas_robot_driver_ros_example.cpp)
