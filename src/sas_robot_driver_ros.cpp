@@ -116,7 +116,7 @@ int RobotDriverROS::control_loop()
                                                 robot_driver_server_.get_watchdog_trigger_status());} catch(...){}
                
 
-                // Any exception from the watchdog thread control loop will be rethrown by watchdog_trigger(), and
+                // Any exception from the watchdog thread control loop will be rethrown by check_for_watchdog_exceptions(), and
                 // consequently the main control loop must stop.
                 robot_driver_->check_for_watchdog_exceptions();
 
