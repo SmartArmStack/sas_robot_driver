@@ -67,8 +67,8 @@ int RobotDriverROS::control_loop()
         while(not _should_shutdown())
         {
             clock_.update_and_sleep();
-
             rclcpp::spin_some(node_);
+
             if(robot_driver_server_.is_enabled())
             {
                 robot_driver_->set_target_joint_positions(robot_driver_server_.get_target_joint_positions());
@@ -110,11 +110,15 @@ int RobotDriverROS::control_loop()
                     robot_driver_->watchdog_start(period);
                     //--- For developers: Do not put more code after this point---//
                 }
-                // Any exception from the watchdog thread control loop will be rethrown by watchdog_trigger(), and
-                // consequently the main control loop must stop.
-                robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_time_point_from_the_client(),
+                
+                try{robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_time_point_from_the_client(),
                                                 robot_driver_server_.get_watchdog_time_point_from_the_server(),
-                                                robot_driver_server_.get_watchdog_trigger_status());
+                                                robot_driver_server_.get_watchdog_trigger_status());} catch(...){}
+               
+
+                // Any exception from the watchdog thread control loop will be rethrown by check_for_watchdog_exceptions(), and
+                // consequently the main control loop must stop.
+                robot_driver_->check_for_watchdog_exceptions();
 
             }
 
