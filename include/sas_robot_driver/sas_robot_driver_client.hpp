@@ -48,9 +48,17 @@ namespace sas
 
 class RobotDriverClient: private sas::Object
 {
+public:
+    enum class MODE_BLACKLIST_FLAG
+    {
+        JOINT_CONTROL=0,
+        JOINT_MONITORING,
+        WATCHDOG_CONTROL
+    };
 private:
     std::shared_ptr<Node> node_;
 
+    std::vector<MODE_BLACKLIST_FLAG> blacklisted_modes_;
     std::atomic_bool enabled_;
     std::string topic_prefix_;
 
@@ -80,11 +88,9 @@ public:
     RobotDriverClient() = delete;
     RobotDriverClient(const RobotDriverClient&) = delete;
 
-//see the discussion in sas_common to understand why this is commented out
-//#ifdef IS_SAS_PYTHON_BUILD
-//    RobotDriverClient(const std::string& topic_prefix);
-//#endif
-    RobotDriverClient(const std::shared_ptr<Node> &node, const std::string topic_prefix="GET_FROM_NODE");
+    RobotDriverClient(const std::shared_ptr<Node> &node,
+                      const std::string topic_prefix="GET_FROM_NODE",
+                      const std::vector<MODE_BLACKLIST_FLAG>& blacklisted_modes = std::vector<MODE_BLACKLIST_FLAG>{});
 
     void send_target_joint_positions(const VectorXd& target_joint_positions);
     void send_target_joint_velocities(const VectorXd& target_joint_velocities);
