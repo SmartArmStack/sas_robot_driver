@@ -70,32 +70,51 @@ void RobotDriverClient::_callback_home_states(const std_msgs::msg::Int32MultiArr
     home_states_ = std_vector_int_to_vectorxi(msg.data);
 }
 
-RobotDriverClient::RobotDriverClient(const std::shared_ptr<Node> &node, const std::string topic_prefix):
+bool mode_not_in_blacklist(const RobotDriverClient::MODE_BLACKLIST_FLAG& mode,
+                           const std::vector<RobotDriverClient::MODE_BLACKLIST_FLAG>& l)
+{
+    return(count(l.being(), l.end(), mode) == 0);
+}
+
+RobotDriverClient::RobotDriverClient(const std::shared_ptr<Node> &node,
+                                     const std::string topic_prefix,
+                                     const std::vector<MODE_BLACKLIST_FLAG>& blacklisted_modes):
     sas::Object("sas::RobotDriverClient"),
     node_(node),
-    topic_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix)
+    topic_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix),
+    blacklisted_modes_(blacklisted_modes)
 {
     RCLCPP_INFO_STREAM(node_->get_logger(),"::Initializing RobotDriverClient with prefix " + topic_prefix);
 
-    publisher_target_joint_positions_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_positions",1);
-    publisher_target_joint_velocities_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_velocities",1);
-    publisher_target_joint_forces_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_forces",1);
-    publisher_homing_signal_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/set/homing_signal",1);
-    publisher_clear_positions_signal_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/set/clear_positions_signal",1);
-    publisher_watchdog_trigger_ = node->create_publisher<sas_msgs::msg::WatchdogTrigger>(topic_prefix + "/set/watchdog_trigger", 1);
+    if(mode_not_in_blacklist(JOINT_CONTROL,blacklisted_modes_))
+    {
+        publisher_target_joint_positions_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_positions",1);
+        publisher_target_joint_velocities_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_velocities",1);
+        publisher_target_joint_forces_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_forces",1);
+        publisher_homing_signal_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/set/homing_signal",1);
+        publisher_clear_positions_signal_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/set/clear_positions_signal",1);
+    }
 
-    subscriber_joint_states_ = node->create_subscription<sensor_msgs::msg::JointState>(
-                topic_prefix + "/get/joint_states", 1, std::bind(&RobotDriverClient::_callback_joint_states, this, _1)
-                );
-    subscriber_joint_limits_min_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
-                topic_prefix + "/get/joint_positions_min", 1, std::bind(&RobotDriverClient::_callback_joint_limits_min, this, _1)
-                );
-    subscriber_joint_limits_max_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
-                topic_prefix + "/get/joint_positions_max", 1, std::bind(&RobotDriverClient::_callback_joint_limits_max, this, _1)
-                );
-    subscriber_home_state_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
-                topic_prefix + "/get/home_states", 1, std::bind(&RobotDriverClient::_callback_home_states, this, _1)
-                );
+    if(mode_not_in_blacklist(WATCHDOG_CONTROL,blacklisted_modes_))
+    {
+        publisher_watchdog_trigger_ = node->create_publisher<sas_msgs::msg::WatchdogTrigger>(topic_prefix + "/set/watchdog_trigger", 1);
+    }
+
+    if(mode_not_in_blacklist(JOINT_MONITORING,blacklisted_modes_))
+    {
+        subscriber_joint_states_ = node->create_subscription<sensor_msgs::msg::JointState>(
+                    topic_prefix + "/get/joint_states", 1, std::bind(&RobotDriverClient::_callback_joint_states, this, _1)
+                    );
+        subscriber_joint_limits_min_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
+                    topic_prefix + "/get/joint_positions_min", 1, std::bind(&RobotDriverClient::_callback_joint_limits_min, this, _1)
+                    );
+        subscriber_joint_limits_max_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
+                    topic_prefix + "/get/joint_positions_max", 1, std::bind(&RobotDriverClient::_callback_joint_limits_max, this, _1)
+                    );
+        subscriber_home_state_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
+                    topic_prefix + "/get/home_states", 1, std::bind(&RobotDriverClient::_callback_home_states, this, _1)
+                    );
+    }
 }
 
 void RobotDriverClient::send_target_joint_positions(const VectorXd &target_joint_positions)
