@@ -81,12 +81,12 @@ RobotDriverClient::RobotDriverClient(const std::shared_ptr<Node> &node,
                                      const std::vector<MODE_BLACKLIST_FLAG>& blacklisted_modes):
     sas::Object("sas::RobotDriverClient"),
     node_(node),
-    topic_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix),
-    blacklisted_modes_(blacklisted_modes)
+    blacklisted_modes_(blacklisted_modes),
+    topic_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix)
 {
     RCLCPP_INFO_STREAM(node_->get_logger(),"::Initializing RobotDriverClient with prefix " + topic_prefix);
 
-    if(mode_not_in_blacklist(JOINT_CONTROL,blacklisted_modes_))
+    if(mode_not_in_blacklist(MODE_BLACKLIST_FLAG::JOINT_CONTROL,blacklisted_modes_))
     {
         publisher_target_joint_positions_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_positions",1);
         publisher_target_joint_velocities_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_velocities",1);
@@ -95,12 +95,12 @@ RobotDriverClient::RobotDriverClient(const std::shared_ptr<Node> &node,
         publisher_clear_positions_signal_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/set/clear_positions_signal",1);
     }
 
-    if(mode_not_in_blacklist(WATCHDOG_CONTROL,blacklisted_modes_))
+    if(mode_not_in_blacklist(MODE_BLACKLIST_FLAG::WATCHDOG_CONTROL,blacklisted_modes_))
     {
         publisher_watchdog_trigger_ = node->create_publisher<sas_msgs::msg::WatchdogTrigger>(topic_prefix + "/set/watchdog_trigger", 1);
     }
 
-    if(mode_not_in_blacklist(JOINT_MONITORING,blacklisted_modes_))
+    if(mode_not_in_blacklist(MODE_BLACKLIST_FLAG::JOINT_MONITORING,blacklisted_modes_))
     {
         subscriber_joint_states_ = node->create_subscription<sensor_msgs::msg::JointState>(
                     topic_prefix + "/get/joint_states", 1, std::bind(&RobotDriverClient::_callback_joint_states, this, _1)
