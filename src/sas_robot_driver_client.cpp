@@ -70,10 +70,17 @@ void RobotDriverClient::_callback_home_states(const std_msgs::msg::Int32MultiArr
     home_states_ = std_vector_int_to_vectorxi(msg.data);
 }
 
-bool mode_not_in_blacklist(const RobotDriverClient::MODE_BLACKLIST_FLAG& mode,
-                           const std::vector<RobotDriverClient::MODE_BLACKLIST_FLAG>& l)
+/**
+ * @brief mode_in_blacklist returns true if the specified mode is listed on the list of flags
+ * @param mode The flag mode
+ * @param list of flags the list of the flags
+ * @return returns true if the specified mode is listed on list of flags. False otherwise.
+ */
+bool mode_in_blacklist(const RobotDriverClient::MODE_BLACKLIST_FLAG& mode,
+                       const std::vector<RobotDriverClient::MODE_BLACKLIST_FLAG>& list_of_flags)
 {
-    return(count(l.being(), l.end(), mode) == 0);
+    //eturn(count(l.being(), l.end(), mode) == 0);
+    return std::count(list_of_flags.begin(), list_of_flags.end(), mode) > 0;
 }
 
 RobotDriverClient::RobotDriverClient(const std::shared_ptr<Node> &node,
@@ -86,7 +93,7 @@ RobotDriverClient::RobotDriverClient(const std::shared_ptr<Node> &node,
 {
     RCLCPP_INFO_STREAM(node_->get_logger(),"::Initializing RobotDriverClient with prefix " + topic_prefix);
 
-    if(mode_not_in_blacklist(MODE_BLACKLIST_FLAG::JOINT_CONTROL,blacklisted_modes_))
+    if(!mode_in_blacklist(MODE_BLACKLIST_FLAG::JOINT_CONTROL,blacklisted_modes_))
     {
         publisher_target_joint_positions_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_positions",1);
         publisher_target_joint_velocities_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_velocities",1);
@@ -95,12 +102,12 @@ RobotDriverClient::RobotDriverClient(const std::shared_ptr<Node> &node,
         publisher_clear_positions_signal_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/set/clear_positions_signal",1);
     }
 
-    if(mode_not_in_blacklist(MODE_BLACKLIST_FLAG::WATCHDOG_CONTROL,blacklisted_modes_))
+    if(!mode_in_blacklist(MODE_BLACKLIST_FLAG::WATCHDOG_CONTROL,blacklisted_modes_))
     {
         publisher_watchdog_trigger_ = node->create_publisher<sas_msgs::msg::WatchdogTrigger>(topic_prefix + "/set/watchdog_trigger", 1);
     }
 
-    if(mode_not_in_blacklist(MODE_BLACKLIST_FLAG::JOINT_MONITORING,blacklisted_modes_))
+    if(!mode_in_blacklist(MODE_BLACKLIST_FLAG::JOINT_MONITORING,blacklisted_modes_))
     {
         subscriber_joint_states_ = node->create_subscription<sensor_msgs::msg::JointState>(
                     topic_prefix + "/get/joint_states", 1, std::bind(&RobotDriverClient::_callback_joint_states, this, _1)
