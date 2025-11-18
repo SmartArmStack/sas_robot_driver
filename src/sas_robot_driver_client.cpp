@@ -128,35 +128,40 @@ void RobotDriverClient::send_target_joint_positions(const VectorXd &target_joint
 {
     std_msgs::msg::Float64MultiArray ros_msg;
     ros_msg.data = vectorxd_to_std_vector_double(target_joint_positions);
-    publisher_target_joint_positions_->publish(ros_msg);
+    if (publisher_target_joint_positions_)
+        publisher_target_joint_positions_->publish(ros_msg);
 }
 
 void RobotDriverClient::send_target_joint_velocities(const VectorXd &target_joint_velocities)
 {
     std_msgs::msg::Float64MultiArray ros_msg;
     ros_msg.data = vectorxd_to_std_vector_double(target_joint_velocities);
-    publisher_target_joint_velocities_->publish(ros_msg);
+    if(publisher_target_joint_velocities_)
+        publisher_target_joint_velocities_->publish(ros_msg);
 }
 
 void RobotDriverClient::send_target_joint_forces(const VectorXd &target_joint_efforts)
 {
     std_msgs::msg::Float64MultiArray ros_msg;
     ros_msg.data = vectorxd_to_std_vector_double(target_joint_efforts);
-    publisher_target_joint_forces_->publish(ros_msg);
+    if (publisher_target_joint_forces_)
+        publisher_target_joint_forces_->publish(ros_msg);
 }
 
 void RobotDriverClient::send_homing_signal(const VectorXi &homing_signal)
 {
     std_msgs::msg::Int32MultiArray ros_msg;
     ros_msg.data = vectorxi_to_std_vector_int(homing_signal);
-    publisher_homing_signal_->publish(ros_msg);
+    if (publisher_homing_signal_)
+        publisher_homing_signal_->publish(ros_msg);
 }
 
 void RobotDriverClient::send_clear_positions_signal(const VectorXi &clear_positions_signal)
 {
     std_msgs::msg::Int32MultiArray ros_msg;
     ros_msg.data = vectorxi_to_std_vector_int(clear_positions_signal);
-    publisher_clear_positions_signal_->publish(ros_msg);
+    if (publisher_clear_positions_signal_)
+        publisher_clear_positions_signal_->publish(ros_msg);
 }
 
 /**
@@ -169,7 +174,8 @@ void RobotDriverClient::send_watchdog_trigger(const bool& watchdog_trigger_statu
     ros_msg.header = std_msgs::msg::Header();
     ros_msg.header.stamp = rclcpp::Clock().now();
     ros_msg.status = watchdog_trigger_status;
-    publisher_watchdog_trigger_->publish(ros_msg);
+    if (publisher_watchdog_trigger_)
+        publisher_watchdog_trigger_->publish(ros_msg);
 }
 
 VectorXd RobotDriverClient::get_joint_positions() const
