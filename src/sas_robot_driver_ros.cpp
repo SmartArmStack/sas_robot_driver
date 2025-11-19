@@ -86,16 +86,16 @@ int RobotDriverROS::control_loop()
                 if (!watchdog_started_)
                 {   // This portion of code is executed only one time
                     // Initialize the watchdog.
-                    double watchdog_period;
-                    double watchdog_maximum_acceptable_delay;
+                    const double& watchdog_period = robot_driver_server_.get_watchdog_period();
+                    const double& watchdog_maximum_acceptable_delay = robot_driver_server_.get_watchdog_maximum_acceptable_delay();
                     // If the "watchdog_period_in_seconds" is not defined, we use a default value.
-                    get_ros_optional_parameter(node_, "watchdog_period_in_seconds", watchdog_period, 1.0);
+                    //get_ros_optional_parameter(node_, "watchdog_period_in_seconds", watchdog_period, 1.0);
                     RCLCPP_INFO_STREAM(node_->get_logger(), "::Watchdog initialized with a " << watchdog_period << " second period");
                     // If the elapsed time between the triggers is higher than the watchdog period, an exception is thrown
 
 
                     // If the "watchdog_maximum_acceptable_delay" is not defined, we use a default value.
-                    get_ros_optional_parameter(node_, "watchdog_maximum_acceptable_delay", watchdog_maximum_acceptable_delay, 1.0);
+                    //get_ros_optional_parameter(node_, "watchdog_maximum_acceptable_delay", watchdog_maximum_acceptable_delay, 1.0);
                     RCLCPP_INFO_STREAM(node_->get_logger(), "::Watchdog initialized with a maximum acceptable delay of " << watchdog_maximum_acceptable_delay<< " seconds");
                     // If the time difference between the time point of signal that was sent (using the client computer's clock) and the time point
                     // when the watchdog signal was received (using the computer's clock on which the server is running) is higher than the watchdog_maximum_acceptable_delay,
