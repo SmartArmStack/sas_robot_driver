@@ -47,7 +47,10 @@ PYBIND11_MODULE(_sas_robot_driver, m) {
             .export_values();
 
     py::class_<RDC>(m, "RobotDriverClient")
-            .def(py::init<const std::shared_ptr<rclcpp::Node>&,const std::string&>(),const std::vector<RDC::MODE_BLACKLIST_FLAG>&)
+            .def(py::init<const std::shared_ptr<rclcpp::Node>&, const std::string&,const std::vector<RDC::MODE_BLACKLIST_FLAG>&>(),
+                 py::arg("node"),
+                 py::arg("topic_prefix") = "GET_FROM_NODE",
+                 py::arg("blacklisted_modes") = std::vector<RDC::MODE_BLACKLIST_FLAG>{})
             .def("send_target_joint_positions",&RDC::send_target_joint_positions)
             .def("send_target_joint_velocities",&RDC::send_target_joint_velocities)
             .def("send_target_joint_forces",&RDC::send_target_joint_forces)
