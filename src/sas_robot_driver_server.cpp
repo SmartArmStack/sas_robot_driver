@@ -100,6 +100,10 @@ void RobotDriverServer::_callback_clear_positions_signal(const std_msgs::msg::In
 
 void RobotDriverServer::_callback_watchdog_trigger_state(const sas_msgs::msg::WatchdogTrigger &msg)
 {
+    const std::string this_topic(node_prefix_ + "/set/watchdog_trigger");
+    if(node_->count_publishers(this_topic)>1)
+        throw std::runtime_error(this_topic + " must be exclusively published and there is more than one publisher connected.");
+
     watchdog_enabled_ = true;
     watchdog_trigger_status_ = msg.status;
     watchdog_period_in_seconds_ = msg.period_in_seconds;
