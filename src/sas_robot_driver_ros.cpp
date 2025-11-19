@@ -34,6 +34,18 @@
 #include <dqrobotics/utils/DQ_Math.h>
 #include <dqrobotics/interfaces/json11/DQ_JsonReader.h>
 
+/**
+ * @brief are_approximately_equal returns true if two doubles are approximately equal.
+ * @param a
+ * @param b
+ * @param epsilon The desired threshold
+ * @return a boolean flag
+ */
+bool are_approximately_equal(const double &a, const double &b, const double &epsilon)
+{
+    return std::abs(a - b) < epsilon;
+}
+
 namespace sas
 {
 
@@ -107,11 +119,12 @@ int RobotDriverROS::control_loop()
                     //--- For developers: Do not put more code after this point---//
                 }else{
                     // Check if the period and the maximum acceptable delay changed.
-                    if (watchdog_period_in_seconds_ != robot_driver_server_.get_watchdog_period())
+                    if (!are_approximately_equal(watchdog_period_in_seconds_,robot_driver_server_.get_watchdog_period(), DQ_robotics::DQ_threshold))
                         throw std::runtime_error("Invalid operation. The watchdog period changed from "+std::to_string(watchdog_period_in_seconds_)+
                                                  " to " +std::to_string(robot_driver_server_.get_watchdog_period()));
 
-                    if (watchdog_maximum_acceptable_delay_in_seconds_!= robot_driver_server_.get_watchdog_period())
+
+                    if (!are_approximately_equal(watchdog_maximum_acceptable_delay_in_seconds_, robot_driver_server_.get_watchdog_maximum_acceptable_delay(), DQ_robotics::DQ_threshold))
                         throw std::runtime_error("Invalid operation. The watchdog maximum acceptable delay changed from "+std::to_string(watchdog_maximum_acceptable_delay_in_seconds_)+
                                                  " to " +std::to_string(robot_driver_server_.get_watchdog_maximum_acceptable_delay()));
                 }
