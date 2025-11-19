@@ -86,24 +86,34 @@ int RobotDriverROS::control_loop()
                 if (!watchdog_started_)
                 {   // This portion of code is executed only one time
                     // Initialize the watchdog.
-                    const double& watchdog_period = robot_driver_server_.get_watchdog_period();
-                    const double& watchdog_maximum_acceptable_delay = robot_driver_server_.get_watchdog_maximum_acceptable_delay();
-                    RCLCPP_INFO_STREAM(node_->get_logger(), "::Watchdog initialized with a " << watchdog_period << " second period");
+                    watchdog_period_in_seconds_                   = robot_driver_server_.get_watchdog_period();
+                    watchdog_maximum_acceptable_delay_in_seconds_ = robot_driver_server_.get_watchdog_maximum_acceptable_delay();
+
+                    RCLCPP_INFO_STREAM(node_->get_logger(), "::Watchdog initialized with a " << watchdog_period_in_seconds_  << " second period");
                     // If the elapsed time between the triggers is higher than the watchdog period, an exception is thrown
 
-                    RCLCPP_INFO_STREAM(node_->get_logger(), "::Watchdog initialized with a maximum acceptable delay of " << watchdog_maximum_acceptable_delay<< " seconds");
+                    RCLCPP_INFO_STREAM(node_->get_logger(), "::Watchdog initialized with a maximum acceptable delay of " <<watchdog_maximum_acceptable_delay_in_seconds_<< " seconds");
                     // If the time difference between the time point of signal that was sent (using the client computer's clock) and the time point
                     // when the watchdog signal was received (using the computer's clock on which the server is running) is higher than the watchdog_maximum_acceptable_delay,
                     // an exception is thrown by the robot driver.
 
                     const std::chrono::nanoseconds period = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        std::chrono::duration<double>(watchdog_period));
+                        std::chrono::duration<double>(watchdog_period_in_seconds_));
                     watchdog_started_ = true;
-                    robot_driver_->watchdog_set_maximum_acceptable_delay(watchdog_maximum_acceptable_delay);
+                    robot_driver_->watchdog_set_maximum_acceptable_delay(watchdog_maximum_acceptable_delay_in_seconds_);
 
                     //-----------------------------------------------------------------------------------------/
                     robot_driver_->watchdog_start(period);
                     //--- For developers: Do not put more code after this point---//
+                }else{
+                    // Check if the period and the maximum acceptable delay changed.
+                    if (watchdog_period_in_seconds_ != robot_driver_server_.get_watchdog_period())
+                        throw std::runtime_error("Invalid operation. The watchdog period changed from "+std::to_string(watchdog_period_in_seconds_)+
+                                                 " to " +std::to_string(robot_driver_server_.get_watchdog_period()));
+
+                    if (watchdog_maximum_acceptable_delay_in_seconds_!= robot_driver_server_.get_watchdog_period())
+                        throw std::runtime_error("Invalid operation. The watchdog maximum acceptable delay changed from "+std::to_string(watchdog_maximum_acceptable_delay_in_seconds_)+
+                                                 " to " +std::to_string(robot_driver_server_.get_watchdog_maximum_acceptable_delay()));
                 }
                 
                 try{robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_time_point_from_the_client(),
