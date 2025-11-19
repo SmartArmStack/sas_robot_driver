@@ -55,7 +55,11 @@ int main(int argc, char** argv)
     RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Parameters OK.");
 
     // Initialize the RobotDriverClient
-    sas::RobotDriverClient rdi(node, robot_name);
+    // This client is not allowed to command the robot joints. To achieve this behaviour,
+    // we blacklist the JOINT_CONTROL mode.
+    using MODE_BLACKLIST_FLAG = sas::RobotDriverClient::MODE_BLACKLIST_FLAG;
+    std::vector<MODE_BLACKLIST_FLAG> blacklist_mode = {MODE_BLACKLIST_FLAG::JOINT_CONTROL};
+    sas::RobotDriverClient rdi(node, robot_name, blacklist_mode);
 
 
     sas::Clock clock{thread_sampling_time_sec};
