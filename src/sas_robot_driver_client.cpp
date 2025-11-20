@@ -190,8 +190,14 @@ void RobotDriverClient::send_clear_positions_signal(const VectorXi &clear_positi
 /**
  * @brief RobotDriverClient::send_watchdog_trigger sends the Watchdog trigger
  * @param watchdog_trigger_status The desired status for the Watchdog
+ * @param period_in_seconds The desired period in seconds.
+ * @param maximum_acceptable_delay. The maximum allowed difference between the timepoint sent by the client and the timepoint
+ *                                  registered by the server. This delay could be related to unsynchronised clocks between different computers
+ *                                  or network delays.
  */
-void RobotDriverClient::send_watchdog_trigger(const bool& watchdog_trigger_status)
+void RobotDriverClient::send_watchdog_trigger(const bool& watchdog_trigger_status,
+                                              const double &period_in_seconds,
+                                              const double &maximum_acceptable_delay)
 {
 
     if (publisher_watchdog_trigger_)
@@ -200,6 +206,8 @@ void RobotDriverClient::send_watchdog_trigger(const bool& watchdog_trigger_statu
         ros_msg.header = std_msgs::msg::Header();
         ros_msg.header.stamp = rclcpp::Clock().now();
         ros_msg.status = watchdog_trigger_status;
+        ros_msg.period_in_seconds = period_in_seconds;
+        ros_msg.maximum_acceptable_delay_in_seconds = maximum_acceptable_delay;
         publisher_watchdog_trigger_->publish(ros_msg);
     }
     else
