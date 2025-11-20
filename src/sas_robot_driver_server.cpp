@@ -100,8 +100,14 @@ void RobotDriverServer::_callback_clear_positions_signal(const std_msgs::msg::In
 
 void RobotDriverServer::_callback_watchdog_trigger_state(const sas_msgs::msg::WatchdogTrigger &msg)
 {
+    const std::string this_topic(node_prefix_ + "/set/watchdog_trigger");
+    if(node_->count_publishers(this_topic)>1)
+        throw std::runtime_error(this_topic + " must be exclusively published and there is more than one publisher connected.");
+
     watchdog_enabled_ = true;
     watchdog_trigger_status_ = msg.status;
+    watchdog_period_in_seconds_ = msg.period_in_seconds;
+    watchdog_maximum_acceptable_delay_in_seconds_ = msg.maximum_acceptable_delay_in_seconds;
 
     //This time point corresponds to the moment the signal was sent, as recorded by the client computer's clock.
     time_point_from_the_client_ = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>(
@@ -308,6 +314,26 @@ bool RobotDriverServer::get_watchdog_trigger_status() const
 bool RobotDriverServer::is_watchdog_enabled() const
 {
     return watchdog_enabled_;
+}
+
+/**
+ * @brief RobotDriverServer::get_watchdog_period returns the watchdog period
+ * @return The watchdog period in seconds.
+ */
+double RobotDriverServer::get_watchdog_period() const
+{
+    return watchdog_period_in_seconds_;
+}
+
+/**
+ * @brief RobotDriverServer::get_watchdog_maximum_acceptable_delay returns the maximum acceptable delay in seconds.
+ *                          This delay could be related to unsynchronised clocks between different computers
+ *                          or network delays.
+ * @return returns the maximum acceptable delay in seconds.
+ */
+double RobotDriverServer::get_watchdog_maximum_acceptable_delay() const
+{
+    return watchdog_maximum_acceptable_delay_in_seconds_;
 }
 
 

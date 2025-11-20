@@ -72,6 +72,8 @@ private:
     Subscription<sas_msgs::msg::WatchdogTrigger>::SharedPtr subscriber_watchdog_trigger_;
     bool watchdog_trigger_status_;
     bool watchdog_enabled_;
+    double watchdog_period_in_seconds_;
+    double watchdog_maximum_acceptable_delay_in_seconds_;
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> time_point_from_the_client_;
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> time_point_from_the_server_;
 
@@ -112,6 +114,8 @@ public:
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> get_watchdog_time_point_from_the_server() const;
     bool get_watchdog_trigger_status() const;
     bool is_watchdog_enabled() const;
+    double get_watchdog_period() const;
+    double get_watchdog_maximum_acceptable_delay() const;
 };
 
 }

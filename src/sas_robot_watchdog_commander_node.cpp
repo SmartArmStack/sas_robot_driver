@@ -48,6 +48,13 @@ int main(int argc, char** argv)
 
     double thread_sampling_time_sec;
     sas::get_ros_parameter(node, "thread_sampling_time_sec", thread_sampling_time_sec);
+
+    double period;
+    sas::get_ros_parameter(node, "watchdog_period", period);
+
+    double maximum_acceptable_delay;
+    sas::get_ros_parameter(node, "watchdog_maximum_acceptable_delay", maximum_acceptable_delay);
+
     std::string robot_name;
     sas::get_ros_parameter(node,"robot_name", robot_name);
     RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::thread_sampling_time_sec: " + std::to_string(thread_sampling_time_sec));
@@ -69,7 +76,7 @@ int main(int argc, char** argv)
     {
         clock.update_and_sleep();
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(),"Watchdog status: true");
-        rdi.send_watchdog_trigger(true);
+        rdi.send_watchdog_trigger(true, period, maximum_acceptable_delay);
         rclcpp::spin_some(node);
     }
 

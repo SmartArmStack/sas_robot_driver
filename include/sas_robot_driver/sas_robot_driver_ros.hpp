@@ -66,7 +66,8 @@ private:
     Clock clock_;
     RobotDriverServer robot_driver_server_;
     bool watchdog_started_;
-    std::string watchdog_parameter_name_{"watchdog_period_in_seconds"};
+    double watchdog_period_in_seconds_;
+    double watchdog_maximum_acceptable_delay_in_seconds_;
     bool _should_shutdown() const;
 
 public:

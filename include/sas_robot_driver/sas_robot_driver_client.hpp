@@ -97,7 +97,9 @@ public:
     void send_target_joint_forces(const VectorXd& target_joint_forces);
     void send_homing_signal(const VectorXi& homing_signal);
     void send_clear_positions_signal(const VectorXi& clear_positions_signal);
-    void send_watchdog_trigger(const bool& watchdog_trigger_status);
+    void send_watchdog_trigger(const bool& watchdog_trigger_status,
+                               const double& period_in_seconds = 1.0,
+                               const double& maximum_acceptable_delay = 0.5);
 
     VectorXd get_joint_positions() const;
     VectorXd get_joint_velocities() const;
