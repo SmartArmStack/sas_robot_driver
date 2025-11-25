@@ -83,7 +83,7 @@ int RobotDriverROS::control_loop()
 
 
             if (robot_driver_server_.get_shutdown_signal())
-                throw std::runtime_error("The shutdown command was received!");
+                throw std::runtime_error("The shutdown signal was received!");
 
             if(robot_driver_server_.is_enabled())
             {
