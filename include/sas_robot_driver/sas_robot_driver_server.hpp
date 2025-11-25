@@ -62,7 +62,7 @@ private:
 
 
     Subscription<std_msgs::msg::Bool>::SharedPtr subscriber_shutdown_signal_;
-    bool target_shutdown_;
+    bool shutdown_signal_;
     Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr subscriber_target_joint_positions_;
     VectorXd target_joint_positions_;
     Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr subscriber_target_joint_velocities_;
@@ -81,7 +81,7 @@ private:
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> time_point_from_the_client_;
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> time_point_from_the_server_;
 
-    void _callback_target_shutdown_command(const std_msgs::msg::Bool& msg);
+    void _callback_shutdown_signal_(const std_msgs::msg::Bool& msg);
     void _callback_target_joint_positions(const std_msgs::msg::Float64MultiArray &msg);
     void _callback_target_joint_velocities(const std_msgs::msg::Float64MultiArray &msg);
     void _callback_target_joint_forces(const std_msgs::msg::Float64MultiArray &msg);
@@ -120,7 +120,7 @@ public:
     bool is_watchdog_enabled() const;
     double get_watchdog_period() const;
     double get_watchdog_maximum_acceptable_delay() const;
-    bool get_shutdown_status() const;
+    bool get_shutdown_signal() const;
 };
 
 }

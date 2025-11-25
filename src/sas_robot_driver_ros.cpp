@@ -82,7 +82,7 @@ int RobotDriverROS::control_loop()
             rclcpp::spin_some(node_);
 
 
-            if (robot_driver_server_.get_shutdown_status())
+            if (robot_driver_server_.get_shutdown_signal())
                 throw std::runtime_error("The shutdown command was received!");
 
             if(robot_driver_server_.is_enabled())
