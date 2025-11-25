@@ -38,6 +38,14 @@ namespace sas
 {
 
 
+void RobotDriverServer::_callback_target_shutdown_command(const std_msgs::msg::Bool& msg)
+{
+    // Only update this member if never was set to true. In other words, the driver is
+    // shutdown if at least one received message is true.
+    if (target_shutdown_ == false)
+        target_shutdown_ = msg.data;
+}
+
 void RobotDriverServer::_callback_target_joint_positions(const std_msgs::msg::Float64MultiArray& msg)
 {
     const std::string this_topic(node_prefix_ + "/set/target_joint_positions");
@@ -123,6 +131,7 @@ RobotDriverServer::RobotDriverServer(const std::shared_ptr<Node> &node, const st
     node_(node),
     node_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix),
     currently_active_functionality_(RobotDriver::Functionality::None),
+    target_shutdown_{false},
     watchdog_enabled_{false}
 {
     RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Initializing RobotDriverServer with prefix " + topic_prefix);
@@ -149,6 +158,9 @@ RobotDriverServer::RobotDriverServer(const std::shared_ptr<Node> &node, const st
                 );
     subscriber_watchdog_trigger_ = node->create_subscription<sas_msgs::msg::WatchdogTrigger>(
         topic_prefix + "/set/watchdog_trigger", 1, std::bind(&RobotDriverServer::_callback_watchdog_trigger_state, this, _1)
+        );
+    subscriber_target_shutdown_command_ = node->create_subscription<std_msgs::msg::Bool>(
+         topic_prefix + "/set/shutdown", 1, std::bind(&RobotDriverServer::_callback_target_shutdown_command, this, _1)
         );
 }
 
@@ -334,6 +346,11 @@ double RobotDriverServer::get_watchdog_period() const
 double RobotDriverServer::get_watchdog_maximum_acceptable_delay() const
 {
     return watchdog_maximum_acceptable_delay_in_seconds_;
+}
+
+bool RobotDriverServer::get_shutdown_status() const
+{
+    return target_shutdown_;
 }
 
 
