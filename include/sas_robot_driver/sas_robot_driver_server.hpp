@@ -61,7 +61,7 @@ private:
     Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr publisher_home_state_;
 
 
-    Subscription<std_msgs::msg::Bool>::SharedPtr subscriber_target_shutdown_command_;
+    Subscription<std_msgs::msg::Bool>::SharedPtr subscriber_shutdown_signal_;
     bool target_shutdown_;
     Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr subscriber_target_joint_positions_;
     VectorXd target_joint_positions_;

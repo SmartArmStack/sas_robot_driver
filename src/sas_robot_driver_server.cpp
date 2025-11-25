@@ -159,7 +159,7 @@ RobotDriverServer::RobotDriverServer(const std::shared_ptr<Node> &node, const st
     subscriber_watchdog_trigger_ = node->create_subscription<sas_msgs::msg::WatchdogTrigger>(
         topic_prefix + "/set/watchdog_trigger", 1, std::bind(&RobotDriverServer::_callback_watchdog_trigger_state, this, _1)
         );
-    subscriber_target_shutdown_command_ = node->create_subscription<std_msgs::msg::Bool>(
+    subscriber_shutdown_signal_ = node->create_subscription<std_msgs::msg::Bool>(
          topic_prefix + "/set/shutdown", 1, std::bind(&RobotDriverServer::_callback_target_shutdown_command, this, _1)
         );
 }

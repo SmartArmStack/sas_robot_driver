@@ -123,7 +123,7 @@ RobotDriverClient::RobotDriverClient(const std::shared_ptr<Node> &node,
                     );
     }
     // All client types can shut down the server.
-    publisher_target_shutdown_command_ = node->create_publisher<std_msgs::msg::Bool>(topic_prefix + "/set/shutdown", 1);
+    publisher_shutdown_signal_ = node->create_publisher<std_msgs::msg::Bool>(topic_prefix + "/set/shutdown", 1);
 }
 
 void RobotDriverClient::send_target_joint_positions(const VectorXd &target_joint_positions)
@@ -217,13 +217,13 @@ void RobotDriverClient::send_watchdog_trigger(const bool& watchdog_trigger_statu
 }
 
 /**
- * @brief RobotDriverClient::send_shutdown this method sends a command to stop the server.
+ * @brief RobotDriverClient::send_shutdown_signal this method sends a signal to stop the server.
  */
-void RobotDriverClient::send_shutdown()
+void RobotDriverClient::send_shutdown_signal()
 {
     std_msgs::msg::Bool ros_msg;
     ros_msg.data = true;
-    publisher_target_shutdown_command_->publish(ros_msg);
+    publisher_shutdown_signal_->publish(ros_msg);
 }
 
 VectorXd RobotDriverClient::get_joint_positions() const
