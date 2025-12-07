@@ -122,6 +122,8 @@ RobotDriverClient::RobotDriverClient(const std::shared_ptr<Node> &node,
                     topic_prefix + "/get/home_states", 1, std::bind(&RobotDriverClient::_callback_home_states, this, _1)
                     );
     }
+    // All client types can shut down the server.
+    publisher_shutdown_signal_ = node->create_publisher<sas_msgs::msg::Bool>(topic_prefix + "/set/shutdown", 1);
 }
 
 void RobotDriverClient::send_target_joint_positions(const VectorXd &target_joint_positions)
@@ -212,6 +214,16 @@ void RobotDriverClient::send_watchdog_trigger(const bool& watchdog_trigger_statu
     }
     else
         throw std::runtime_error("RobotDriverClient::"+std::string(__FUNCTION__)+"::This method is blacklisted");
+}
+
+/**
+ * @brief RobotDriverClient::send_shutdown_signal this method sends a signal to stop the server.
+ */
+void RobotDriverClient::send_shutdown_signal()
+{
+    sas_msgs::msg::Bool ros_msg;
+    ros_msg.data = true;
+    publisher_shutdown_signal_->publish(ros_msg);
 }
 
 VectorXd RobotDriverClient::get_joint_positions() const
