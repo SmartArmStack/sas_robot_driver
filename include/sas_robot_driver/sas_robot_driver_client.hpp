@@ -40,6 +40,8 @@
 #include <sas_msgs/msg/watchdog_trigger.hpp>
 #include <sas_core/sas_robot_driver.hpp>
 #include <sas_core/sas_object.hpp>
+#include <sas_msgs/msg/bool.hpp>
+
 
 using namespace rclcpp;
 
@@ -79,6 +81,7 @@ private:
     Publisher<std_msgs::msg::Int32MultiArray>  ::SharedPtr publisher_homing_signal_;
     Publisher<std_msgs::msg::Int32MultiArray>  ::SharedPtr publisher_clear_positions_signal_;
     Publisher<sas_msgs::msg::WatchdogTrigger>  ::SharedPtr publisher_watchdog_trigger_;
+    Publisher<sas_msgs::msg::Bool>             ::SharedPtr publisher_shutdown_signal_;
 
     void _callback_joint_states(const sensor_msgs::msg::JointState& msg);
     void _callback_joint_limits_min(const std_msgs::msg::Float64MultiArray& msg);
@@ -100,6 +103,8 @@ public:
     void send_watchdog_trigger(const bool& watchdog_trigger_status,
                                const double& period_in_seconds = 1.0,
                                const double& maximum_acceptable_delay = 0.5);
+
+    void send_shutdown_signal();
 
     VectorXd get_joint_positions() const;
     VectorXd get_joint_velocities() const;

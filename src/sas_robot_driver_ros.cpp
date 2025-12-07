@@ -81,6 +81,10 @@ int RobotDriverROS::control_loop()
             clock_.update_and_sleep();
             rclcpp::spin_some(node_);
 
+
+            if (robot_driver_server_.get_shutdown_signal())
+                throw std::runtime_error("The shutdown signal was received!");
+
             if(robot_driver_server_.is_enabled())
             {
                 robot_driver_->set_target_joint_positions(robot_driver_server_.get_target_joint_positions());
