@@ -123,7 +123,7 @@ RobotDriverClient::RobotDriverClient(const std::shared_ptr<Node> &node,
                     );
     }
     // All client types can shut down the server.
-    publisher_shutdown_signal_ = node->create_publisher<std_msgs::msg::Bool>(topic_prefix + "/set/shutdown", 1);
+    publisher_shutdown_signal_ = node->create_publisher<sas_msgs::msg::Bool>(topic_prefix + "/set/shutdown", 1);
 }
 
 void RobotDriverClient::send_target_joint_positions(const VectorXd &target_joint_positions)
@@ -221,7 +221,7 @@ void RobotDriverClient::send_watchdog_trigger(const bool& watchdog_trigger_statu
  */
 void RobotDriverClient::send_shutdown_signal()
 {
-    std_msgs::msg::Bool ros_msg;
+    sas_msgs::msg::Bool ros_msg;
     ros_msg.data = true;
     publisher_shutdown_signal_->publish(ros_msg);
 }

@@ -38,7 +38,7 @@ namespace sas
 {
 
 
-void RobotDriverServer::_callback_shutdown_signal_(const std_msgs::msg::Bool& msg)
+void RobotDriverServer::_callback_shutdown_signal_(const sas_msgs::msg::Bool &msg)
 {
    // Only update this member if it was never set to true.
    // In other words, the driver is shut down if at least one received message is true.
@@ -159,7 +159,7 @@ RobotDriverServer::RobotDriverServer(const std::shared_ptr<Node> &node, const st
     subscriber_watchdog_trigger_ = node->create_subscription<sas_msgs::msg::WatchdogTrigger>(
         topic_prefix + "/set/watchdog_trigger", 1, std::bind(&RobotDriverServer::_callback_watchdog_trigger_state, this, _1)
         );
-    subscriber_shutdown_signal_ = node->create_subscription<std_msgs::msg::Bool>(
+    subscriber_shutdown_signal_ = node->create_subscription<sas_msgs::msg::Bool>(
          topic_prefix + "/set/shutdown", 1, std::bind(&RobotDriverServer::_callback_shutdown_signal_, this, _1)
         );
 }
