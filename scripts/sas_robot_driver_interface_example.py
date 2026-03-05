@@ -1,15 +1,35 @@
-# Copyright (c) 2020-2023, Murilo Marques Marinho (murilomarinho@ieee.org)
+#!/usr/bin/python3
+"""
+# Copyright (c) 2020-2026 Murilo Marques Marinho
+#
+#    This file is part of sas_robot_driver.
+#
+#    sas_robot_driver is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Lesser General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    sas_robot_driver is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public License
+#    along with sas_robot_driver.  If not, see <https://www.gnu.org/licenses/>.
+#
+# #######################################################################################
+#
+#   Author: Murilo M. Marinho, email: murilomarinho@ieee.org
+#
+# #######################################################################################
+"""
 import time
-from dqrobotics import *  # Despite what PyCharm might say, this is very much necessary or DQs will not be recognized
-
 from sas_common import rclcpp_init, rclcpp_Node, rclcpp_spin_some, rclcpp_shutdown
 from sas_robot_driver import RobotDriverClient, RobotDriverServer
 
 def main(args=None):
     try:
-        # rclpy.init(args=args)
         rclcpp_init()
-
         node = rclcpp_Node("my_test_robot_node")
 
         # Initialize the RobotDriverServer

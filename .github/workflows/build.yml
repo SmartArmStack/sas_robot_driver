@@ -1,0 +1,24 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: apt update
+        run: sudo apt-get update && sudo apt-get upgrade -y
+        
+      - name: build
+        run: |
+          cd docker
+          docker compose build
+
+      - name: run
+        run: |
+          cd docker
+          docker compose up     
+          
