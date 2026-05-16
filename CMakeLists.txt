@@ -26,8 +26,9 @@ find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(sas_common REQUIRED)
 find_package(sas_core REQUIRED)
+find_package(sas_common REQUIRED)
+find_package(sas_msgs REQUIRED)
 find_package(sas_conversions REQUIRED)
 
 ####################################
