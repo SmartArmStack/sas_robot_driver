@@ -36,6 +36,7 @@ namespace py = pybind11;
 using RDC = sas::RobotDriverClient;
 using RDS = sas::RobotDriverServer;
 using RDR = sas::RobotDriverROS;
+using RDRC = sas::RobotDriverROSConfiguration;
 
 PYBIND11_MODULE(_sas_robot_driver, m) {
 
@@ -86,4 +87,11 @@ PYBIND11_MODULE(_sas_robot_driver, m) {
                       const std::shared_ptr<sas::ShutdownSignaler>&>())
         .def("control_loop", &RDR::control_loop);
 
+    py::class_<RDRC>(m, "RobotDriverROSConfiguration")
+         .def(py::init<>())
+         .def_readwrite("robot_driver_provider_prefix", &RDRC::robot_driver_provider_prefix)
+         .def_readwrite("thread_sampling_time_sec", &RDRC::thread_sampling_time_sec)
+         .def_readwrite("watchdog_period_in_seconds", &RDRC::watchdog_period_in_seconds)
+         .def_readwrite("q_min", &RDRC::q_min)
+         .def_readwrite("q_max", &RDRC::q_max);
 }
