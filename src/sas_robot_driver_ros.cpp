@@ -72,7 +72,7 @@ RobotDriverROS::RobotDriverROS(std::shared_ptr<Node> &node,
     node_(node),
     configuration_(configuration),
     kill_this_node_(nullptr),
-    shutdown_signaler_(shutdown_signaler)
+    shutdown_signaler_(shutdown_signaler),
     robot_driver_(robot_driver),
     clock_(configuration.thread_sampling_time_sec),
     robot_driver_server_(node,configuration_.robot_driver_provider_prefix),
@@ -188,7 +188,7 @@ int RobotDriverROS::control_loop()
 
 bool RobotDriverROS::_should_shutdown() const
 {
-    return shutdown_signaler_.should_shutdown();
+    return shutdown_signaler_->should_shutdown();
 }
 
 

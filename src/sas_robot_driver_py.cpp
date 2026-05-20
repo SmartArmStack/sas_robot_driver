@@ -30,10 +30,12 @@
 #include <sas_core/sas_robot_driver.hpp>
 #include <sas_robot_driver/sas_robot_driver_client.hpp>
 #include <sas_robot_driver/sas_robot_driver_server.hpp>
+#include <sas_robot_driver/sas_robot_driver_ros.hpp>
 
 namespace py = pybind11;
 using RDC = sas::RobotDriverClient;
 using RDS = sas::RobotDriverServer;
+using RDR = sas::RobotDriverROS;
 
 PYBIND11_MODULE(_sas_robot_driver, m) {
 
@@ -76,5 +78,12 @@ PYBIND11_MODULE(_sas_robot_driver, m) {
             .def("send_joint_states",&RDS::send_joint_states)
             .def("send_joint_limits",&RDS::send_joint_limits)
             .def("send_home_state",&RDS::send_home_state);
+
+    py::class_<RDR>(m, "RobotDriverROS")
+        .def(py::init<std::shared_ptr<rclcpp::Node>&,
+                      const std::shared_ptr<sas::RobotDriver>&,
+                      const sas::RobotDriverROSConfiguration&,
+                      const std::shared_ptr<sas::ShutdownSignaler>&>())
+        .def("control_loop", &RDR::control_loop);
 
 }

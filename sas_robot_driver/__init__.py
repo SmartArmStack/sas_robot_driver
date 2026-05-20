@@ -22,4 +22,4 @@
 #
 # ################################################################
 """
-from sas_robot_driver._sas_robot_driver import RobotDriverServer, RobotDriverClient, Functionality
+from sas_robot_driver._sas_robot_driver import RobotDriverServer, RobotDriverClient, Functionality, RobotDriverROS
