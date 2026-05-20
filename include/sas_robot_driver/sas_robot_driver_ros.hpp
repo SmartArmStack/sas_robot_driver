@@ -37,6 +37,7 @@
 #include <memory>
 
 #include <rclcpp/rclcpp.hpp>
+#include <sas_core/sas_shutdown_signaler.hpp>
 #include <sas_core/sas_clock.hpp>
 #include <sas_core/sas_robot_driver.hpp>
 #include <sas_robot_driver/sas_robot_driver_server.hpp>
@@ -61,7 +62,8 @@ private:
     std::shared_ptr<Node> node_;
 
     RobotDriverROSConfiguration configuration_;
-    std::atomic_bool* kill_this_node_;
+    std::atomic_bool* kill_this_node_; //Deprecated
+    std::shared_ptr<ShutdownSignaler> shutdown_signaler_;
     std::shared_ptr<RobotDriver> robot_driver_;
     Clock clock_;
     RobotDriverServer robot_driver_server_;
@@ -77,7 +79,14 @@ public:
     RobotDriverROS(std::shared_ptr<Node>& node,
                    const std::shared_ptr<RobotDriver>& robot_driver,
                    const RobotDriverROSConfiguration& configuration,
+                   const std::shared_ptr<ShutdownSignaler>& shutdown_signaler_);
+
+    [[deprecated("Use RobotDriver(const std::shared_ptr<ShutdownSignaler>& shutdown_signaler_) instead.")]]
+    RobotDriverROS(std::shared_ptr<Node>& node,
+                   const std::shared_ptr<RobotDriver>& robot_driver,
+                   const RobotDriverROSConfiguration& configuration,
                    std::atomic_bool* kill_this_node);
+
     ~RobotDriverROS();
 
     int control_loop();
