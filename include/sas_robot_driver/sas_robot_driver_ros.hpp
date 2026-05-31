@@ -47,15 +47,38 @@ using namespace rclcpp;
 namespace sas
 {
 
+/**
+ * @brief Configuration structure for RobotDriverROS.
+ *
+ * Holds configuration values required to initialize a RobotDriverROS
+ * instance, including topic prefixes, control thread timing and optional
+ * watchdog parameters.
+ */
 struct RobotDriverROSConfiguration
 {
+    /// Prefix that identifies the robot driver provider node/topic namespace.
     std::string robot_driver_provider_prefix;
+
+    /// Control thread sampling time in seconds.
     double thread_sampling_time_sec;
+
+    /// Watchdog period in seconds. If <= 0 the watchdog may be considered disabled.
     double  watchdog_period_in_seconds;
+
+    /// Joint position minimum limits (q_min.size() == number of joints).
     std::vector<double> q_min;
+
+    /// Joint position maximum limits (q_max.size() == number of joints).
     std::vector<double> q_max;
 };
 
+/**
+ * @brief ROS integration helper for a RobotDriver implementation.
+ *
+ * RobotDriverROS manages the ROS node, integrates a RobotDriver instance with
+ * ROS topics/services and runs the control loop. It also manages watchdog
+ * handling and shutdown signaling between ROS and the RobotDriver.
+ */
 class RobotDriverROS
 {
 private:
@@ -76,6 +99,14 @@ public:
     RobotDriverROS(const RobotDriverROS&)=delete;
     RobotDriverROS()=delete;
 
+    /**
+     * @brief Construct a new RobotDriverROS object.
+     *
+     * @param node Shared pointer to the rclcpp::Node used for ROS communication.
+     * @param robot_driver Shared pointer to the RobotDriver implementation to be wrapped.
+     * @param configuration Configuration parameters for ROS integration and control loop.
+     * @param shutdown_signaler Shared pointer used to signal shutdown between components.
+     */
     RobotDriverROS(std::shared_ptr<Node>& node,
                    const std::shared_ptr<RobotDriver>& robot_driver,
                    const RobotDriverROSConfiguration& configuration,
@@ -87,8 +118,19 @@ public:
                    const RobotDriverROSConfiguration& configuration,
                    std::atomic_bool* kill_this_node);
 
+    /**
+     * @brief Destructor; stops the control loop and performs cleanup.
+     */
     ~RobotDriverROS();
 
+    /**
+     * @brief Run the control loop.
+     *
+     * This method contains the main control loop and will typically run until
+     * a shutdown condition is met. Returns an integer status code on exit.
+     *
+     * @return int Exit/status code.
+     */
     int control_loop();
 };
 
