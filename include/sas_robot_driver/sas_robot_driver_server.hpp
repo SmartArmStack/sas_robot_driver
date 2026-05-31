@@ -47,6 +47,14 @@ using namespace rclcpp;
 namespace sas
 {
 
+/**
+ * @brief Server interface for robot driver ROS topics.
+ *
+ * RobotDriverServer exposes publishers for joint states, joint limits and home
+ * state, and subscribes to control-related topics (target joint commands,
+ * homing/clear signals and watchdog triggers). It provides getters for the
+ * latest received commands, watchdog information and shutdown signal.
+ */
 class RobotDriverServer: private sas::Object
 {
 private:
@@ -97,29 +105,136 @@ public:
 //    RobotDriverServer(const std::string& node_prefix);
 //#endif
 
+    /**
+     * @brief Construct a new RobotDriverServer
+     *
+     * @param node Shared pointer to the rclcpp::Node used for communication.
+     * @param node_prefix Prefix used to compose ROS topic names (defaults to "GET_FROM_NODE").
+     */
     RobotDriverServer(const std::shared_ptr<Node> &node, const std::string& node_prefix="GET_FROM_NODE");
 
+    /**
+     * @brief Get the most recent target joint positions received from clients.
+     *
+     * @return VectorXd Target joint positions vector.
+     */
     VectorXd get_target_joint_positions() const;
+
+    /**
+     * @brief Get the most recent target joint velocities received from clients.
+     *
+     * @return VectorXd Target joint velocities vector.
+     */
     VectorXd get_target_joint_velocities() const;
+
+    /**
+     * @brief Get the most recent target joint forces received from clients.
+     *
+     * @return VectorXd Target joint forces vector.
+     */
     VectorXd get_target_joint_forces() const;
+
+    /**
+     * @brief Get the last received homing signal vector.
+     *
+     * @return VectorXi Homing signal per joint.
+     */
     VectorXi get_homing_signal() const;
+
+    /**
+     * @brief Get the last received clear positions signal vector.
+     *
+     * @return VectorXi Clear positions signal per joint.
+     */
     VectorXi get_clear_positions_signal();
+
+    /**
+     * @brief Get the currently active functionality of the robot driver.
+     *
+     * @return RobotDriver::Functionality Currently active functionality.
+     */
     RobotDriver::Functionality get_currently_active_functionality() const;
 
+    /**
+     * @brief Check whether the server supports and is enabled for a functionality.
+     *
+     * @param supported_functionality The functionality to check (default: PositionControl).
+     * @return true if supported and enabled, false otherwise.
+     */
     bool is_enabled(const RobotDriver::Functionality& supported_functionality=RobotDriver::Functionality::PositionControl) const;
 
+    /**
+     * @brief Publish joint states (positions, velocities and forces) to clients.
+     *
+     * @param joint_positions Vector of joint positions.
+     * @param joint_velocities Vector of joint velocities.
+     * @param joint_forces Vector of joint forces.
+     */
     void send_joint_states(const VectorXd& joint_positions,
                            const VectorXd& joint_velocities,
                            const VectorXd& joint_forces);
+
+    /**
+     * @brief Publish joint limits (min and max) to clients.
+     *
+     * @param joint_limits Tuple containing (min_limits, max_limits).
+     */
     void send_joint_limits(const std::tuple<VectorXd, VectorXd>& joint_limits);
+
+    /**
+     * @brief Publish the home state vector to clients.
+     *
+     * @param home_state Vector representing home states per joint.
+     */
     void send_home_state(const VectorXi& home_state);
 
+    /**
+     * @brief Get the time point received from the client for watchdog synchronization.
+     *
+     * @return std::chrono::time_point Time point from the client.
+     */
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> get_watchdog_time_point_from_the_client() const;
+
+    /**
+     * @brief Get the time point captured on the server for watchdog synchronization.
+     *
+     * @return std::chrono::time_point Time point from the server.
+     */
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> get_watchdog_time_point_from_the_server() const;
+
+    /**
+     * @brief Get the current watchdog trigger status as last received from the client.
+     *
+     * @return true if watchdog trigger is active, false otherwise.
+     */
     bool get_watchdog_trigger_status() const;
+
+    /**
+     * @brief Query whether the watchdog is enabled on the server.
+     *
+     * @return true if enabled, false otherwise.
+     */
     bool is_watchdog_enabled() const;
+
+    /**
+     * @brief Get the configured watchdog period in seconds.
+     *
+     * @return double Watchdog period in seconds.
+     */
     double get_watchdog_period() const;
+
+    /**
+     * @brief Get the configured maximum acceptable delay for the watchdog in seconds.
+     *
+     * @return double Maximum acceptable delay in seconds.
+     */
     double get_watchdog_maximum_acceptable_delay() const;
+
+    /**
+     * @brief Get the current shutdown signal state as last received from clients.
+     *
+     * @return true if a shutdown signal was received, false otherwise.
+     */
     bool get_shutdown_signal() const;
 };
 
