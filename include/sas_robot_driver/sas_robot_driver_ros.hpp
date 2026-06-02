@@ -73,7 +73,7 @@ struct RobotDriverROSConfiguration
 };
 
 /**
- * @brief ROS integration helper for a RobotDriver implementation.
+ * @brief ROS integration class for a RobotDriver implementation.
  *
  * RobotDriverROS manages the ROS node, integrates a RobotDriver instance with
  * ROS topics/services and runs the control loop. It also manages watchdog
