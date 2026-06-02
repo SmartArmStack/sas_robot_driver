@@ -51,7 +51,7 @@ namespace sas
 /**
  * @brief Client interface for robot driver ROS topics.
  *
- * RobotDriverClient provides helpers to publish target joint commands and
+ * RobotDriverClient provides methods to publish target joint commands and
  * control signals, and to subscribe to feedback topics such as joint states,
  * joint limits and home state. It supports optional mode blacklisting to
  * disable certain functionalities from the client side.

@@ -117,6 +117,8 @@ public:
      * @brief Get the most recent target joint positions received from clients.
      *
      * @return VectorXd Target joint positions vector.
+     * @throws std::runtime_error if the server is not enabled for PositionControl
+     *         or the requested vector is uninitialized.
      */
     VectorXd get_target_joint_positions() const;
 
@@ -124,6 +126,8 @@ public:
      * @brief Get the most recent target joint velocities received from clients.
      *
      * @return VectorXd Target joint velocities vector.
+     * @throws std::runtime_error if the server is not enabled for VelocityControl
+     *         or the requested vector is uninitialized.
      */
     VectorXd get_target_joint_velocities() const;
 
@@ -131,6 +135,8 @@ public:
      * @brief Get the most recent target joint forces received from clients.
      *
      * @return VectorXd Target joint forces vector.
+     * @throws std::runtime_error if the server is not enabled for ForceControl
+     *         or the requested vector is uninitialized.
      */
     VectorXd get_target_joint_forces() const;
 
@@ -138,6 +144,8 @@ public:
      * @brief Get the last received homing signal vector.
      *
      * @return VectorXi Homing signal per joint.
+     * @throws std::runtime_error if the server is not enabled for Homing
+     *         or the homing vector is uninitialized.
      */
     VectorXi get_homing_signal() const;
 
@@ -145,6 +153,8 @@ public:
      * @brief Get the last received clear positions signal vector.
      *
      * @return VectorXi Clear positions signal per joint.
+     * @throws std::runtime_error if the server is not enabled for ClearPositions
+     *         or the clear positions vector is uninitialized.
      */
     VectorXi get_clear_positions_signal();
 
@@ -160,6 +170,7 @@ public:
      *
      * @param supported_functionality The functionality to check (default: PositionControl).
      * @return true if supported and enabled, false otherwise.
+     * @throws std::runtime_error if an unknown or unsupported functionality value is provided.
      */
     bool is_enabled(const RobotDriver::Functionality& supported_functionality=RobotDriver::Functionality::PositionControl) const;
 
@@ -192,6 +203,7 @@ public:
      * @brief Get the time point received from the client for watchdog synchronization.
      *
      * @return std::chrono::time_point Time point from the client.
+     * @throws std::runtime_error if the watchdog functionality is not enabled or data is uninitialized.
      */
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> get_watchdog_time_point_from_the_client() const;
 
@@ -199,6 +211,7 @@ public:
      * @brief Get the time point captured on the server for watchdog synchronization.
      *
      * @return std::chrono::time_point Time point from the server.
+     * @throws std::runtime_error if the watchdog functionality is not enabled or data is uninitialized.
      */
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> get_watchdog_time_point_from_the_server() const;
 
@@ -206,6 +219,7 @@ public:
      * @brief Get the current watchdog trigger status as last received from the client.
      *
      * @return true if watchdog trigger is active, false otherwise.
+     * @throws std::runtime_error if the watchdog functionality is not enabled or data is uninitialized.
      */
     bool get_watchdog_trigger_status() const;
 
