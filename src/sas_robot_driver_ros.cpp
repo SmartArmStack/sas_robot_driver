@@ -161,6 +161,13 @@ int RobotDriverROS::control_loop()
 
             }
 
+            // execute the callback (if any)
+            try {
+                robot_driver_->execute_control_loop_callback();
+            }catch (const std::exception& e) {
+                throw std::runtime_error("Invalid control loop callback operation: " + std::string(e.what()));
+            }
+
 
             auto joint_positions{robot_driver_->get_joint_positions()};
             VectorXd joint_velocities;
