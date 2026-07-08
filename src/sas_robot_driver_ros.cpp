@@ -161,11 +161,15 @@ int RobotDriverROS::control_loop()
 
             }
 
-            // execute the callback (if any)
-            try {
-                robot_driver_->execute_control_loop_callback();
-            }catch (const std::exception& e) {
-                throw std::runtime_error("Invalid control loop callback operation: " + std::string(e.what()));
+
+            // Execute the control loop callback if one has been set
+            if (robot_driver_->control_loop_callback_is_set()) {
+                RCLCPP_INFO_STREAM_ONCE(node_->get_logger(), "::Control loop callback is set and will be executed!");
+                try {
+                    robot_driver_->execute_control_loop_callback();
+                } catch (const std::exception& e) {
+                    throw std::runtime_error("Control loop callback execution failed: " + std::string(e.what()));
+                }
             }
 
 
