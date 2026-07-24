@@ -26,7 +26,8 @@
 #   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
 #      - Added the Watchdog functionality.
 #      - Renamed robot_driver_provider_ to robot_driver_server_
-#
+#   2. Erwin Lopez (erwin.lopez@manchester.ac.uk)
+#      Added functionality to control tool gpio
 */
 
 #include <sas_common/sas_common.hpp>
@@ -181,7 +182,10 @@ int RobotDriverROS::control_loop()
 
             }
 
-
+            if(configuration_.robot_tool_gpio_enable)
+            {
+                robot_driver_->set_tool_gpio(robot_driver_server_.get_tool_gpio());
+            }
             // Execute the control loop callback if one has been set
             if (robot_driver_->control_loop_callback_is_set()) {
                 RCLCPP_INFO_STREAM_ONCE(node_->get_logger(), "::Control loop callback is set and will be executed!");

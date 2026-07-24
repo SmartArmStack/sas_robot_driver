@@ -25,7 +25,8 @@
 #
 #   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
 #      Added the Watchdog functionality.
-#
+#   2. Erwin Lopez (erwin.lopez@manchester.ac.uk)
+#      Added functionality to control tool gpio
 */
 
 #include <sas_robot_driver/sas_robot_driver_client.hpp>
@@ -124,6 +125,7 @@ RobotDriverClient::RobotDriverClient(const std::shared_ptr<rclcpp::Node> &node,
     }
     // All client types can shut down the server.
     publisher_shutdown_signal_ = node->create_publisher<sas_msgs::msg::Bool>(topic_prefix + "/set/shutdown", 1);
+    publisher_tool_gpio_ = node->create_publisher<std_msgs::msg::ByteMultiArray>(topic_prefix + "/set/tool_gpio", 1);
 }
 
 void RobotDriverClient::send_target_joint_positions(const Eigen::VectorXd &target_joint_positions)
@@ -224,6 +226,27 @@ void RobotDriverClient::send_shutdown_signal()
     sas_msgs::msg::Bool ros_msg;
     ros_msg.data = true;
     publisher_shutdown_signal_->publish(ros_msg);
+}
+
+void RobotDriverClient::send_tool_gpio(const std::array<bool, 2> &tool_gpio)
+{
+    std_msgs::msg::ByteMultiArray ros_msg;
+    ros_msg.data.resize(tool_gpio.size());
+    
+    for (size_t i = 0; i < tool_gpio.size(); ++i)
+    {
+      ros_msg.data[i] = static_cast<uint8_t>(tool_gpio[i]);
+    }
+
+    std_msgs::msg::MultiArrayDimension dim;
+    dim.label = "tool_gpio";
+    dim.size = tool_gpio.size();
+    dim.stride = tool_gpio.size();
+    
+    ros_msg.layout.dim.push_back(dim);
+    ros_msg.layout.data_offset = 0;
+
+    publisher_tool_gpio_->publish(ros_msg);
 }
 
 Eigen::VectorXd RobotDriverClient::get_joint_positions() const

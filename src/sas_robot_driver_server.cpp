@@ -25,7 +25,8 @@
 #
 #   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
 #      Added the Watchdog functionality.
-#
+#   2. Erwin Lopez (erwin.lopez@manchester.ac.uk)
+#      Added functionality to control tool gpio
 */
 
 #include <rclcpp/rclcpp.hpp>
@@ -37,6 +38,20 @@ using std::placeholders::_1;
 namespace sas
 {
 
+std::array<bool, 2> RobotDriverServer::get_tool_gpio()const
+{
+    return tool_gpio;
+}
+
+void RobotDriverServer::_callback_tool_gpio(const std_msgs::msg::ByteMultiArray &msg)
+{
+    const std::string this_topic(node_prefix_ + "/set/tool_gpio");
+    if(node_->count_publishers(this_topic)>1)
+        throw std::runtime_error(this_topic + " must be exclusively published and there is more than one publisher connected.");
+
+    std::get<0>(tool_gpio) = static_cast<bool>(msg.data[0]);
+    std::get<1>(tool_gpio) = static_cast<bool>(msg.data[1]);
+}
 
 void RobotDriverServer::_callback_shutdown_signal_(const sas_msgs::msg::Bool &msg)
 {
@@ -161,6 +176,9 @@ RobotDriverServer::RobotDriverServer(const std::shared_ptr<rclcpp::Node> &node, 
         );
     subscriber_shutdown_signal_ = node->create_subscription<sas_msgs::msg::Bool>(
          topic_prefix + "/set/shutdown", 1, std::bind(&RobotDriverServer::_callback_shutdown_signal_, this, _1)
+        );
+    subscriber_tool_gpio = node->create_subscription<std_msgs::msg::ByteMultiArray>(
+         topic_prefix + "/set/tool_gpio", 1, std::bind(&RobotDriverServer::_callback_tool_gpio, this, _1)
         );
 }
 
