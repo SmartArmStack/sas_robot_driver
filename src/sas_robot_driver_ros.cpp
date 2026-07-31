@@ -171,7 +171,13 @@ int RobotDriverROS::control_loop()
 
                 // Any exception from the watchdog thread control loop will be rethrown by check_for_watchdog_exceptions(), and
                 // consequently the main control loop must stop.
-                robot_driver_->check_for_watchdog_exceptions();
+                try {
+                    robot_driver_->check_for_watchdog_exceptions();
+                } catch (const std::exception& e) {
+                    RCLCPP_INFO_STREAM_ONCE(node_->get_logger(), "::Watchdog exception: " << e.what());
+                    RCLCPP_INFO_STREAM_ONCE(node_->get_logger(), "::The shutdown signal was received!");
+                    shutdown_signaler_->shutdown();
+                }
 
             }
 
