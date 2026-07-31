@@ -100,8 +100,12 @@ int RobotDriverROS::control_loop()
 
 
             if (robot_driver_server_.get_shutdown_signal())
-                throw std::runtime_error("The shutdown signal was received!");
-
+            {
+                RCLCPP_INFO_STREAM_ONCE(node_->get_logger(), "::The shutdown signal was received!");
+                shutdown_signaler_->shutdown();
+                //throw std::runtime_error("The shutdown signal was received!");
+            }
+                
             if(robot_driver_server_.is_enabled())
             {
                 robot_driver_->set_target_joint_positions(robot_driver_server_.get_target_joint_positions());
@@ -141,13 +145,23 @@ int RobotDriverROS::control_loop()
                 }else{
                     // Check if the period and the maximum acceptable delay changed.
                     if (!are_approximately_equal(watchdog_period_in_seconds_,robot_driver_server_.get_watchdog_period(), DQ_robotics::DQ_threshold))
-                        throw std::runtime_error("Invalid operation. The watchdog period changed from "+std::to_string(watchdog_period_in_seconds_)+
+                    {
+                        RCLCPP_INFO_STREAM_ONCE(node_->get_logger(), "::The watchdog period changed from "+std::to_string(watchdog_period_in_seconds_)+
                                                  " to " +std::to_string(robot_driver_server_.get_watchdog_period()));
+                        shutdown_signaler_->shutdown();
+                        //throw std::runtime_error("Invalid operation. The watchdog period changed from "+std::to_string(watchdog_period_in_seconds_)+
+                        //                         " to " +std::to_string(robot_driver_server_.get_watchdog_period()));
+                    }
 
 
                     if (!are_approximately_equal(watchdog_maximum_acceptable_delay_in_seconds_, robot_driver_server_.get_watchdog_maximum_acceptable_delay(), DQ_robotics::DQ_threshold))
-                        throw std::runtime_error("Invalid operation. The watchdog maximum acceptable delay changed from "+std::to_string(watchdog_maximum_acceptable_delay_in_seconds_)+
+                    {
+                        RCLCPP_INFO_STREAM_ONCE(node_->get_logger(), "::The watchdog maximum acceptable delay changed from "+std::to_string(watchdog_maximum_acceptable_delay_in_seconds_)+
                                                  " to " +std::to_string(robot_driver_server_.get_watchdog_maximum_acceptable_delay()));
+                        shutdown_signaler_->shutdown();
+                        //throw std::runtime_error("Invalid operation. The watchdog maximum acceptable delay changed from "+std::to_string(watchdog_maximum_acceptable_delay_in_seconds_)+
+                        //                         " to " +std::to_string(robot_driver_server_.get_watchdog_maximum_acceptable_delay()));
+                    }
                 }
                 
                 try{robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_time_point_from_the_client(),
