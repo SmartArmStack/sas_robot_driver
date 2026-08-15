@@ -1,8 +1,8 @@
 services:
   sas_robot_driver:
-    build: .
-    volumes:
-      - ../../sas_robot_driver:/root/sas_robot_driver_devel/src/sas_robot_driver
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     command: /bin/bash -c "
       cd /root/sas_robot_driver_devel/src/
       && ls .
