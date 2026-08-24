@@ -26,6 +26,7 @@ from sas_robot_driver._sas_robot_driver import (
     RobotDriverServer,
     RobotDriverClient,
     Functionality,
+    MODE_BLACKLIST_FLAG,
     RobotDriverROS,
     RobotDriverROSConfiguration
 )
