@@ -100,11 +100,6 @@ public:
     RobotDriverServer() = delete;
     RobotDriverServer(const RobotDriverServer&) = delete;
 
-//see the discussion in sas_common to understand why this is commented out
-//#ifdef IS_SAS_PYTHON_BUILD
-//    RobotDriverServer(const std::string& node_prefix);
-//#endif
-
     /**
      * @brief Construct a new RobotDriverServer
      *

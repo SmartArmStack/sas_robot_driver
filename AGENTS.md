@@ -114,9 +114,9 @@ Nodes read configuration via `sas::get_ros_parameter(node, name, value)`
   creating or touching files, and keep the "Contributors:" section current
   for non-trivial additions.
 - C++ compiles with `-Wall -Wextra -Wpedantic`; keep new code warning-clean.
-- The pybind11 module defines `IS_SAS_PYTHON_BUILD` for the Python build;
-  be aware the client/server .cpp files are compiled twice (library +
-  pybind module) — guard Python-specific code accordingly.
+- Be aware the client/server .cpp files are compiled twice (once for the
+  shared library, once into the pybind11 module) — keep Python-specific
+  code in `src/sas_robot_driver_py.cpp`.
 - External dependency: the code links against `dqrobotics`
   (`-ldqrobotics`, plus `dqrobotics-interface-json11` for the composer
   node) — a system library shipped with the SAS docker image, not a ROS
