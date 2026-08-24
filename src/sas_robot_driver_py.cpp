@@ -49,6 +49,12 @@ PYBIND11_MODULE(_sas_robot_driver, m) {
             .value("ClearPositions",sas::RobotDriver::Functionality::ClearPositions)
             .export_values();
 
+    py::enum_<RDC::MODE_BLACKLIST_FLAG>(m, "MODE_BLACKLIST_FLAG")
+            .value("JOINT_CONTROL",RDC::MODE_BLACKLIST_FLAG::JOINT_CONTROL)
+            .value("JOINT_MONITORING",RDC::MODE_BLACKLIST_FLAG::JOINT_MONITORING)
+            .value("WATCHDOG_CONTROL",RDC::MODE_BLACKLIST_FLAG::WATCHDOG_CONTROL)
+            .export_values();
+
     py::class_<RDC>(m, "RobotDriverClient")
             .def(py::init<const std::shared_ptr<rclcpp::Node>&, const std::string&,const std::vector<RDC::MODE_BLACKLIST_FLAG>&>(),
                  py::arg("node"),

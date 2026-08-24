@@ -89,9 +89,9 @@ interface example. Make sure changes keep that flow green.
   in 2025 — do not re-add it here.
 - Python API (compiled via `src/sas_robot_driver_py.cpp`, module
   `_sas_robot_driver`): `RobotDriverServer`, `RobotDriverClient`,
-  `Functionality`, `RobotDriverROS`, `RobotDriverROSConfiguration`. Python
-  uses `sas_common` helpers (`rclcpp_init`, `rclcpp_Node`,
-  `rclcpp_spin_some`, `rclcpp_shutdown`).
+  `Functionality`, `MODE_BLACKLIST_FLAG`, `RobotDriverROS`,
+  `RobotDriverROSConfiguration`. Python uses `sas_common` helpers
+  (`rclcpp_init`, `rclcpp_Node`, `rclcpp_spin_some`, `rclcpp_shutdown`).
 
 ## ROS parameters
 
