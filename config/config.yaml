@@ -1,0 +1,39 @@
+# Parameters for the sas_robot_driver nodes.
+#
+# Each top-level block is keyed by the ROS node name and is loaded by the
+# corresponding launch file via its `config_file` argument. The two
+# `sas_robot_driver_ros_example` instances are started with the node names
+# `robot_1` and `robot_2` (see composer_example_launch.py).
+
+# sas_robot_driver_ros_example instance 1
+robot_1:
+  ros__parameters:
+    robot_name: "robot_1"
+    initial_joint_positions: [0., 0., 0., 0.]
+    joint_limits_min: [-1., -2., -3., -4.]
+    joint_limits_max: [1., 2., 3., 4.]
+    thread_sampling_time_sec: 0.001  # Robot thread is at 1000 Hz
+
+# sas_robot_driver_ros_example instance 2
+robot_2:
+  ros__parameters:
+    robot_name: "robot_2"
+    initial_joint_positions: [0., 0., 0., 0., 0., 0.]
+    joint_limits_min: [-5., -6., -7., -8., -9., -10.]
+    joint_limits_max: [5., 6., 7., 8., 9., 10.]
+    thread_sampling_time_sec: 0.001  # Robot thread is at 1000 Hz
+
+# sas_robot_driver_ros_composer_node
+robot_composed:
+  ros__parameters:
+    robot_driver_client_names: ["robot_1", "robot_2"]
+    override_joint_limits_with_robot_parameter_file: false
+    thread_sampling_time_sec: 0.01
+
+# sas_robot_watchdog_commander_node
+sas_robot_watchdog_commander_node:
+  ros__parameters:
+    robot_name: "robot_composed"
+    thread_sampling_time_sec: 0.001
+    watchdog_period: 0.01
+    watchdog_maximum_acceptable_delay: 0.05
