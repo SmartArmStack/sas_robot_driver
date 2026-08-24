@@ -42,7 +42,7 @@ Quick check (what CI runs):
 docker compose build -f docker/compose.yml
 docker compose up -f docker/compose.yml
 # or the one-shot version from the README:
-docker run --rm murilomarinho/sas:jazzy /bin/bash -c "ros2 launch sas_robot_driver sas_robot_driver_ros_composer_example.py"
+docker run --rm murilomarinho/sas:jazzy /bin/bash -c "ros2 launch sas_robot_driver composer_example_launch.py"
 ```
 
 Building outside docker (requires a ROS 2 jazzy workspace with the sibling
@@ -58,7 +58,7 @@ source install/setup.bash
 Examples:
 
 ```bash
-ros2 launch sas_robot_driver sas_robot_driver_ros_composer_example.py
+ros2 launch sas_robot_driver composer_example_launch.py
 ros2 run sas_robot_driver sas_robot_driver_interface_example.py
 ```
 
