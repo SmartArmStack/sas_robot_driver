@@ -33,7 +33,7 @@
 namespace sas
 {
 RobotDriverROSComposer::RobotDriverROSComposer(const RobotDriverROSComposerConfiguration &configuration,
-                                               std::shared_ptr<Node> &node,
+                                               std::shared_ptr<rclcpp::Node> &node,
                                                std::atomic_bool *break_loops):
     RobotDriver(break_loops),
     node_(node),
@@ -53,10 +53,10 @@ RobotDriverROSComposer::RobotDriverROSComposer(const RobotDriverROSComposerConfi
     }
 }
 
-VectorXd RobotDriverROSComposer::get_joint_positions()
+Eigen::VectorXd RobotDriverROSComposer::get_joint_positions()
 {
 
-    VectorXd joint_positions;
+    Eigen::VectorXd joint_positions;
     for(const auto& interface : robot_driver_clients_)
     {
         joint_positions = concatenate(joint_positions, interface->get_joint_positions());
@@ -64,7 +64,7 @@ VectorXd RobotDriverROSComposer::get_joint_positions()
     return joint_positions;
 }
 
-void RobotDriverROSComposer::set_target_joint_positions(const VectorXd &set_target_joint_positions_rad)
+void RobotDriverROSComposer::set_target_joint_positions(const Eigen::VectorXd &set_target_joint_positions_rad)
 {
     int accumulator = 0;
     for(const auto& interface : robot_driver_clients_)
@@ -74,7 +74,7 @@ void RobotDriverROSComposer::set_target_joint_positions(const VectorXd &set_targ
     }
 }
 
-void RobotDriverROSComposer::set_joint_limits(const std::tuple<VectorXd, VectorXd>&)
+void RobotDriverROSComposer::set_joint_limits(const std::tuple<Eigen::VectorXd, Eigen::VectorXd>&)
 {
     throw std::runtime_error("RobotDriverROSComposer::set_joint_limits::Not accepted.");
 }
@@ -112,12 +112,12 @@ void RobotDriverROSComposer::deinitialize()
 
 RobotDriverROSComposer::~RobotDriverROSComposer()=default;
 
-std::tuple<VectorXd, VectorXd> RobotDriverROSComposer::get_joint_limits()
+std::tuple<Eigen::VectorXd, Eigen::VectorXd> RobotDriverROSComposer::get_joint_limits()
 {
     if(!configuration_.override_joint_limits_with_robot_parameter_file)
     {
-        VectorXd joint_positions_min;
-        VectorXd joint_positions_max;
+        Eigen::VectorXd joint_positions_min;
+        Eigen::VectorXd joint_positions_max;
         for(const auto& interface : robot_driver_clients_)
         {
             auto [joint_positions_min_l, joint_positions_max_l] = interface->get_joint_limits();

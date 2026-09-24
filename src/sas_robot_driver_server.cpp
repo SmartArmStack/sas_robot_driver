@@ -90,7 +90,7 @@ void RobotDriverServer::_callback_homing_signal(const std_msgs::msg::Int32MultiA
  */
 void RobotDriverServer::_callback_clear_positions_signal(const std_msgs::msg::Int32MultiArray& msg)
 {
-    VectorXi clear_positions_signal_temp(msg.data.size());
+    Eigen::VectorXi clear_positions_signal_temp(msg.data.size());
 
     //We keep the clear position flags as 1 until they are processed by get_clear_positions_signal()
     for(int i=0;i<clear_positions_signal_temp.size();i++)
@@ -126,7 +126,7 @@ void RobotDriverServer::_callback_watchdog_trigger_state(const sas_msgs::msg::Wa
     time_point_from_the_server_ = std::chrono::system_clock::now();
 }
 
-RobotDriverServer::RobotDriverServer(const std::shared_ptr<Node> &node, const std::string &topic_prefix):
+RobotDriverServer::RobotDriverServer(const std::shared_ptr<rclcpp::Node> &node, const std::string &topic_prefix):
     sas::Object("sas::RobotDriverServer"),
     node_(node),
     node_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix),
@@ -164,7 +164,7 @@ RobotDriverServer::RobotDriverServer(const std::shared_ptr<Node> &node, const st
         );
 }
 
-VectorXd RobotDriverServer::get_target_joint_positions() const
+Eigen::VectorXd RobotDriverServer::get_target_joint_positions() const
 {
     if(is_enabled(RobotDriver::Functionality::PositionControl))
         return target_joint_positions_;
@@ -172,7 +172,7 @@ VectorXd RobotDriverServer::get_target_joint_positions() const
         throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_target_joint_positions() trying to get an uninitialized vector");
 }
 
-VectorXd RobotDriverServer::get_target_joint_velocities() const
+Eigen::VectorXd RobotDriverServer::get_target_joint_velocities() const
 {
     if(is_enabled(RobotDriver::Functionality::VelocityControl))
         return target_joint_velocities_;
@@ -180,7 +180,7 @@ VectorXd RobotDriverServer::get_target_joint_velocities() const
         throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_target_joint_velocities() trying to get an uninitialized vector");
 }
 
-VectorXd RobotDriverServer::get_target_joint_forces() const
+Eigen::VectorXd RobotDriverServer::get_target_joint_forces() const
 {
     if(is_enabled(RobotDriver::Functionality::ForceControl))
         return target_joint_forces_;
@@ -190,9 +190,9 @@ VectorXd RobotDriverServer::get_target_joint_forces() const
 
 /**
  * @brief get_homing_signal
- * @return a VectorXi with 1s for the joints that should be homed and 0s for the joints that should not be homed.
+ * @return a Eigen::VectorXi with 1s for the joints that should be homed and 0s for the joints that should not be homed.
  */
-VectorXi RobotDriverServer::get_homing_signal() const
+Eigen::VectorXi RobotDriverServer::get_homing_signal() const
 {
     if(is_enabled(RobotDriver::Functionality::Homing))
         return homing_signal_;
@@ -202,14 +202,14 @@ VectorXi RobotDriverServer::get_homing_signal() const
 
 /**
  * @brief RobotDriverProvider::get_clear_positions_signal. Getting the clear positions signal also clears it.
- * @return a VectorXi with 0s for configurations that should not be cleared and 1 for positions that should be cleared.
+ * @return a Eigen::VectorXi with 0s for configurations that should not be cleared and 1 for positions that should be cleared.
  */
-VectorXi RobotDriverServer::get_clear_positions_signal()
+Eigen::VectorXi RobotDriverServer::get_clear_positions_signal()
 {
     if(is_enabled(RobotDriver::Functionality::ClearPositions))
     {
-        const VectorXi return_value(clear_positions_signal_);
-        clear_positions_signal_ = VectorXi::Zero(return_value.size());
+        const Eigen::VectorXi return_value(clear_positions_signal_);
+        clear_positions_signal_ = Eigen::VectorXi::Zero(return_value.size());
         return return_value;
     }
     else
@@ -223,11 +223,11 @@ RobotDriver::Functionality RobotDriverServer::get_currently_active_functionality
 
 /**
  * @brief Sends the current joint states through ROS.
- * @param joint_positions vector of . If not needed, use joint_positions=VectorXd().
- * @param joint_velocities. If not needed, use joint_velocities=VectorXd().
- * @param joint_forces. If not needed, use joint_forces=VectorXd().
+ * @param joint_positions vector of . If not needed, use joint_positions=Eigen::VectorXd().
+ * @param joint_velocities. If not needed, use joint_velocities=Eigen::VectorXd().
+ * @param joint_forces. If not needed, use joint_forces=Eigen::VectorXd().
  */
-void RobotDriverServer::send_joint_states(const VectorXd &joint_positions, const VectorXd &joint_velocities, const VectorXd &joint_forces)
+void RobotDriverServer::send_joint_states(const Eigen::VectorXd &joint_positions, const Eigen::VectorXd &joint_velocities, const Eigen::VectorXd &joint_forces)
 {
     sensor_msgs::msg::JointState ros_msg;
     ros_msg.header.stamp = node_->get_clock()->now();
@@ -240,7 +240,7 @@ void RobotDriverServer::send_joint_states(const VectorXd &joint_positions, const
     publisher_joint_states_->publish(ros_msg);
 }
 
-void RobotDriverServer::send_joint_limits(const std::tuple<VectorXd, VectorXd> &joint_limits)
+void RobotDriverServer::send_joint_limits(const std::tuple<Eigen::VectorXd, Eigen::VectorXd> &joint_limits)
 {
     std_msgs::msg::Float64MultiArray ros_msg_min;
     ros_msg_min.data = vectorxd_to_std_vector_double(std::get<0>(joint_limits));
@@ -251,7 +251,7 @@ void RobotDriverServer::send_joint_limits(const std::tuple<VectorXd, VectorXd> &
     publisher_joint_limits_max_->publish(ros_msg_max);
 }
 
-void RobotDriverServer::send_home_state(const VectorXi &home_state)
+void RobotDriverServer::send_home_state(const Eigen::VectorXi &home_state)
 {
     std_msgs::msg::Int32MultiArray ros_msg_home_state;
     ros_msg_home_state.data = vectorxi_to_std_vector_int(home_state);

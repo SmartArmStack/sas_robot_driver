@@ -34,7 +34,6 @@
 #include <sas_core/sas_robot_driver.hpp>
 #include <sas_robot_driver/sas_robot_driver_client.hpp>
 
-using namespace Eigen;
 
 namespace sas
 {
@@ -49,7 +48,7 @@ struct RobotDriverROSComposerConfiguration
 class RobotDriverROSComposer: public RobotDriver
 {
 protected:
-    std::shared_ptr<Node> node_;
+    std::shared_ptr<rclcpp::Node> node_;
 
     RobotDriverROSComposerConfiguration configuration_;
     std::vector<std::unique_ptr<sas::RobotDriverClient>> robot_driver_clients_;
@@ -58,13 +57,13 @@ protected:
     RobotDriverROSComposer(const RobotDriverROSComposer&)=delete;
 public:
     RobotDriverROSComposer(const RobotDriverROSComposerConfiguration& configuration,
-                           std::shared_ptr<Node>& node,
+                           std::shared_ptr<rclcpp::Node>& node,
                            std::atomic_bool *break_loops);
 
-    VectorXd get_joint_positions() override;
-    void set_target_joint_positions(const VectorXd& set_target_joint_positions_rad) override;
-    std::tuple<VectorXd, VectorXd> get_joint_limits() override;
-    void set_joint_limits(const std::tuple<VectorXd, VectorXd>&) override;
+    Eigen::VectorXd get_joint_positions() override;
+    void set_target_joint_positions(const Eigen::VectorXd& set_target_joint_positions_rad) override;
+    std::tuple<Eigen::VectorXd, Eigen::VectorXd> get_joint_limits() override;
+    void set_joint_limits(const std::tuple<Eigen::VectorXd, Eigen::VectorXd>&) override;
 
     void connect() override;
     void disconnect() override;
