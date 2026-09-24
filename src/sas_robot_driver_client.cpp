@@ -83,7 +83,7 @@ bool mode_in_blacklist(const RobotDriverClient::MODE_BLACKLIST_FLAG& mode,
     return std::count(list_of_flags.begin(), list_of_flags.end(), mode) > 0;
 }
 
-RobotDriverClient::RobotDriverClient(const std::shared_ptr<Node> &node,
+RobotDriverClient::RobotDriverClient(const std::shared_ptr<rclcpp::Node> &node,
                                      const std::string topic_prefix,
                                      const std::vector<MODE_BLACKLIST_FLAG>& blacklisted_modes):
     sas::Object("sas::RobotDriverClient"),
@@ -126,7 +126,7 @@ RobotDriverClient::RobotDriverClient(const std::shared_ptr<Node> &node,
     publisher_shutdown_signal_ = node->create_publisher<sas_msgs::msg::Bool>(topic_prefix + "/set/shutdown", 1);
 }
 
-void RobotDriverClient::send_target_joint_positions(const VectorXd &target_joint_positions)
+void RobotDriverClient::send_target_joint_positions(const Eigen::VectorXd &target_joint_positions)
 {
 
     if (publisher_target_joint_positions_)
@@ -139,7 +139,7 @@ void RobotDriverClient::send_target_joint_positions(const VectorXd &target_joint
         throw std::runtime_error("RobotDriverClient::"+std::string(__FUNCTION__)+"::This method is blacklisted");
 }
 
-void RobotDriverClient::send_target_joint_velocities(const VectorXd &target_joint_velocities)
+void RobotDriverClient::send_target_joint_velocities(const Eigen::VectorXd &target_joint_velocities)
 {
     if(publisher_target_joint_velocities_)
     {
@@ -152,7 +152,7 @@ void RobotDriverClient::send_target_joint_velocities(const VectorXd &target_join
 
 }
 
-void RobotDriverClient::send_target_joint_forces(const VectorXd &target_joint_efforts)
+void RobotDriverClient::send_target_joint_forces(const Eigen::VectorXd &target_joint_efforts)
 {
 
     if (publisher_target_joint_forces_)
@@ -165,7 +165,7 @@ void RobotDriverClient::send_target_joint_forces(const VectorXd &target_joint_ef
         throw std::runtime_error("RobotDriverClient::"+std::string(__FUNCTION__)+"::This method is blacklisted");
 }
 
-void RobotDriverClient::send_homing_signal(const VectorXi &homing_signal)
+void RobotDriverClient::send_homing_signal(const Eigen::VectorXi &homing_signal)
 {
     if (publisher_homing_signal_)
     {
@@ -177,7 +177,7 @@ void RobotDriverClient::send_homing_signal(const VectorXi &homing_signal)
         throw std::runtime_error("RobotDriverClient::"+std::string(__FUNCTION__)+"::This method is blacklisted");
 }
 
-void RobotDriverClient::send_clear_positions_signal(const VectorXi &clear_positions_signal)
+void RobotDriverClient::send_clear_positions_signal(const Eigen::VectorXi &clear_positions_signal)
 {
     if (publisher_clear_positions_signal_)
     {
@@ -226,7 +226,7 @@ void RobotDriverClient::send_shutdown_signal()
     publisher_shutdown_signal_->publish(ros_msg);
 }
 
-VectorXd RobotDriverClient::get_joint_positions() const
+Eigen::VectorXd RobotDriverClient::get_joint_positions() const
 {
     if(is_enabled())
         return joint_positions_;
@@ -234,7 +234,7 @@ VectorXd RobotDriverClient::get_joint_positions() const
         throw std::runtime_error(topic_prefix_ + "::RobotDriverInterface::get_joint_positions()::trying to get joint positions but uninitialized.");
 }
 
-VectorXd RobotDriverClient::get_joint_velocities() const
+Eigen::VectorXd RobotDriverClient::get_joint_velocities() const
 {
     if(is_enabled(RobotDriver::Functionality::VelocityControl))
         return joint_velocities_;
@@ -242,7 +242,7 @@ VectorXd RobotDriverClient::get_joint_velocities() const
         throw std::runtime_error(topic_prefix_ + "::RobotDriverInterface::get_joint_velocities()::trying to get joint velocities but uninitialized.");
 }
 
-VectorXd RobotDriverClient::get_joint_forces() const
+Eigen::VectorXd RobotDriverClient::get_joint_forces() const
 {
     if(is_enabled(RobotDriver::Functionality::ForceControl))
         return joint_forces_;
@@ -250,7 +250,7 @@ VectorXd RobotDriverClient::get_joint_forces() const
         throw std::runtime_error(topic_prefix_ + "::RobotDriverInterface::get_joint_efforts()::trying to get joint efforts but uninitialized.");
 }
 
-std::tuple<VectorXd, VectorXd> RobotDriverClient::get_joint_limits() const
+std::tuple<Eigen::VectorXd, Eigen::VectorXd> RobotDriverClient::get_joint_limits() const
 {
     if(is_enabled())
     {
@@ -260,7 +260,7 @@ std::tuple<VectorXd, VectorXd> RobotDriverClient::get_joint_limits() const
         throw std::runtime_error(topic_prefix_ + "::RobotDriverInterface::get_joint_limits()::trying to get joint limits but uninitialized.");
 }
 
-VectorXi RobotDriverClient::get_home_states() const
+Eigen::VectorXi RobotDriverClient::get_home_states() const
 {
     if(is_enabled(RobotDriver::Functionality::Homing))
     {
