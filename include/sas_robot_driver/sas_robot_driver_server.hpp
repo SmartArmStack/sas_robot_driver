@@ -42,7 +42,6 @@
 #include <sas_msgs/msg/watchdog_trigger.hpp>
 #include <sas_msgs/msg/bool.hpp>
 
-using namespace rclcpp;
 
 namespace sas
 {
@@ -58,30 +57,30 @@ namespace sas
 class RobotDriverServer: private sas::Object
 {
 private:
-    std::shared_ptr<Node> node_;
+    std::shared_ptr<rclcpp::Node> node_;
 
     std::string node_prefix_;
     RobotDriver::Functionality currently_active_functionality_;
 
-    Publisher<sensor_msgs::msg::JointState>::SharedPtr publisher_joint_states_;
-    Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_joint_limits_min_;
-    Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_joint_limits_max_;
-    Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr publisher_home_state_;
+    rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr publisher_joint_states_;
+    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_joint_limits_min_;
+    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_joint_limits_max_;
+    rclcpp::Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr publisher_home_state_;
 
 
-    Subscription<sas_msgs::msg::Bool>::SharedPtr subscriber_shutdown_signal_;
+    rclcpp::Subscription<sas_msgs::msg::Bool>::SharedPtr subscriber_shutdown_signal_;
     bool shutdown_signal_;
-    Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr subscriber_target_joint_positions_;
-    VectorXd target_joint_positions_;
-    Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr subscriber_target_joint_velocities_;
-    VectorXd target_joint_velocities_;
-    Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr subscriber_target_joint_forces_;
-    VectorXd target_joint_forces_;
-    Subscription<std_msgs::msg::Int32MultiArray>::SharedPtr subscriber_homing_signal_;
-    VectorXi homing_signal_;
-    Subscription<std_msgs::msg::Int32MultiArray>::SharedPtr subscriber_clear_positions_signal_;
-    VectorXi clear_positions_signal_;
-    Subscription<sas_msgs::msg::WatchdogTrigger>::SharedPtr subscriber_watchdog_trigger_;
+    rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr subscriber_target_joint_positions_;
+    Eigen::VectorXd target_joint_positions_;
+    rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr subscriber_target_joint_velocities_;
+    Eigen::VectorXd target_joint_velocities_;
+    rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr subscriber_target_joint_forces_;
+    Eigen::VectorXd target_joint_forces_;
+    rclcpp::Subscription<std_msgs::msg::Int32MultiArray>::SharedPtr subscriber_homing_signal_;
+    Eigen::VectorXi homing_signal_;
+    rclcpp::Subscription<std_msgs::msg::Int32MultiArray>::SharedPtr subscriber_clear_positions_signal_;
+    Eigen::VectorXi clear_positions_signal_;
+    rclcpp::Subscription<sas_msgs::msg::WatchdogTrigger>::SharedPtr subscriber_watchdog_trigger_;
     bool watchdog_trigger_status_;
     bool watchdog_enabled_;
     double watchdog_period_in_seconds_;
@@ -106,52 +105,52 @@ public:
      * @param node Shared pointer to the rclcpp::Node used for communication.
      * @param node_prefix Prefix used to compose ROS topic names (defaults to "GET_FROM_NODE").
      */
-    RobotDriverServer(const std::shared_ptr<Node> &node, const std::string& node_prefix="GET_FROM_NODE");
+    RobotDriverServer(const std::shared_ptr<rclcpp::Node> &node, const std::string& node_prefix="GET_FROM_NODE");
 
     /**
      * @brief Get the most recent target joint positions received from clients.
      *
-     * @return VectorXd Target joint positions vector.
+     * @return Eigen::VectorXd Target joint positions vector.
      * @throws std::runtime_error if the server is not enabled for PositionControl
      *         or the requested vector is uninitialized.
      */
-    VectorXd get_target_joint_positions() const;
+    Eigen::VectorXd get_target_joint_positions() const;
 
     /**
      * @brief Get the most recent target joint velocities received from clients.
      *
-     * @return VectorXd Target joint velocities vector.
+     * @return Eigen::VectorXd Target joint velocities vector.
      * @throws std::runtime_error if the server is not enabled for VelocityControl
      *         or the requested vector is uninitialized.
      */
-    VectorXd get_target_joint_velocities() const;
+    Eigen::VectorXd get_target_joint_velocities() const;
 
     /**
      * @brief Get the most recent target joint forces received from clients.
      *
-     * @return VectorXd Target joint forces vector.
+     * @return Eigen::VectorXd Target joint forces vector.
      * @throws std::runtime_error if the server is not enabled for ForceControl
      *         or the requested vector is uninitialized.
      */
-    VectorXd get_target_joint_forces() const;
+    Eigen::VectorXd get_target_joint_forces() const;
 
     /**
      * @brief Get the last received homing signal vector.
      *
-     * @return VectorXi Homing signal per joint.
+     * @return Eigen::VectorXi Homing signal per joint.
      * @throws std::runtime_error if the server is not enabled for Homing
      *         or the homing vector is uninitialized.
      */
-    VectorXi get_homing_signal() const;
+    Eigen::VectorXi get_homing_signal() const;
 
     /**
      * @brief Get the last received clear positions signal vector.
      *
-     * @return VectorXi Clear positions signal per joint.
+     * @return Eigen::VectorXi Clear positions signal per joint.
      * @throws std::runtime_error if the server is not enabled for ClearPositions
      *         or the clear positions vector is uninitialized.
      */
-    VectorXi get_clear_positions_signal();
+    Eigen::VectorXi get_clear_positions_signal();
 
     /**
      * @brief Get the currently active functionality of the robot driver.
@@ -176,23 +175,23 @@ public:
      * @param joint_velocities Vector of joint velocities.
      * @param joint_forces Vector of joint forces.
      */
-    void send_joint_states(const VectorXd& joint_positions,
-                           const VectorXd& joint_velocities,
-                           const VectorXd& joint_forces);
+    void send_joint_states(const Eigen::VectorXd& joint_positions,
+                           const Eigen::VectorXd& joint_velocities,
+                           const Eigen::VectorXd& joint_forces);
 
     /**
      * @brief Publish joint limits (min and max) to clients.
      *
      * @param joint_limits Tuple containing (min_limits, max_limits).
      */
-    void send_joint_limits(const std::tuple<VectorXd, VectorXd>& joint_limits);
+    void send_joint_limits(const std::tuple<Eigen::VectorXd, Eigen::VectorXd>& joint_limits);
 
     /**
      * @brief Publish the home state vector to clients.
      *
      * @param home_state Vector representing home states per joint.
      */
-    void send_home_state(const VectorXi& home_state);
+    void send_home_state(const Eigen::VectorXi& home_state);
 
     /**
      * @brief Get the time point received from the client for watchdog synchronization.

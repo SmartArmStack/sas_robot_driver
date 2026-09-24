@@ -49,7 +49,7 @@ bool are_approximately_equal(const double &a, const double &b, const double &eps
 namespace sas
 {
 
-RobotDriverROS::RobotDriverROS(std::shared_ptr<Node> &node,
+RobotDriverROS::RobotDriverROS(std::shared_ptr<rclcpp::Node> &node,
                                const std::shared_ptr<RobotDriver> &robot_driver,
                                const RobotDriverROSConfiguration &configuration,
                                std::atomic_bool *kill_this_node):
@@ -65,7 +65,7 @@ RobotDriverROS::RobotDriverROS(std::shared_ptr<Node> &node,
 
 }
 
-RobotDriverROS::RobotDriverROS(std::shared_ptr<Node> &node,
+RobotDriverROS::RobotDriverROS(std::shared_ptr<rclcpp::Node> &node,
                                const std::shared_ptr<RobotDriver> &robot_driver,
                                const RobotDriverROSConfiguration &configuration,
                                const std::shared_ptr<ShutdownSignaler>& shutdown_signaler):
@@ -194,9 +194,9 @@ int RobotDriverROS::control_loop()
 
 
             auto joint_positions{robot_driver_->get_joint_positions()};
-            VectorXd joint_velocities;
+            Eigen::VectorXd joint_velocities;
             try{joint_velocities = robot_driver_->get_joint_velocities();} catch(...){}
-            VectorXd joint_torques;
+            Eigen::VectorXd joint_torques;
             try{joint_torques = robot_driver_->get_joint_torques();} catch(...){}
 
             robot_driver_server_.send_joint_states(joint_positions, joint_velocities, joint_torques);

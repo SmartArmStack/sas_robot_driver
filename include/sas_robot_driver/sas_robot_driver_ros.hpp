@@ -42,7 +42,6 @@
 #include <sas_core/sas_robot_driver.hpp>
 #include <sas_robot_driver/sas_robot_driver_server.hpp>
 
-using namespace rclcpp;
 
 namespace sas
 {
@@ -82,7 +81,7 @@ struct RobotDriverROSConfiguration
 class RobotDriverROS
 {
 private:
-    std::shared_ptr<Node> node_;
+    std::shared_ptr<rclcpp::Node> node_;
 
     RobotDriverROSConfiguration configuration_;
     std::atomic_bool* kill_this_node_; //Deprecated
@@ -107,13 +106,13 @@ public:
      * @param configuration Configuration parameters for ROS integration and control loop.
      * @param shutdown_signaler Shared pointer used to signal shutdown between components.
      */
-    RobotDriverROS(std::shared_ptr<Node>& node,
+    RobotDriverROS(std::shared_ptr<rclcpp::Node>& node,
                    const std::shared_ptr<RobotDriver>& robot_driver,
                    const RobotDriverROSConfiguration& configuration,
                    const std::shared_ptr<ShutdownSignaler>& shutdown_signaler_);
 
     [[deprecated("Use RobotDriver(const std::shared_ptr<ShutdownSignaler>& shutdown_signaler_) instead.")]]
-    RobotDriverROS(std::shared_ptr<Node>& node,
+    RobotDriverROS(std::shared_ptr<rclcpp::Node>& node,
                    const std::shared_ptr<RobotDriver>& robot_driver,
                    const RobotDriverROSConfiguration& configuration,
                    std::atomic_bool* kill_this_node);
