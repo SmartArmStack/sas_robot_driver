@@ -69,8 +69,8 @@ private:
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_joint_limits_max_;
     rclcpp::Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr publisher_home_state_;
 
-    rclcpp::Subscription<std_msgs::msg::ByteMultiArray>::SharedPtr subscriber_tool_gpio;
-    std::array<bool, 2> tool_gpio{};
+    rclcpp::Subscription<std_msgs::msg::ByteMultiArray>::SharedPtr subscriber_tool_gpio_;
+    std::array<bool, 2> tool_gpio_{};
     rclcpp::Subscription<sas_msgs::msg::Bool>::SharedPtr subscriber_shutdown_signal_;
     bool shutdown_signal_;
     rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr subscriber_target_joint_positions_;

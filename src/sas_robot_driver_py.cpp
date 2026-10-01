@@ -65,6 +65,7 @@ PYBIND11_MODULE(_sas_robot_driver, m) {
             .def("send_target_joint_forces",&RDC::send_target_joint_forces)
             .def("send_homing_signal",&RDC::send_homing_signal)
             .def("send_clear_positions_signal",&RDC::send_clear_positions_signal)
+            .def("send_tool_gpio",&RDC::send_tool_gpio)
             .def("get_joint_positions",&RDC::get_joint_positions)
             .def("get_joint_velocities",&RDC::get_joint_velocities)
             .def("get_joint_forces",&RDC::get_joint_forces)
@@ -81,6 +82,7 @@ PYBIND11_MODULE(_sas_robot_driver, m) {
             .def("get_homing_signal",&RDS::get_homing_signal)
             .def("get_clear_positions_signal",&RDS::get_clear_positions_signal)
             .def("get_currently_active_functionality",&RDS::get_currently_active_functionality)
+            .def("get_tool_gpio",&RDS::get_tool_gpio)
             .def("is_enabled",&RDS::is_enabled,"Returns true if the RobotDriverProvider is enabled.",py::arg("supported_functionality")=sas::RobotDriver::Functionality::PositionControl)
             .def("send_joint_states",&RDS::send_joint_states)
             .def("send_joint_limits",&RDS::send_joint_limits)
@@ -99,5 +101,6 @@ PYBIND11_MODULE(_sas_robot_driver, m) {
          .def_readwrite("thread_sampling_time_sec", &RDRC::thread_sampling_time_sec)
          .def_readwrite("watchdog_period_in_seconds", &RDRC::watchdog_period_in_seconds)
          .def_readwrite("q_min", &RDRC::q_min)
-         .def_readwrite("q_max", &RDRC::q_max);
+         .def_readwrite("q_max", &RDRC::q_max)
+         .def_readwrite("robot_tool_gpio_enable", &RDRC::robot_tool_gpio_enable);
 }

@@ -232,17 +232,17 @@ void RobotDriverClient::send_tool_gpio(const std::array<bool, 2> &tool_gpio)
 {
     std_msgs::msg::ByteMultiArray ros_msg;
     ros_msg.data.resize(tool_gpio.size());
-    
-    for (size_t i = 0; i < tool_gpio.size(); ++i)
+
+    for(std::size_t i = 0; i < tool_gpio.size(); ++i)
     {
-      ros_msg.data[i] = static_cast<uint8_t>(tool_gpio[i]);
+        ros_msg.data[i] = static_cast<uint8_t>(tool_gpio[i]);
     }
 
     std_msgs::msg::MultiArrayDimension dim;
     dim.label = "tool_gpio";
     dim.size = tool_gpio.size();
     dim.stride = tool_gpio.size();
-    
+
     ros_msg.layout.dim.push_back(dim);
     ros_msg.layout.data_offset = 0;
 

@@ -38,9 +38,9 @@ using std::placeholders::_1;
 namespace sas
 {
 
-std::array<bool, 2> RobotDriverServer::get_tool_gpio()const
+std::array<bool, 2> RobotDriverServer::get_tool_gpio() const
 {
-    return tool_gpio;
+    return tool_gpio_;
 }
 
 void RobotDriverServer::_callback_tool_gpio(const std_msgs::msg::ByteMultiArray &msg)
@@ -49,8 +49,15 @@ void RobotDriverServer::_callback_tool_gpio(const std_msgs::msg::ByteMultiArray 
     if(node_->count_publishers(this_topic)>1)
         throw std::runtime_error(this_topic + " must be exclusively published and there is more than one publisher connected.");
 
-    std::get<0>(tool_gpio) = static_cast<bool>(msg.data[0]);
-    std::get<1>(tool_gpio) = static_cast<bool>(msg.data[1]);
+    if(msg.data.size() != tool_gpio_.size())
+    {
+        RCLCPP_WARN_STREAM(node_->get_logger(), "::Ignoring " << this_topic << " message with " << msg.data.size()
+                                                << " elements. Expected " << tool_gpio_.size() << ".");
+        return;
+    }
+
+    for(std::size_t i = 0; i < tool_gpio_.size(); ++i)
+        tool_gpio_[i] = static_cast<bool>(msg.data[i]);
 }
 
 void RobotDriverServer::_callback_shutdown_signal_(const sas_msgs::msg::Bool &msg)
@@ -177,7 +184,7 @@ RobotDriverServer::RobotDriverServer(const std::shared_ptr<rclcpp::Node> &node, 
     subscriber_shutdown_signal_ = node->create_subscription<sas_msgs::msg::Bool>(
          topic_prefix + "/set/shutdown", 1, std::bind(&RobotDriverServer::_callback_shutdown_signal_, this, _1)
         );
-    subscriber_tool_gpio = node->create_subscription<std_msgs::msg::ByteMultiArray>(
+    subscriber_tool_gpio_ = node->create_subscription<std_msgs::msg::ByteMultiArray>(
          topic_prefix + "/set/tool_gpio", 1, std::bind(&RobotDriverServer::_callback_tool_gpio, this, _1)
         );
 }

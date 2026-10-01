@@ -71,8 +71,8 @@ struct RobotDriverROSConfiguration
     /// Joint position maximum limits (q_max.size() == number of joints).
     std::vector<double> q_max;
 
-    /// Enabled use of embedded gpio on the robot's tool.
-    bool robot_tool_gpio_enable;
+    /// Enables forwarding of tool GPIO commands from the server to the robot driver.
+    bool robot_tool_gpio_enable{false};
 };
 
 /**
