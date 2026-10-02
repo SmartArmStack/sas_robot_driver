@@ -32,6 +32,17 @@ forms the namespace for all topics.  When `topic_prefix` is `"GET_FROM_NODE"`
 | `sas::RobotDriverServer` | `sas_robot_driver/sas_robot_driver_server.hpp` |
 | `sas::RobotDriverClient` | `sas_robot_driver/sas_robot_driver_client.hpp` |
 
+### Tool GPIO
+
+The client can command the digital outputs on the robot's tool connector with
+`send_tool_gpio(std::array<bool, 2>)` (Python: `send_tool_gpio([bool, bool])`).
+The value is forwarded to `RobotDriver::set_tool_gpio()` only when
+`RobotDriverROSConfiguration::robot_tool_gpio_enable` is `true` (default `false`).
+
+| Topic                          | Type                          | Direction       | Description                                       |
+|--------------------------------|-------------------------------|-----------------|---------------------------------------------------|
+| `<topic_prefix>/set/tool_gpio` | `std_msgs/msg/ByteMultiArray` | client → server | Desired value per tool pin (`data[i]` is 0 or 1)  |
+
 ### Importing in Python
 
 ```python

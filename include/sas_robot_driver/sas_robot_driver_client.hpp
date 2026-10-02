@@ -26,7 +26,8 @@
 #
 #   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
 #      Added the Watchdog functionality.
-#
+#   2. Erwin Lopez (erwin.lopez@manchester.ac.uk)
+#      Added functionality to control tool gpio
 */
 
 #include <atomic>
@@ -36,6 +37,7 @@
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <std_msgs/msg/int32_multi_array.hpp>
+#include <std_msgs/msg/byte_multi_array.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <sas_msgs/msg/watchdog_trigger.hpp>
 #include <sas_core/sas_robot_driver.hpp>
@@ -92,6 +94,7 @@ private:
     rclcpp::Publisher<std_msgs::msg::Int32MultiArray>  ::SharedPtr publisher_clear_positions_signal_;
     rclcpp::Publisher<sas_msgs::msg::WatchdogTrigger>  ::SharedPtr publisher_watchdog_trigger_;
     rclcpp::Publisher<sas_msgs::msg::Bool>             ::SharedPtr publisher_shutdown_signal_;
+    rclcpp::Publisher<std_msgs::msg::ByteMultiArray>   ::SharedPtr publisher_tool_gpio_;
 
     void _callback_joint_states(const sensor_msgs::msg::JointState& msg);
     void _callback_joint_limits_min(const std_msgs::msg::Float64MultiArray& msg);
@@ -162,6 +165,13 @@ public:
      * @brief Request a shutdown via the robot driver topics.
      */
     void send_shutdown_signal();
+
+    /**
+     * @brief Send digital values for tool gpio to the robot.
+     *
+     * @param tool_gpio Array of bool representing a digital value per pin.
+     */
+    void send_tool_gpio(const std::array<bool, 2>& tool_gpio);
 
     /**
      * @brief Get the last received joint positions.

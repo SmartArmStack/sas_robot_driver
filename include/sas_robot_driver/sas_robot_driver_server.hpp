@@ -26,7 +26,8 @@
 #
 #   1. Juan Jose Quiroz Omana (juanjose.quirozomana@manchester.ac.uk)
 #      Added the Watchdog functionality.
-#
+#   2. Erwin Lopez (erwin.lopez@manchester.ac.uk)
+#      Added functionality to control tool gpio
 */
 
 #include <tuple>
@@ -35,6 +36,7 @@
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <std_msgs/msg/int32_multi_array.hpp>
+#include <std_msgs/msg/byte_multi_array.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
 
 #include <sas_core/sas_robot_driver.hpp>
@@ -67,7 +69,8 @@ private:
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_joint_limits_max_;
     rclcpp::Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr publisher_home_state_;
 
-
+    rclcpp::Subscription<std_msgs::msg::ByteMultiArray>::SharedPtr subscriber_tool_gpio_;
+    std::array<bool, 2> tool_gpio_{};
     rclcpp::Subscription<sas_msgs::msg::Bool>::SharedPtr subscriber_shutdown_signal_;
     bool shutdown_signal_;
     rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr subscriber_target_joint_positions_;
@@ -88,6 +91,7 @@ private:
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> time_point_from_the_client_;
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> time_point_from_the_server_;
 
+    void _callback_tool_gpio(const std_msgs::msg::ByteMultiArray& msg);
     void _callback_shutdown_signal_(const sas_msgs::msg::Bool& msg);
     void _callback_target_joint_positions(const std_msgs::msg::Float64MultiArray &msg);
     void _callback_target_joint_velocities(const std_msgs::msg::Float64MultiArray &msg);
@@ -158,6 +162,13 @@ public:
      * @return RobotDriver::Functionality Currently active functionality.
      */
     RobotDriver::Functionality get_currently_active_functionality() const;
+
+    /**
+     * @brief Get the tool gpio digital values.
+     *
+     * @return std::array<bool, 2> digital value of gpio pins.
+     */
+    std::array<bool, 2> get_tool_gpio() const;
 
     /**
      * @brief Check whether the server supports and is enabled for a functionality.

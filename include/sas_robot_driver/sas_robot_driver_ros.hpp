@@ -27,7 +27,8 @@
 #      - Added the Watchdog functionality.
 #      - Renamed robot_driver_provider_ to robot_driver_server_
 #      - Added a new std::optional parameter in RobotDriverROSConfiguration to define the watchdog period
-#
+#   2. Erwin Lopez (erwin.lopez@manchester.ac.uk)
+#      Added functionality to control tool gpio
 */
 
 #pragma once
@@ -69,6 +70,9 @@ struct RobotDriverROSConfiguration
 
     /// Joint position maximum limits (q_max.size() == number of joints).
     std::vector<double> q_max;
+
+    /// Enables forwarding of tool GPIO commands from the server to the robot driver.
+    bool robot_tool_gpio_enable{false};
 };
 
 /**

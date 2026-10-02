@@ -77,6 +77,10 @@ interface example. Make sure changes keep that flow green.
   states and joint limits from its server (`is_enabled()`); servers that
   wait on a client should send `send_joint_states()` / `send_joint_limits()`
   while spinning.
+- Tool GPIO: `RobotDriverClient::send_tool_gpio()` publishes on
+  `<topic_prefix>/set/tool_gpio` (`std_msgs/ByteMultiArray`, 2 elements);
+  `RobotDriverROS` forwards it to `RobotDriver::set_tool_gpio()` only when
+  `RobotDriverROSConfiguration::robot_tool_gpio_enable` is `true`.
 - Mode blacklisting: `RobotDriverClient` accepts `blacklisted_modes`
   (`MODE_BLACKLIST_FLAG`, e.g. `JOINT_CONTROL`) to disable functionality
   from the client side — the watchdog commander node uses this.
