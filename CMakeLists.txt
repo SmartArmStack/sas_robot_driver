@@ -157,4 +157,14 @@ install(DIRECTORY
 # Scripts Block [END] #
 #######################
 
+#############################
+# Test Block [BEGIN] #
+if(BUILD_TESTING)
+  find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(test_robot_driver_client_server test/test_robot_driver_client_server.py TIMEOUT 120)
+endif()
+#   Test Block [END]   #
+#############################
+
+
 ament_package()
