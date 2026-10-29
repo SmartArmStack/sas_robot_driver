@@ -24,8 +24,10 @@
 # #######################################################################################
 """
 import time
-from sas_common import rclcpp_init, rclcpp_Node, rclcpp_spin_some, rclcpp_shutdown
+
+from sas_common import rclcpp_init, rclcpp_Node, rclcpp_shutdown, rclcpp_spin_some
 from sas_robot_driver import RobotDriverClient, RobotDriverServer
+
 
 def main(args=None):
     try:
