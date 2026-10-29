@@ -95,7 +95,8 @@ void RobotDriverServer::_callback_clear_positions_signal(const std_msgs::msg::In
     //We keep the clear position flags as 1 until they are processed by get_clear_positions_signal()
     for(int i=0;i<clear_positions_signal_temp.size();i++)
     {
-        if(clear_positions_signal_(i)==1 || msg.data[i]==1)
+        const bool already_set = i < clear_positions_signal_.size() and clear_positions_signal_(i)==1;
+        if(already_set or msg.data[i]==1)
             clear_positions_signal_temp(i) = 1;
         else
             clear_positions_signal_temp(i) = 0;
@@ -154,7 +155,7 @@ RobotDriverServer::RobotDriverServer(const std::shared_ptr<rclcpp::Node> &node, 
                 topic_prefix + "/set/homing_signal", 1, std::bind(&RobotDriverServer::_callback_homing_signal, this, _1)
                 );
     subscriber_clear_positions_signal_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
-                topic_prefix + "/set/clear_positions", 1, std::bind(&RobotDriverServer::_callback_clear_positions_signal, this, _1)
+                topic_prefix + "/set/clear_positions_signal", 1, std::bind(&RobotDriverServer::_callback_clear_positions_signal, this, _1)
                 );
     subscriber_watchdog_trigger_ = node->create_subscription<sas_msgs::msg::WatchdogTrigger>(
         topic_prefix + "/set/watchdog_trigger", 1, std::bind(&RobotDriverServer::_callback_watchdog_trigger_state, this, _1)
