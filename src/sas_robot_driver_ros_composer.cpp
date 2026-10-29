@@ -35,7 +35,7 @@ namespace sas
 RobotDriverROSComposer::RobotDriverROSComposer(const RobotDriverROSComposerConfiguration &configuration,
                                                std::shared_ptr<rclcpp::Node> &node,
                                                std::atomic_bool *break_loops):
-    RobotDriver(break_loops),
+    RobotDriver(std::make_shared<marinholab::sas::core::ShutdownSignaler>(break_loops)),
     node_(node),
     configuration_(configuration)
 {

@@ -77,7 +77,7 @@ int main(int argc, char** argv)
         sas::RobotDriverROS robot_driver_ros(node,
                                              robot_driver_composer,
                                              robot_driver_ros_configuration,
-                                             &kill_this_process);
+                                             std::make_shared<marinholab::sas::core::ShutdownSignaler>(&kill_this_process));
         robot_driver_ros.control_loop();
     }
     catch (const std::exception& e)
