@@ -8,4 +8,6 @@ services:
       && ls .
       && colcon build
       && source install/setup.bash
+      && colcon test
+      && colcon test-result
       && ros2 run sas_robot_driver sas_robot_driver_interface_example.py"
