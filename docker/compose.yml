@@ -10,7 +10,7 @@ services:
       && source install/setup.bash
       && colcon test
       && colcon test-result
-      && sudo apt-get update -qq && sudo apt-get install -y -qq libasan8 libubsan1
+      && [ -e /usr/lib/$(gcc -dumpmachine)/libasan.so.8 ] && [ -e /usr/lib/$(gcc -dumpmachine)/libubsan.so.1 ] || { sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends libasan8 libubsan1; }
       && colcon build --build-base build_san --install-base install_san --cmake-args -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -O1 -g" -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined" -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address,undefined"
       && source install_san/setup.bash
       && ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 colcon test --build-base build_san
