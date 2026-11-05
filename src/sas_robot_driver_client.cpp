@@ -36,36 +36,39 @@ using std::placeholders::_1;
 namespace sas
 {
 
-void RobotDriverClient::_callback_joint_states(const sensor_msgs::msg::JointState &msg)
+void RobotDriverClient::_callback_joint_states(const sensor_msgs::msg::JointState& msg)
 {
     const std::string this_topic(topic_prefix_ + "/get/joint_states");
-    if(node_->count_publishers(this_topic)>1)
-        throw std::runtime_error(this_topic + " must be exclusively published and there is more than one publisher connected.");
+    if (node_->count_publishers(this_topic) > 1)
+        throw std::runtime_error(this_topic +
+                                 " must be exclusively published and there is more than one publisher connected.");
 
     joint_positions_ = std_vector_double_to_vectorxd(msg.position);
     joint_velocities_ = std_vector_double_to_vectorxd(msg.velocity);
     joint_forces_ = std_vector_double_to_vectorxd(msg.effort);
 }
 
-void RobotDriverClient::_callback_joint_limits_min(const std_msgs::msg::Float64MultiArray &msg)
+void RobotDriverClient::_callback_joint_limits_min(const std_msgs::msg::Float64MultiArray& msg)
 {
     const std::string this_topic(topic_prefix_ + "/get/joint_positions_min");
-    if(node_->count_publishers(this_topic)>1)
-        throw std::runtime_error(this_topic + " must be exclusively published and there is more than one publisher connected.");
+    if (node_->count_publishers(this_topic) > 1)
+        throw std::runtime_error(this_topic +
+                                 " must be exclusively published and there is more than one publisher connected.");
 
     joint_limits_min_ = std_vector_double_to_vectorxd(msg.data);
 }
 
-void RobotDriverClient::_callback_joint_limits_max(const std_msgs::msg::Float64MultiArray &msg)
+void RobotDriverClient::_callback_joint_limits_max(const std_msgs::msg::Float64MultiArray& msg)
 {
     const std::string this_topic(topic_prefix_ + "/get/joint_positions_max");
-    if(node_->count_publishers(this_topic)>1)
-        throw std::runtime_error(this_topic + " must be exclusively published and there is more than one publisher connected.");
+    if (node_->count_publishers(this_topic) > 1)
+        throw std::runtime_error(this_topic +
+                                 " must be exclusively published and there is more than one publisher connected.");
 
     joint_limits_max_ = std_vector_double_to_vectorxd(msg.data);
 }
 
-void RobotDriverClient::_callback_home_states(const std_msgs::msg::Int32MultiArray &msg)
+void RobotDriverClient::_callback_home_states(const std_msgs::msg::Int32MultiArray& msg)
 {
     home_states_ = std_vector_int_to_vectorxi(msg.data);
 }
@@ -83,52 +86,54 @@ bool mode_in_blacklist(const RobotDriverClient::MODE_BLACKLIST_FLAG& mode,
     return std::count(list_of_flags.begin(), list_of_flags.end(), mode) > 0;
 }
 
-RobotDriverClient::RobotDriverClient(const std::shared_ptr<rclcpp::Node> &node,
-                                     const std::string topic_prefix,
-                                     const std::vector<MODE_BLACKLIST_FLAG>& blacklisted_modes):
-    sas::Object("sas::RobotDriverClient"),
-    node_(node),
-    blacklisted_modes_(blacklisted_modes),
-    topic_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix)
+RobotDriverClient::RobotDriverClient(const std::shared_ptr<rclcpp::Node>& node, const std::string topic_prefix,
+                                     const std::vector<MODE_BLACKLIST_FLAG>& blacklisted_modes)
+    : sas::Object("sas::RobotDriverClient"),
+      node_(node),
+      blacklisted_modes_(blacklisted_modes),
+      topic_prefix_(topic_prefix == "GET_FROM_NODE" ? node->get_name() : topic_prefix)
 {
-    RCLCPP_INFO_STREAM(node_->get_logger(),"::Initializing RobotDriverClient with prefix " + topic_prefix);
+    RCLCPP_INFO_STREAM(node_->get_logger(), "::Initializing RobotDriverClient with prefix " + topic_prefix);
 
-    if(!mode_in_blacklist(MODE_BLACKLIST_FLAG::JOINT_CONTROL,blacklisted_modes_))
+    if (!mode_in_blacklist(MODE_BLACKLIST_FLAG::JOINT_CONTROL, blacklisted_modes_))
     {
-        publisher_target_joint_positions_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_positions",1);
-        publisher_target_joint_velocities_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_velocities",1);
-        publisher_target_joint_forces_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_forces",1);
-        publisher_homing_signal_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/set/homing_signal",1);
-        publisher_clear_positions_signal_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/set/clear_positions_signal",1);
+        publisher_target_joint_positions_ =
+            node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_positions", 1);
+        publisher_target_joint_velocities_ =
+            node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_velocities", 1);
+        publisher_target_joint_forces_ =
+            node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/set/target_joint_forces", 1);
+        publisher_homing_signal_ =
+            node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/set/homing_signal", 1);
+        publisher_clear_positions_signal_ =
+            node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/set/clear_positions_signal", 1);
     }
 
-    if(!mode_in_blacklist(MODE_BLACKLIST_FLAG::WATCHDOG_CONTROL,blacklisted_modes_))
+    if (!mode_in_blacklist(MODE_BLACKLIST_FLAG::WATCHDOG_CONTROL, blacklisted_modes_))
     {
-        publisher_watchdog_trigger_ = node->create_publisher<sas_msgs::msg::WatchdogTrigger>(topic_prefix + "/set/watchdog_trigger", 1);
+        publisher_watchdog_trigger_ =
+            node->create_publisher<sas_msgs::msg::WatchdogTrigger>(topic_prefix + "/set/watchdog_trigger", 1);
     }
 
-    if(!mode_in_blacklist(MODE_BLACKLIST_FLAG::JOINT_MONITORING,blacklisted_modes_))
+    if (!mode_in_blacklist(MODE_BLACKLIST_FLAG::JOINT_MONITORING, blacklisted_modes_))
     {
         subscriber_joint_states_ = node->create_subscription<sensor_msgs::msg::JointState>(
-                    topic_prefix + "/get/joint_states", 1, std::bind(&RobotDriverClient::_callback_joint_states, this, _1)
-                    );
+            topic_prefix + "/get/joint_states", 1, std::bind(&RobotDriverClient::_callback_joint_states, this, _1));
         subscriber_joint_limits_min_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
-                    topic_prefix + "/get/joint_positions_min", 1, std::bind(&RobotDriverClient::_callback_joint_limits_min, this, _1)
-                    );
+            topic_prefix + "/get/joint_positions_min", 1,
+            std::bind(&RobotDriverClient::_callback_joint_limits_min, this, _1));
         subscriber_joint_limits_max_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
-                    topic_prefix + "/get/joint_positions_max", 1, std::bind(&RobotDriverClient::_callback_joint_limits_max, this, _1)
-                    );
+            topic_prefix + "/get/joint_positions_max", 1,
+            std::bind(&RobotDriverClient::_callback_joint_limits_max, this, _1));
         subscriber_home_state_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
-                    topic_prefix + "/get/home_states", 1, std::bind(&RobotDriverClient::_callback_home_states, this, _1)
-                    );
+            topic_prefix + "/get/home_states", 1, std::bind(&RobotDriverClient::_callback_home_states, this, _1));
     }
     // All client types can shut down the server.
     publisher_shutdown_signal_ = node->create_publisher<sas_msgs::msg::Bool>(topic_prefix + "/set/shutdown", 1);
 }
 
-void RobotDriverClient::send_target_joint_positions(const Eigen::VectorXd &target_joint_positions)
+void RobotDriverClient::send_target_joint_positions(const Eigen::VectorXd& target_joint_positions)
 {
-
     if (publisher_target_joint_positions_)
     {
         std_msgs::msg::Float64MultiArray ros_msg;
@@ -136,25 +141,23 @@ void RobotDriverClient::send_target_joint_positions(const Eigen::VectorXd &targe
         publisher_target_joint_positions_->publish(ros_msg);
     }
     else
-        throw std::runtime_error("RobotDriverClient::"+std::string(__FUNCTION__)+"::This method is blacklisted");
+        throw std::runtime_error("RobotDriverClient::" + std::string(__FUNCTION__) + "::This method is blacklisted");
 }
 
-void RobotDriverClient::send_target_joint_velocities(const Eigen::VectorXd &target_joint_velocities)
+void RobotDriverClient::send_target_joint_velocities(const Eigen::VectorXd& target_joint_velocities)
 {
-    if(publisher_target_joint_velocities_)
+    if (publisher_target_joint_velocities_)
     {
         std_msgs::msg::Float64MultiArray ros_msg;
         ros_msg.data = vectorxd_to_std_vector_double(target_joint_velocities);
         publisher_target_joint_velocities_->publish(ros_msg);
     }
     else
-        throw std::runtime_error("RobotDriverClient::"+std::string(__FUNCTION__)+"::This method is blacklisted");
-
+        throw std::runtime_error("RobotDriverClient::" + std::string(__FUNCTION__) + "::This method is blacklisted");
 }
 
-void RobotDriverClient::send_target_joint_forces(const Eigen::VectorXd &target_joint_efforts)
+void RobotDriverClient::send_target_joint_forces(const Eigen::VectorXd& target_joint_efforts)
 {
-
     if (publisher_target_joint_forces_)
     {
         std_msgs::msg::Float64MultiArray ros_msg;
@@ -162,10 +165,10 @@ void RobotDriverClient::send_target_joint_forces(const Eigen::VectorXd &target_j
         publisher_target_joint_forces_->publish(ros_msg);
     }
     else
-        throw std::runtime_error("RobotDriverClient::"+std::string(__FUNCTION__)+"::This method is blacklisted");
+        throw std::runtime_error("RobotDriverClient::" + std::string(__FUNCTION__) + "::This method is blacklisted");
 }
 
-void RobotDriverClient::send_homing_signal(const Eigen::VectorXi &homing_signal)
+void RobotDriverClient::send_homing_signal(const Eigen::VectorXi& homing_signal)
 {
     if (publisher_homing_signal_)
     {
@@ -174,10 +177,10 @@ void RobotDriverClient::send_homing_signal(const Eigen::VectorXi &homing_signal)
         publisher_homing_signal_->publish(ros_msg);
     }
     else
-        throw std::runtime_error("RobotDriverClient::"+std::string(__FUNCTION__)+"::This method is blacklisted");
+        throw std::runtime_error("RobotDriverClient::" + std::string(__FUNCTION__) + "::This method is blacklisted");
 }
 
-void RobotDriverClient::send_clear_positions_signal(const Eigen::VectorXi &clear_positions_signal)
+void RobotDriverClient::send_clear_positions_signal(const Eigen::VectorXi& clear_positions_signal)
 {
     if (publisher_clear_positions_signal_)
     {
@@ -186,7 +189,7 @@ void RobotDriverClient::send_clear_positions_signal(const Eigen::VectorXi &clear
         publisher_clear_positions_signal_->publish(ros_msg);
     }
     else
-        throw std::runtime_error("RobotDriverClient::"+std::string(__FUNCTION__)+"::This method is blacklisted");
+        throw std::runtime_error("RobotDriverClient::" + std::string(__FUNCTION__) + "::This method is blacklisted");
 }
 
 /**
@@ -197,11 +200,9 @@ void RobotDriverClient::send_clear_positions_signal(const Eigen::VectorXi &clear
  *                                  registered by the server. This delay could be related to unsynchronised clocks between different computers
  *                                  or network delays.
  */
-void RobotDriverClient::send_watchdog_trigger(const bool& watchdog_trigger_status,
-                                              const double &period_in_seconds,
-                                              const double &maximum_acceptable_delay)
+void RobotDriverClient::send_watchdog_trigger(const bool& watchdog_trigger_status, const double& period_in_seconds,
+                                              const double& maximum_acceptable_delay)
 {
-
     if (publisher_watchdog_trigger_)
     {
         sas_msgs::msg::WatchdogTrigger ros_msg;
@@ -213,7 +214,7 @@ void RobotDriverClient::send_watchdog_trigger(const bool& watchdog_trigger_statu
         publisher_watchdog_trigger_->publish(ros_msg);
     }
     else
-        throw std::runtime_error("RobotDriverClient::"+std::string(__FUNCTION__)+"::This method is blacklisted");
+        throw std::runtime_error("RobotDriverClient::" + std::string(__FUNCTION__) + "::This method is blacklisted");
 }
 
 /**
@@ -228,69 +229,83 @@ void RobotDriverClient::send_shutdown_signal()
 
 Eigen::VectorXd RobotDriverClient::get_joint_positions() const
 {
-    if(is_enabled())
+    if (is_enabled())
         return joint_positions_;
     else
-        throw std::runtime_error(topic_prefix_ + "::RobotDriverInterface::get_joint_positions()::trying to get joint positions but uninitialized.");
+        throw std::runtime_error(
+            topic_prefix_ +
+            "::RobotDriverInterface::get_joint_positions()::trying to get joint positions but uninitialized.");
 }
 
 Eigen::VectorXd RobotDriverClient::get_joint_velocities() const
 {
-    if(is_enabled(RobotDriver::Functionality::VelocityControl))
+    if (is_enabled(RobotDriver::Functionality::VelocityControl))
         return joint_velocities_;
     else
-        throw std::runtime_error(topic_prefix_ + "::RobotDriverInterface::get_joint_velocities()::trying to get joint velocities but uninitialized.");
+        throw std::runtime_error(
+            topic_prefix_ +
+            "::RobotDriverInterface::get_joint_velocities()::trying to get joint velocities but uninitialized.");
 }
 
 Eigen::VectorXd RobotDriverClient::get_joint_forces() const
 {
-    if(is_enabled(RobotDriver::Functionality::ForceControl))
+    if (is_enabled(RobotDriver::Functionality::ForceControl))
         return joint_forces_;
     else
-        throw std::runtime_error(topic_prefix_ + "::RobotDriverInterface::get_joint_efforts()::trying to get joint efforts but uninitialized.");
+        throw std::runtime_error(
+            topic_prefix_ +
+            "::RobotDriverInterface::get_joint_efforts()::trying to get joint efforts but uninitialized.");
 }
 
 std::tuple<Eigen::VectorXd, Eigen::VectorXd> RobotDriverClient::get_joint_limits() const
 {
-    if(is_enabled())
+    if (is_enabled())
     {
         return std::make_tuple(joint_limits_min_, joint_limits_max_);
     }
     else
-        throw std::runtime_error(topic_prefix_ + "::RobotDriverInterface::get_joint_limits()::trying to get joint limits but uninitialized.");
+        throw std::runtime_error(
+            topic_prefix_ +
+            "::RobotDriverInterface::get_joint_limits()::trying to get joint limits but uninitialized.");
 }
 
 Eigen::VectorXi RobotDriverClient::get_home_states() const
 {
-    if(is_enabled(RobotDriver::Functionality::Homing))
+    if (is_enabled(RobotDriver::Functionality::Homing))
     {
         return home_states_;
     }
     else
-        throw std::runtime_error(topic_prefix_ + "::RobotDriverInterface::get_home_states()::trying to get home states but uninitialized.");
+        throw std::runtime_error(
+            topic_prefix_ + "::RobotDriverInterface::get_home_states()::trying to get home states but uninitialized.");
 }
 
-
-bool RobotDriverClient::is_enabled(const RobotDriver::Functionality &control_mode) const
+bool RobotDriverClient::is_enabled(const RobotDriver::Functionality& control_mode) const
 {
-    switch(control_mode)
+    switch (control_mode)
     {
-    case RobotDriver::Functionality::PositionControl:
-        return joint_positions_.size() > 0 && joint_limits_min_.size() > 0 && joint_limits_max_.size() > 0;
-    case RobotDriver::Functionality::VelocityControl:
-        return joint_velocities_.size() > 0;
-    case RobotDriver::Functionality::ForceControl:
-        return joint_forces_.size() > 0;
-    case RobotDriver::Functionality::Homing:
-        return home_states_.size() > 0;
-    case sas::RobotDriver::Functionality::Watchdog:
-        throw std::runtime_error(topic_prefix_+"::is_enabled() RobotDriver::Functionality::Watchdog has no meaning in RobotDriverInterface::is_enabled().");
-    case RobotDriver::Functionality::ClearPositions:
-        throw std::runtime_error(topic_prefix_+"::is_enabled() RobotDriver::Functionality::ClearPositions has no meaning in RobotDriverInterface::is_enabled().");
-    case RobotDriver::Functionality::None:
-        throw std::runtime_error(topic_prefix_+"::is_enabled() RobotDriver::Functionality::None has no meaning in RobotDriverInterface::is_enabled().");
+        case RobotDriver::Functionality::PositionControl:
+            return joint_positions_.size() > 0 && joint_limits_min_.size() > 0 && joint_limits_max_.size() > 0;
+        case RobotDriver::Functionality::VelocityControl:
+            return joint_velocities_.size() > 0;
+        case RobotDriver::Functionality::ForceControl:
+            return joint_forces_.size() > 0;
+        case RobotDriver::Functionality::Homing:
+            return home_states_.size() > 0;
+        case sas::RobotDriver::Functionality::Watchdog:
+            throw std::runtime_error(topic_prefix_ +
+                                     "::is_enabled() RobotDriver::Functionality::Watchdog has no meaning in "
+                                     "RobotDriverInterface::is_enabled().");
+        case RobotDriver::Functionality::ClearPositions:
+            throw std::runtime_error(topic_prefix_ +
+                                     "::is_enabled() RobotDriver::Functionality::ClearPositions has no meaning in "
+                                     "RobotDriverInterface::is_enabled().");
+        case RobotDriver::Functionality::None:
+            throw std::runtime_error(topic_prefix_ +
+                                     "::is_enabled() RobotDriver::Functionality::None has no meaning in "
+                                     "RobotDriverInterface::is_enabled().");
     }
-    throw std::runtime_error(topic_prefix_+"::is_enabled() Unknown RobotDriver::Functionality.");
+    throw std::runtime_error(topic_prefix_ + "::is_enabled() Unknown RobotDriver::Functionality.");
 }
 
 std::string RobotDriverClient::get_topic_prefix() const
@@ -298,5 +313,4 @@ std::string RobotDriverClient::get_topic_prefix() const
     return topic_prefix_;
 }
 
-
-}
+}  // namespace sas

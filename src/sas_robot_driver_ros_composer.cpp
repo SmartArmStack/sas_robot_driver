@@ -32,45 +32,45 @@
 
 namespace sas
 {
-RobotDriverROSComposer::RobotDriverROSComposer(const RobotDriverROSComposerConfiguration &configuration,
-                                               std::shared_ptr<rclcpp::Node> &node,
-                                               std::atomic_bool *break_loops):
-    RobotDriver(std::make_shared<marinholab::sas::core::ShutdownSignaler>(break_loops)),
-    node_(node),
-    configuration_(configuration)
+RobotDriverROSComposer::RobotDriverROSComposer(const RobotDriverROSComposerConfiguration& configuration,
+                                               std::shared_ptr<rclcpp::Node>& node, std::atomic_bool* break_loops)
+    : RobotDriver(std::make_shared<marinholab::sas::core::ShutdownSignaler>(break_loops)),
+      node_(node),
+      configuration_(configuration)
 {
-
-    for(const std::string& topic_prefix: configuration.robot_driver_client_names)
+    for (const std::string& topic_prefix : configuration.robot_driver_client_names)
     {
-        RCLCPP_INFO_STREAM(node_->get_logger(),"::Adding RobotDriverClient driver with prefix "+topic_prefix);
-        robot_driver_clients_.push_back(std::unique_ptr<RobotDriverClient>(new RobotDriverClient(node,topic_prefix)));
+        RCLCPP_INFO_STREAM(node_->get_logger(), "::Adding RobotDriverClient driver with prefix " + topic_prefix);
+        robot_driver_clients_.push_back(std::unique_ptr<RobotDriverClient>(new RobotDriverClient(node, topic_prefix)));
     }
 
-    if(configuration_.override_joint_limits_with_robot_parameter_file)
+    if (configuration_.override_joint_limits_with_robot_parameter_file)
     {
-        DQ_robotics::DQ_SerialManipulatorDH smdh = DQ_robotics::DQ_JsonReader::get_from_json<DQ_robotics::DQ_SerialManipulatorDH>(configuration_.robot_parameter_file_path);
-        joint_limits_ = {smdh.get_lower_q_limit(),smdh.get_upper_q_limit()};
+        DQ_robotics::DQ_SerialManipulatorDH smdh =
+            DQ_robotics::DQ_JsonReader::get_from_json<DQ_robotics::DQ_SerialManipulatorDH>(
+                configuration_.robot_parameter_file_path);
+        joint_limits_ = {smdh.get_lower_q_limit(), smdh.get_upper_q_limit()};
     }
 }
 
 Eigen::VectorXd RobotDriverROSComposer::get_joint_positions()
 {
-
     Eigen::VectorXd joint_positions;
-    for(const auto& interface : robot_driver_clients_)
+    for (const auto& interface : robot_driver_clients_)
     {
         joint_positions = concatenate(joint_positions, interface->get_joint_positions());
     }
     return joint_positions;
 }
 
-void RobotDriverROSComposer::set_target_joint_positions(const Eigen::VectorXd &set_target_joint_positions_rad)
+void RobotDriverROSComposer::set_target_joint_positions(const Eigen::VectorXd& set_target_joint_positions_rad)
 {
     int accumulator = 0;
-    for(const auto& interface : robot_driver_clients_)
+    for (const auto& interface : robot_driver_clients_)
     {
-        interface->send_target_joint_positions(set_target_joint_positions_rad.segment(accumulator,interface->get_joint_positions().size()));
-        accumulator+=interface->get_joint_positions().size();
+        interface->send_target_joint_positions(
+            set_target_joint_positions_rad.segment(accumulator, interface->get_joint_positions().size()));
+        accumulator += interface->get_joint_positions().size();
     }
 }
 
@@ -91,15 +91,14 @@ void RobotDriverROSComposer::disconnect()
 
 void RobotDriverROSComposer::initialize()
 {
-
     bool initialized = false;
-    while(not initialized and not (*break_loops_))
+    while (not initialized and not(*break_loops_))
     {
         rclcpp::spin_some(node_);
         initialized = true;
-        for(const auto& interface : robot_driver_clients_)
+        for (const auto& interface : robot_driver_clients_)
         {
-            if(not interface->is_enabled())
+            if (not interface->is_enabled())
                 initialized = false;
         }
     }
@@ -110,15 +109,15 @@ void RobotDriverROSComposer::deinitialize()
     //nothing to do
 }
 
-RobotDriverROSComposer::~RobotDriverROSComposer()=default;
+RobotDriverROSComposer::~RobotDriverROSComposer() = default;
 
 std::tuple<Eigen::VectorXd, Eigen::VectorXd> RobotDriverROSComposer::get_joint_limits()
 {
-    if(!configuration_.override_joint_limits_with_robot_parameter_file)
+    if (!configuration_.override_joint_limits_with_robot_parameter_file)
     {
         Eigen::VectorXd joint_positions_min;
         Eigen::VectorXd joint_positions_max;
-        for(const auto& interface : robot_driver_clients_)
+        for (const auto& interface : robot_driver_clients_)
         {
             auto [joint_positions_min_l, joint_positions_max_l] = interface->get_joint_limits();
             joint_positions_min = concatenate(joint_positions_min, joint_positions_min_l);
@@ -129,4 +128,4 @@ std::tuple<Eigen::VectorXd, Eigen::VectorXd> RobotDriverROSComposer::get_joint_l
     return joint_limits_;
 }
 
-}
+}  // namespace sas

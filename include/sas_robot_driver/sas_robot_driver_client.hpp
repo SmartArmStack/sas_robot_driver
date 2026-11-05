@@ -42,8 +42,6 @@
 #include <sas_core/sas_object.hpp>
 #include <sas_msgs/msg/bool.hpp>
 
-
-
 namespace sas
 {
 
@@ -55,7 +53,7 @@ namespace sas
  * joint limits and home state. It supports optional mode blacklisting to
  * disable certain functionalities from the client side.
  */
-class RobotDriverClient: private sas::Object
+class RobotDriverClient : private sas::Object
 {
 public:
     /**
@@ -63,10 +61,11 @@ public:
      */
     enum class MODE_BLACKLIST_FLAG
     {
-        JOINT_CONTROL=0,
+        JOINT_CONTROL = 0,
         JOINT_MONITORING,
         WATCHDOG_CONTROL
     };
+
 private:
     std::shared_ptr<rclcpp::Node> node_;
 
@@ -88,15 +87,16 @@ private:
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_target_joint_positions_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_target_joint_velocities_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_target_joint_forces_;
-    rclcpp::Publisher<std_msgs::msg::Int32MultiArray>  ::SharedPtr publisher_homing_signal_;
-    rclcpp::Publisher<std_msgs::msg::Int32MultiArray>  ::SharedPtr publisher_clear_positions_signal_;
-    rclcpp::Publisher<sas_msgs::msg::WatchdogTrigger>  ::SharedPtr publisher_watchdog_trigger_;
-    rclcpp::Publisher<sas_msgs::msg::Bool>             ::SharedPtr publisher_shutdown_signal_;
+    rclcpp::Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr publisher_homing_signal_;
+    rclcpp::Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr publisher_clear_positions_signal_;
+    rclcpp::Publisher<sas_msgs::msg::WatchdogTrigger>::SharedPtr publisher_watchdog_trigger_;
+    rclcpp::Publisher<sas_msgs::msg::Bool>::SharedPtr publisher_shutdown_signal_;
 
     void _callback_joint_states(const sensor_msgs::msg::JointState& msg);
     void _callback_joint_limits_min(const std_msgs::msg::Float64MultiArray& msg);
     void _callback_joint_limits_max(const std_msgs::msg::Float64MultiArray& msg);
     void _callback_home_states(const std_msgs::msg::Int32MultiArray& msg);
+
 public:
     RobotDriverClient() = delete;
     RobotDriverClient(const RobotDriverClient&) = delete;
@@ -108,8 +108,7 @@ public:
      * @param topic_prefix Topic prefix used to compose topic/service names. Defaults to "GET_FROM_NODE".
      * @param blacklisted_modes Optional list of modes to blacklist/disable on the client side.
      */
-    RobotDriverClient(const std::shared_ptr<rclcpp::Node> &node,
-                      const std::string topic_prefix="GET_FROM_NODE",
+    RobotDriverClient(const std::shared_ptr<rclcpp::Node>& node, const std::string topic_prefix = "GET_FROM_NODE",
                       const std::vector<MODE_BLACKLIST_FLAG>& blacklisted_modes = std::vector<MODE_BLACKLIST_FLAG>{});
 
     /**
@@ -154,8 +153,7 @@ public:
      * @param period_in_seconds Watchdog period in seconds (default: 1.0).
      * @param maximum_acceptable_delay Maximum acceptable delay in seconds for the watchdog (default: 0.5).
      */
-    void send_watchdog_trigger(const bool& watchdog_trigger_status,
-                               const double& period_in_seconds = 1.0,
+    void send_watchdog_trigger(const bool& watchdog_trigger_status, const double& period_in_seconds = 1.0,
                                const double& maximum_acceptable_delay = 0.5);
 
     /**
@@ -204,7 +202,8 @@ public:
      * @param supported_functionality The functionality to check (default: PositionControl).
      * @return true if enabled, false otherwise.
      */
-    bool is_enabled(const RobotDriver::Functionality& supported_functionality=RobotDriver::Functionality::PositionControl) const;
+    bool is_enabled(
+        const RobotDriver::Functionality& supported_functionality = RobotDriver::Functionality::PositionControl) const;
 
     /**
      * @brief Get the configured topic prefix.
@@ -214,5 +213,4 @@ public:
     std::string get_topic_prefix() const;
 };
 
-}
-
+}  // namespace sas

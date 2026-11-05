@@ -31,7 +31,7 @@ using namespace sas;
 /*********************************************
  * SIGNAL HANDLER
  * *******************************************/
-#include<signal.h>
+#include <signal.h>
 static std::atomic_bool kill_this_process(false);
 void sig_int_handler(int)
 {
@@ -40,12 +40,12 @@ void sig_int_handler(int)
 
 int main(int argc, char** argv)
 {
-    if(signal(SIGINT, sig_int_handler) == SIG_ERR)
+    if (signal(SIGINT, sig_int_handler) == SIG_ERR)
     {
         throw std::runtime_error("::Error setting the signal int handler.");
     }
 
-    rclcpp::init(argc,argv,rclcpp::InitOptions(),rclcpp::SignalHandlerOptions::None);
+    rclcpp::init(argc, argv, rclcpp::InitOptions(), rclcpp::SignalHandlerOptions::None);
     auto node = std::make_shared<rclcpp::Node>("sas_robot_driver_ros_composer_node");
 
     try
@@ -53,31 +53,36 @@ int main(int argc, char** argv)
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Loading parameters from parameter server.");
         RobotDriverROSComposerConfiguration robot_driver_ros_composer_configuration;
 
-        get_ros_parameter(node,"robot_driver_client_names",robot_driver_ros_composer_configuration.robot_driver_client_names);
+        get_ros_parameter(node, "robot_driver_client_names",
+                          robot_driver_ros_composer_configuration.robot_driver_client_names);
 
-        get_ros_parameter(node,"override_joint_limits_with_robot_parameter_file",robot_driver_ros_composer_configuration.override_joint_limits_with_robot_parameter_file);
-        if(robot_driver_ros_composer_configuration.override_joint_limits_with_robot_parameter_file)
+        get_ros_parameter(node, "override_joint_limits_with_robot_parameter_file",
+                          robot_driver_ros_composer_configuration.override_joint_limits_with_robot_parameter_file);
+        if (robot_driver_ros_composer_configuration.override_joint_limits_with_robot_parameter_file)
         {
-            get_ros_parameter(node,"robot_parameter_file_path",robot_driver_ros_composer_configuration.robot_parameter_file_path);
-            RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Overriding joint limits with " + robot_driver_ros_composer_configuration.robot_parameter_file_path);
+            get_ros_parameter(node, "robot_parameter_file_path",
+                              robot_driver_ros_composer_configuration.robot_parameter_file_path);
+            RCLCPP_INFO_STREAM_ONCE(
+                node->get_logger(),
+                "::Overriding joint limits with " + robot_driver_ros_composer_configuration.robot_parameter_file_path);
         }
         else
             RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Concatenating the joint limits from each robot.");
 
         RobotDriverROSConfiguration robot_driver_ros_configuration;
-        get_ros_parameter(node,"thread_sampling_time_sec",robot_driver_ros_configuration.thread_sampling_time_sec);
+        get_ros_parameter(node, "thread_sampling_time_sec", robot_driver_ros_configuration.thread_sampling_time_sec);
 
         robot_driver_ros_configuration.robot_driver_provider_prefix = node->get_name();
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Parameters OK.");
 
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Instantiating RobotDriverROSComposer.");
-        auto robot_driver_composer = std::make_shared<sas::RobotDriverROSComposer>(robot_driver_ros_composer_configuration,node,&kill_this_process);
+        auto robot_driver_composer = std::make_shared<sas::RobotDriverROSComposer>(
+            robot_driver_ros_composer_configuration, node, &kill_this_process);
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Instantiating RobotDriverROS.");
 
-        sas::RobotDriverROS robot_driver_ros(node,
-                                             robot_driver_composer,
-                                             robot_driver_ros_configuration,
-                                             std::make_shared<marinholab::sas::core::ShutdownSignaler>(&kill_this_process));
+        sas::RobotDriverROS robot_driver_ros(
+            node, robot_driver_composer, robot_driver_ros_configuration,
+            std::make_shared<marinholab::sas::core::ShutdownSignaler>(&kill_this_process));
         robot_driver_ros.control_loop();
     }
     catch (const std::exception& e)

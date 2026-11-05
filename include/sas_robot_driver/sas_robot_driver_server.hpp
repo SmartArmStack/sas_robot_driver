@@ -42,7 +42,6 @@
 #include <sas_msgs/msg/watchdog_trigger.hpp>
 #include <sas_msgs/msg/bool.hpp>
 
-
 namespace sas
 {
 
@@ -54,7 +53,7 @@ namespace sas
  * homing/clear signals and watchdog triggers). It provides getters for the
  * latest received commands, watchdog information and shutdown signal.
  */
-class RobotDriverServer: private sas::Object
+class RobotDriverServer : private sas::Object
 {
 private:
     std::shared_ptr<rclcpp::Node> node_;
@@ -66,7 +65,6 @@ private:
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_joint_limits_min_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_joint_limits_max_;
     rclcpp::Publisher<std_msgs::msg::Int32MultiArray>::SharedPtr publisher_home_state_;
-
 
     rclcpp::Subscription<sas_msgs::msg::Bool>::SharedPtr subscriber_shutdown_signal_;
     bool shutdown_signal_;
@@ -89,12 +87,13 @@ private:
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> time_point_from_the_server_;
 
     void _callback_shutdown_signal_(const sas_msgs::msg::Bool& msg);
-    void _callback_target_joint_positions(const std_msgs::msg::Float64MultiArray &msg);
-    void _callback_target_joint_velocities(const std_msgs::msg::Float64MultiArray &msg);
-    void _callback_target_joint_forces(const std_msgs::msg::Float64MultiArray &msg);
+    void _callback_target_joint_positions(const std_msgs::msg::Float64MultiArray& msg);
+    void _callback_target_joint_velocities(const std_msgs::msg::Float64MultiArray& msg);
+    void _callback_target_joint_forces(const std_msgs::msg::Float64MultiArray& msg);
     void _callback_homing_signal(const std_msgs::msg::Int32MultiArray& msg);
-    void _callback_clear_positions_signal(const std_msgs::msg::Int32MultiArray &msg);
+    void _callback_clear_positions_signal(const std_msgs::msg::Int32MultiArray& msg);
     void _callback_watchdog_trigger_state(const sas_msgs::msg::WatchdogTrigger& msg);
+
 public:
     RobotDriverServer() = delete;
     RobotDriverServer(const RobotDriverServer&) = delete;
@@ -105,7 +104,7 @@ public:
      * @param node Shared pointer to the rclcpp::Node used for communication.
      * @param node_prefix Prefix used to compose ROS topic names (defaults to "GET_FROM_NODE").
      */
-    RobotDriverServer(const std::shared_ptr<rclcpp::Node> &node, const std::string& node_prefix="GET_FROM_NODE");
+    RobotDriverServer(const std::shared_ptr<rclcpp::Node>& node, const std::string& node_prefix = "GET_FROM_NODE");
 
     /**
      * @brief Get the most recent target joint positions received from clients.
@@ -166,7 +165,8 @@ public:
      * @return true if supported and enabled, false otherwise.
      * @throws std::runtime_error if an unknown or unsupported functionality value is provided.
      */
-    bool is_enabled(const RobotDriver::Functionality& supported_functionality=RobotDriver::Functionality::PositionControl) const;
+    bool is_enabled(
+        const RobotDriver::Functionality& supported_functionality = RobotDriver::Functionality::PositionControl) const;
 
     /**
      * @brief Publish joint states (positions, velocities and forces) to clients.
@@ -175,8 +175,7 @@ public:
      * @param joint_velocities Vector of joint velocities.
      * @param joint_forces Vector of joint forces.
      */
-    void send_joint_states(const Eigen::VectorXd& joint_positions,
-                           const Eigen::VectorXd& joint_velocities,
+    void send_joint_states(const Eigen::VectorXd& joint_positions, const Eigen::VectorXd& joint_velocities,
                            const Eigen::VectorXd& joint_forces);
 
     /**
@@ -199,7 +198,8 @@ public:
      * @return std::chrono::time_point Time point from the client.
      * @throws std::runtime_error if the watchdog functionality is not enabled or data is uninitialized.
      */
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> get_watchdog_time_point_from_the_client() const;
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>
+    get_watchdog_time_point_from_the_client() const;
 
     /**
      * @brief Get the time point captured on the server for watchdog synchronization.
@@ -207,7 +207,8 @@ public:
      * @return std::chrono::time_point Time point from the server.
      * @throws std::runtime_error if the watchdog functionality is not enabled or data is uninitialized.
      */
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> get_watchdog_time_point_from_the_server() const;
+    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>
+    get_watchdog_time_point_from_the_server() const;
 
     /**
      * @brief Get the current watchdog trigger status as last received from the client.
@@ -246,4 +247,4 @@ public:
     bool get_shutdown_signal() const;
 };
 
-}
+}  // namespace sas

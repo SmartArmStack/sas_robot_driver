@@ -30,7 +30,7 @@
 
 using namespace DQ_robotics;
 
-#include<signal.h>
+#include <signal.h>
 static std::atomic_bool kill_this_process(false);
 void sig_int_handler(int)
 {
@@ -39,11 +39,10 @@ void sig_int_handler(int)
 
 int main(int argc, char** argv)
 {
-    if(signal(SIGINT, sig_int_handler) == SIG_ERR)
+    if (signal(SIGINT, sig_int_handler) == SIG_ERR)
         throw std::runtime_error("::Error setting the signal int handler.");
 
-
-    rclcpp::init(argc,argv,rclcpp::InitOptions(),rclcpp::SignalHandlerOptions::None);
+    rclcpp::init(argc, argv, rclcpp::InitOptions(), rclcpp::SignalHandlerOptions::None);
     auto node = std::make_shared<rclcpp::Node>("sas_robot_watchdog_commander_node");
 
     double thread_sampling_time_sec;
@@ -56,8 +55,9 @@ int main(int argc, char** argv)
     sas::get_ros_parameter(node, "watchdog_maximum_acceptable_delay", maximum_acceptable_delay);
 
     std::string robot_name;
-    sas::get_ros_parameter(node,"robot_name", robot_name);
-    RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::thread_sampling_time_sec: " + std::to_string(thread_sampling_time_sec));
+    sas::get_ros_parameter(node, "robot_name", robot_name);
+    RCLCPP_INFO_STREAM_ONCE(node->get_logger(),
+                            "::thread_sampling_time_sec: " + std::to_string(thread_sampling_time_sec));
     RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::robot_name: " + robot_name);
     RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Parameters OK.");
 
@@ -68,17 +68,14 @@ int main(int argc, char** argv)
     std::vector<MODE_BLACKLIST_FLAG> blacklist_mode = {MODE_BLACKLIST_FLAG::JOINT_CONTROL};
     sas::RobotDriverClient rdi(node, robot_name, blacklist_mode);
 
-
     sas::Clock clock{thread_sampling_time_sec};
     clock.init();
     // For some iterations. Note that this can be stopped with CTRL+C.
     while (!kill_this_process)
     {
         clock.update_and_sleep();
-        RCLCPP_INFO_STREAM_ONCE(node->get_logger(),"Watchdog status: true");
+        RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "Watchdog status: true");
         rdi.send_watchdog_trigger(true, period, maximum_acceptable_delay);
         rclcpp::spin_some(node);
     }
-
-
 }

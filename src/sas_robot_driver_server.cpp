@@ -37,11 +37,10 @@ using std::placeholders::_1;
 namespace sas
 {
 
-
-void RobotDriverServer::_callback_shutdown_signal_(const sas_msgs::msg::Bool &msg)
+void RobotDriverServer::_callback_shutdown_signal_(const sas_msgs::msg::Bool& msg)
 {
-   // Only update this member if it was never set to true.
-   // In other words, the driver is shut down if at least one received message is true.
+    // Only update this member if it was never set to true.
+    // In other words, the driver is shut down if at least one received message is true.
     if (shutdown_signal_ == false)
         shutdown_signal_ = msg.data;
 }
@@ -49,18 +48,20 @@ void RobotDriverServer::_callback_shutdown_signal_(const sas_msgs::msg::Bool &ms
 void RobotDriverServer::_callback_target_joint_positions(const std_msgs::msg::Float64MultiArray& msg)
 {
     const std::string this_topic(node_prefix_ + "/set/target_joint_positions");
-    if(node_->count_publishers(this_topic)>1)
-        throw std::runtime_error(this_topic + " must be exclusively published and there is more than one publisher connected.");
+    if (node_->count_publishers(this_topic) > 1)
+        throw std::runtime_error(this_topic +
+                                 " must be exclusively published and there is more than one publisher connected.");
 
     target_joint_positions_ = std_vector_double_to_vectorxd(msg.data);
     currently_active_functionality_ = RobotDriver::Functionality::PositionControl;
 }
 
-void RobotDriverServer::_callback_target_joint_velocities(const std_msgs::msg::Float64MultiArray &msg)
+void RobotDriverServer::_callback_target_joint_velocities(const std_msgs::msg::Float64MultiArray& msg)
 {
     const std::string this_topic(node_prefix_ + "/set/target_joint_velocities");
-    if(node_->count_publishers(this_topic)>1)
-        throw std::runtime_error(this_topic + " must be exclusively published and there is more than one publisher connected.");
+    if (node_->count_publishers(this_topic) > 1)
+        throw std::runtime_error(this_topic +
+                                 " must be exclusively published and there is more than one publisher connected.");
 
     target_joint_velocities_ = std_vector_double_to_vectorxd(msg.data);
     currently_active_functionality_ = RobotDriver::Functionality::VelocityControl;
@@ -69,14 +70,15 @@ void RobotDriverServer::_callback_target_joint_velocities(const std_msgs::msg::F
 void RobotDriverServer::_callback_target_joint_forces(const std_msgs::msg::Float64MultiArray& msg)
 {
     const std::string this_topic(node_prefix_ + "/set/target_joint_forces");
-    if(node_->count_publishers(this_topic)>1)
-        throw std::runtime_error(this_topic + " must be exclusively published and there is more than one publisher connected.");
+    if (node_->count_publishers(this_topic) > 1)
+        throw std::runtime_error(this_topic +
+                                 " must be exclusively published and there is more than one publisher connected.");
 
     target_joint_forces_ = std_vector_double_to_vectorxd(msg.data);
     currently_active_functionality_ = RobotDriver::Functionality::ForceControl;
 }
 
-void RobotDriverServer::_callback_homing_signal(const std_msgs::msg::Int32MultiArray &msg)
+void RobotDriverServer::_callback_homing_signal(const std_msgs::msg::Int32MultiArray& msg)
 {
     homing_signal_ = std_vector_int_to_vectorxi(msg.data);
     currently_active_functionality_ = RobotDriver::Functionality::Homing;
@@ -93,10 +95,10 @@ void RobotDriverServer::_callback_clear_positions_signal(const std_msgs::msg::In
     Eigen::VectorXi clear_positions_signal_temp(msg.data.size());
 
     //We keep the clear position flags as 1 until they are processed by get_clear_positions_signal()
-    for(int i=0;i<clear_positions_signal_temp.size();i++)
+    for (int i = 0; i < clear_positions_signal_temp.size(); i++)
     {
-        const bool already_set = i < clear_positions_signal_.size() and clear_positions_signal_(i)==1;
-        if(already_set or msg.data[i]==1)
+        const bool already_set = i < clear_positions_signal_.size() and clear_positions_signal_(i) == 1;
+        if (already_set or msg.data[i] == 1)
             clear_positions_signal_temp(i) = 1;
         else
             clear_positions_signal_temp(i) = 0;
@@ -107,11 +109,12 @@ void RobotDriverServer::_callback_clear_positions_signal(const std_msgs::msg::In
     //currently_active_functionality_ = RobotDriver::Functionality::ClearPositions;
 }
 
-void RobotDriverServer::_callback_watchdog_trigger_state(const sas_msgs::msg::WatchdogTrigger &msg)
+void RobotDriverServer::_callback_watchdog_trigger_state(const sas_msgs::msg::WatchdogTrigger& msg)
 {
     const std::string this_topic(node_prefix_ + "/set/watchdog_trigger");
-    if(node_->count_publishers(this_topic)>1)
-        throw std::runtime_error(this_topic + " must be exclusively published and there is more than one publisher connected.");
+    if (node_->count_publishers(this_topic) > 1)
+        throw std::runtime_error(this_topic +
+                                 " must be exclusively published and there is more than one publisher connected.");
 
     watchdog_enabled_ = true;
     watchdog_trigger_status_ = msg.status;
@@ -120,73 +123,78 @@ void RobotDriverServer::_callback_watchdog_trigger_state(const sas_msgs::msg::Wa
 
     //This time point corresponds to the moment the signal was sent, as recorded by the client computer's clock.
     time_point_from_the_client_ = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>(
-        std::chrono::seconds(msg.header.stamp.sec) + std::chrono::nanoseconds(msg.header.stamp.nanosec)
-        );
+        std::chrono::seconds(msg.header.stamp.sec) + std::chrono::nanoseconds(msg.header.stamp.nanosec));
 
     //This time point corresponds to the moment the sigal was received, as recorded by the server computer's clock.
     time_point_from_the_server_ = std::chrono::system_clock::now();
 }
 
-RobotDriverServer::RobotDriverServer(const std::shared_ptr<rclcpp::Node> &node, const std::string &topic_prefix):
-    sas::Object("sas::RobotDriverServer"),
-    node_(node),
-    node_prefix_(topic_prefix == "GET_FROM_NODE"? node->get_name() : topic_prefix),
-    currently_active_functionality_(RobotDriver::Functionality::None),
-    shutdown_signal_{false},
-    watchdog_enabled_{false}
+RobotDriverServer::RobotDriverServer(const std::shared_ptr<rclcpp::Node>& node, const std::string& topic_prefix)
+    : sas::Object("sas::RobotDriverServer"),
+      node_(node),
+      node_prefix_(topic_prefix == "GET_FROM_NODE" ? node->get_name() : topic_prefix),
+      currently_active_functionality_(RobotDriver::Functionality::None),
+      shutdown_signal_{false},
+      watchdog_enabled_{false}
 {
     RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Initializing RobotDriverServer with prefix " + topic_prefix);
 
-    publisher_joint_states_ = node->create_publisher<sensor_msgs::msg::JointState>(topic_prefix + "/get/joint_states",1);
-    publisher_joint_limits_min_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/get/joint_positions_min", 1);
-    publisher_joint_limits_max_ = node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/get/joint_positions_max", 1);
-    publisher_home_state_ = node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/get/home_states", 1);
+    publisher_joint_states_ =
+        node->create_publisher<sensor_msgs::msg::JointState>(topic_prefix + "/get/joint_states", 1);
+    publisher_joint_limits_min_ =
+        node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/get/joint_positions_min", 1);
+    publisher_joint_limits_max_ =
+        node->create_publisher<std_msgs::msg::Float64MultiArray>(topic_prefix + "/get/joint_positions_max", 1);
+    publisher_home_state_ =
+        node->create_publisher<std_msgs::msg::Int32MultiArray>(topic_prefix + "/get/home_states", 1);
 
     subscriber_target_joint_positions_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
-                topic_prefix + "/set/target_joint_positions", 1, std::bind(&RobotDriverServer::_callback_target_joint_positions, this, _1)
-                );
+        topic_prefix + "/set/target_joint_positions", 1,
+        std::bind(&RobotDriverServer::_callback_target_joint_positions, this, _1));
     subscriber_target_joint_velocities_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
-                topic_prefix + "/set/target_joint_velocities", 1, std::bind(&RobotDriverServer::_callback_target_joint_velocities, this, _1)
-                );
+        topic_prefix + "/set/target_joint_velocities", 1,
+        std::bind(&RobotDriverServer::_callback_target_joint_velocities, this, _1));
     subscriber_target_joint_forces_ = node->create_subscription<std_msgs::msg::Float64MultiArray>(
-                topic_prefix + "/set/target_joint_forces", 1, std::bind(&RobotDriverServer::_callback_target_joint_forces, this, _1)
-                );
+        topic_prefix + "/set/target_joint_forces", 1,
+        std::bind(&RobotDriverServer::_callback_target_joint_forces, this, _1));
     subscriber_homing_signal_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
-                topic_prefix + "/set/homing_signal", 1, std::bind(&RobotDriverServer::_callback_homing_signal, this, _1)
-                );
+        topic_prefix + "/set/homing_signal", 1, std::bind(&RobotDriverServer::_callback_homing_signal, this, _1));
     subscriber_clear_positions_signal_ = node->create_subscription<std_msgs::msg::Int32MultiArray>(
-                topic_prefix + "/set/clear_positions_signal", 1, std::bind(&RobotDriverServer::_callback_clear_positions_signal, this, _1)
-                );
+        topic_prefix + "/set/clear_positions_signal", 1,
+        std::bind(&RobotDriverServer::_callback_clear_positions_signal, this, _1));
     subscriber_watchdog_trigger_ = node->create_subscription<sas_msgs::msg::WatchdogTrigger>(
-        topic_prefix + "/set/watchdog_trigger", 1, std::bind(&RobotDriverServer::_callback_watchdog_trigger_state, this, _1)
-        );
+        topic_prefix + "/set/watchdog_trigger", 1,
+        std::bind(&RobotDriverServer::_callback_watchdog_trigger_state, this, _1));
     subscriber_shutdown_signal_ = node->create_subscription<sas_msgs::msg::Bool>(
-         topic_prefix + "/set/shutdown", 1, std::bind(&RobotDriverServer::_callback_shutdown_signal_, this, _1)
-        );
+        topic_prefix + "/set/shutdown", 1, std::bind(&RobotDriverServer::_callback_shutdown_signal_, this, _1));
 }
 
 Eigen::VectorXd RobotDriverServer::get_target_joint_positions() const
 {
-    if(is_enabled(RobotDriver::Functionality::PositionControl))
+    if (is_enabled(RobotDriver::Functionality::PositionControl))
         return target_joint_positions_;
     else
-        throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_target_joint_positions() trying to get an uninitialized vector");
+        throw std::runtime_error(
+            node_prefix_ + "::RobotDriverProvider::get_target_joint_positions() trying to get an uninitialized vector");
 }
 
 Eigen::VectorXd RobotDriverServer::get_target_joint_velocities() const
 {
-    if(is_enabled(RobotDriver::Functionality::VelocityControl))
+    if (is_enabled(RobotDriver::Functionality::VelocityControl))
         return target_joint_velocities_;
     else
-        throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_target_joint_velocities() trying to get an uninitialized vector");
+        throw std::runtime_error(
+            node_prefix_ +
+            "::RobotDriverProvider::get_target_joint_velocities() trying to get an uninitialized vector");
 }
 
 Eigen::VectorXd RobotDriverServer::get_target_joint_forces() const
 {
-    if(is_enabled(RobotDriver::Functionality::ForceControl))
+    if (is_enabled(RobotDriver::Functionality::ForceControl))
         return target_joint_forces_;
     else
-        throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_target_joint_forces() trying to get an uninitialized vector");
+        throw std::runtime_error(
+            node_prefix_ + "::RobotDriverProvider::get_target_joint_forces() trying to get an uninitialized vector");
 }
 
 /**
@@ -195,10 +203,11 @@ Eigen::VectorXd RobotDriverServer::get_target_joint_forces() const
  */
 Eigen::VectorXi RobotDriverServer::get_homing_signal() const
 {
-    if(is_enabled(RobotDriver::Functionality::Homing))
+    if (is_enabled(RobotDriver::Functionality::Homing))
         return homing_signal_;
     else
-        throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_homing_signal() trying to get an uninitialized vector");
+        throw std::runtime_error(node_prefix_ +
+                                 "::RobotDriverProvider::get_homing_signal() trying to get an uninitialized vector");
 }
 
 /**
@@ -207,14 +216,15 @@ Eigen::VectorXi RobotDriverServer::get_homing_signal() const
  */
 Eigen::VectorXi RobotDriverServer::get_clear_positions_signal()
 {
-    if(is_enabled(RobotDriver::Functionality::ClearPositions))
+    if (is_enabled(RobotDriver::Functionality::ClearPositions))
     {
         const Eigen::VectorXi return_value(clear_positions_signal_);
         clear_positions_signal_ = Eigen::VectorXi::Zero(return_value.size());
         return return_value;
     }
     else
-        throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::get_clear_positions_signal() trying to get an uninitialized vector");
+        throw std::runtime_error(
+            node_prefix_ + "::RobotDriverProvider::get_clear_positions_signal() trying to get an uninitialized vector");
 }
 
 RobotDriver::Functionality RobotDriverServer::get_currently_active_functionality() const
@@ -228,20 +238,21 @@ RobotDriver::Functionality RobotDriverServer::get_currently_active_functionality
  * @param joint_velocities. If not needed, use joint_velocities=Eigen::VectorXd().
  * @param joint_forces. If not needed, use joint_forces=Eigen::VectorXd().
  */
-void RobotDriverServer::send_joint_states(const Eigen::VectorXd &joint_positions, const Eigen::VectorXd &joint_velocities, const Eigen::VectorXd &joint_forces)
+void RobotDriverServer::send_joint_states(const Eigen::VectorXd& joint_positions,
+                                          const Eigen::VectorXd& joint_velocities, const Eigen::VectorXd& joint_forces)
 {
     sensor_msgs::msg::JointState ros_msg;
     ros_msg.header.stamp = node_->get_clock()->now();
-    if(joint_positions.size()>0)
+    if (joint_positions.size() > 0)
         ros_msg.position = vectorxd_to_std_vector_double(joint_positions);
-    if(joint_velocities.size()>0)
+    if (joint_velocities.size() > 0)
         ros_msg.velocity = vectorxd_to_std_vector_double(joint_velocities);
-    if(joint_forces.size()>0)
+    if (joint_forces.size() > 0)
         ros_msg.effort = vectorxd_to_std_vector_double(joint_forces);
     publisher_joint_states_->publish(ros_msg);
 }
 
-void RobotDriverServer::send_joint_limits(const std::tuple<Eigen::VectorXd, Eigen::VectorXd> &joint_limits)
+void RobotDriverServer::send_joint_limits(const std::tuple<Eigen::VectorXd, Eigen::VectorXd>& joint_limits)
 {
     std_msgs::msg::Float64MultiArray ros_msg_min;
     ros_msg_min.data = vectorxd_to_std_vector_double(std::get<0>(joint_limits));
@@ -252,32 +263,31 @@ void RobotDriverServer::send_joint_limits(const std::tuple<Eigen::VectorXd, Eige
     publisher_joint_limits_max_->publish(ros_msg_max);
 }
 
-void RobotDriverServer::send_home_state(const Eigen::VectorXi &home_state)
+void RobotDriverServer::send_home_state(const Eigen::VectorXi& home_state)
 {
     std_msgs::msg::Int32MultiArray ros_msg_home_state;
     ros_msg_home_state.data = vectorxi_to_std_vector_int(home_state);
     publisher_home_state_->publish(ros_msg_home_state);
 }
 
-
 bool RobotDriverServer::is_enabled(const RobotDriver::Functionality& supported_functionality) const
 {
-    switch(supported_functionality)
+    switch (supported_functionality)
     {
-    case RobotDriver::Functionality::PositionControl:
-        return target_joint_positions_.size() > 0;
-    case RobotDriver::Functionality::VelocityControl:
-        return target_joint_velocities_.size() > 0;
-    case RobotDriver::Functionality::ForceControl:
-        return target_joint_forces_.size() > 0;
-    case RobotDriver::Functionality::Homing:
-        return homing_signal_.size() > 0;
-    case RobotDriver::Functionality::ClearPositions:
-        return clear_positions_signal_.size() > 0;
-    case sas::RobotDriver::Functionality::Watchdog:
-        return is_watchdog_enabled();
-    default:
-        throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::is_enabled() unknown control mode");
+        case RobotDriver::Functionality::PositionControl:
+            return target_joint_positions_.size() > 0;
+        case RobotDriver::Functionality::VelocityControl:
+            return target_joint_velocities_.size() > 0;
+        case RobotDriver::Functionality::ForceControl:
+            return target_joint_forces_.size() > 0;
+        case RobotDriver::Functionality::Homing:
+            return homing_signal_.size() > 0;
+        case RobotDriver::Functionality::ClearPositions:
+            return clear_positions_signal_.size() > 0;
+        case sas::RobotDriver::Functionality::Watchdog:
+            return is_watchdog_enabled();
+        default:
+            throw std::runtime_error(node_prefix_ + "::RobotDriverProvider::is_enabled() unknown control mode");
     }
 }
 
@@ -287,12 +297,15 @@ bool RobotDriverServer::is_enabled(const RobotDriver::Functionality& supported_f
  *
  * @return The desired time point
  */
-std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> RobotDriverServer::get_watchdog_time_point_from_the_client() const
+std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>
+RobotDriverServer::get_watchdog_time_point_from_the_client() const
 {
     if (is_enabled(RobotDriver::Functionality::Watchdog))
         return time_point_from_the_client_;
     else
-        throw std::runtime_error(node_prefix_ + "::RobotDriverServer::get_watchdog_trigger_time_point()::trying to get Watchdog data but uninitialized.");
+        throw std::runtime_error(
+            node_prefix_ +
+            "::RobotDriverServer::get_watchdog_trigger_time_point()::trying to get Watchdog data but uninitialized.");
 }
 
 /**
@@ -300,12 +313,15 @@ std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> Rob
  *                  This time point uses the computer's clock on which the server (robot) is running.
  * @return The time point when the watchdog signal is received.
  */
-std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> RobotDriverServer::get_watchdog_time_point_from_the_server() const
+std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>
+RobotDriverServer::get_watchdog_time_point_from_the_server() const
 {
     if (is_enabled(RobotDriver::Functionality::Watchdog))
         return time_point_from_the_server_;
     else
-        throw std::runtime_error(node_prefix_ + "::RobotDriverServer::get_watchdog_trigger_time_point_when_received()::trying to get Watchdog data but uninitialized.");
+        throw std::runtime_error(node_prefix_ +
+                                 "::RobotDriverServer::get_watchdog_trigger_time_point_when_received()::trying to get "
+                                 "Watchdog data but uninitialized.");
 }
 
 /**
@@ -317,7 +333,9 @@ bool RobotDriverServer::get_watchdog_trigger_status() const
     if (is_enabled(RobotDriver::Functionality::Watchdog))
         return watchdog_trigger_status_;
     else
-        throw std::runtime_error(node_prefix_ + "::RobotDriverInterface::get_watchdog_trigger_status()::trying to get Watchdog data but uninitialized.");
+        throw std::runtime_error(
+            node_prefix_ +
+            "::RobotDriverInterface::get_watchdog_trigger_status()::trying to get Watchdog data but uninitialized.");
 }
 
 /**
@@ -359,8 +377,4 @@ bool RobotDriverServer::get_shutdown_signal() const
     return shutdown_signal_;
 }
 
-
-
-
-}
-
+}  // namespace sas

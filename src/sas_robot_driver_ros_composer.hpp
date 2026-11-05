@@ -34,7 +34,6 @@
 #include <sas_core/sas_robot_driver.hpp>
 #include <sas_robot_driver/sas_robot_driver_client.hpp>
 
-
 namespace sas
 {
 
@@ -45,7 +44,7 @@ struct RobotDriverROSComposerConfiguration
     std::string robot_parameter_file_path;
 };
 
-class RobotDriverROSComposer: public RobotDriver
+class RobotDriverROSComposer : public RobotDriver
 {
 protected:
     std::shared_ptr<rclcpp::Node> node_;
@@ -53,12 +52,12 @@ protected:
     RobotDriverROSComposerConfiguration configuration_;
     std::vector<std::unique_ptr<sas::RobotDriverClient>> robot_driver_clients_;
 
-    RobotDriverROSComposer()=delete;
-    RobotDriverROSComposer(const RobotDriverROSComposer&)=delete;
+    RobotDriverROSComposer() = delete;
+    RobotDriverROSComposer(const RobotDriverROSComposer&) = delete;
+
 public:
     RobotDriverROSComposer(const RobotDriverROSComposerConfiguration& configuration,
-                           std::shared_ptr<rclcpp::Node>& node,
-                           std::atomic_bool *break_loops);
+                           std::shared_ptr<rclcpp::Node>& node, std::atomic_bool* break_loops);
 
     Eigen::VectorXd get_joint_positions() override;
     void set_target_joint_positions(const Eigen::VectorXd& set_target_joint_positions_rad) override;
@@ -72,9 +71,5 @@ public:
     void deinitialize() override;
 
     ~RobotDriverROSComposer();
-
 };
-}
-
-
-
+}  // namespace sas

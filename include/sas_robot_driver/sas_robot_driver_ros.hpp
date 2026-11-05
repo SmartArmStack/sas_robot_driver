@@ -42,7 +42,6 @@
 #include <sas_core/sas_robot_driver.hpp>
 #include <sas_robot_driver/sas_robot_driver_server.hpp>
 
-
 namespace sas
 {
 
@@ -62,7 +61,7 @@ struct RobotDriverROSConfiguration
     double thread_sampling_time_sec;
 
     /// Watchdog period in seconds. If <= 0 the watchdog may be considered disabled.
-    double  watchdog_period_in_seconds;
+    double watchdog_period_in_seconds;
 
     /// Joint position minimum limits (q_min.size() == number of joints).
     std::vector<double> q_min;
@@ -84,7 +83,7 @@ private:
     std::shared_ptr<rclcpp::Node> node_;
 
     RobotDriverROSConfiguration configuration_;
-    std::atomic_bool* kill_this_node_; //Deprecated
+    std::atomic_bool* kill_this_node_;  //Deprecated
     std::shared_ptr<ShutdownSignaler> shutdown_signaler_;
     std::shared_ptr<RobotDriver> robot_driver_;
     Clock clock_;
@@ -95,8 +94,8 @@ private:
     bool _should_shutdown() const;
 
 public:
-    RobotDriverROS(const RobotDriverROS&)=delete;
-    RobotDriverROS()=delete;
+    RobotDriverROS(const RobotDriverROS&) = delete;
+    RobotDriverROS() = delete;
 
     /**
      * @brief Construct a new RobotDriverROS object.
@@ -106,16 +105,13 @@ public:
      * @param configuration Configuration parameters for ROS integration and control loop.
      * @param shutdown_signaler Shared pointer used to signal shutdown between components.
      */
-    RobotDriverROS(std::shared_ptr<rclcpp::Node>& node,
-                   const std::shared_ptr<RobotDriver>& robot_driver,
+    RobotDriverROS(std::shared_ptr<rclcpp::Node>& node, const std::shared_ptr<RobotDriver>& robot_driver,
                    const RobotDriverROSConfiguration& configuration,
                    const std::shared_ptr<ShutdownSignaler>& shutdown_signaler_);
 
     [[deprecated("Use RobotDriver(const std::shared_ptr<ShutdownSignaler>& shutdown_signaler_) instead.")]]
-    RobotDriverROS(std::shared_ptr<rclcpp::Node>& node,
-                   const std::shared_ptr<RobotDriver>& robot_driver,
-                   const RobotDriverROSConfiguration& configuration,
-                   std::atomic_bool* kill_this_node);
+    RobotDriverROS(std::shared_ptr<rclcpp::Node>& node, const std::shared_ptr<RobotDriver>& robot_driver,
+                   const RobotDriverROSConfiguration& configuration, std::atomic_bool* kill_this_node);
 
     /**
      * @brief Destructor; stops the control loop and performs cleanup.
@@ -133,4 +129,4 @@ public:
     int control_loop();
 };
 
-}
+}  // namespace sas

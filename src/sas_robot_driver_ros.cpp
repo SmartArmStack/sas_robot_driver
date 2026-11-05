@@ -41,7 +41,7 @@
  * @param epsilon The desired threshold
  * @return a boolean flag
  */
-bool are_approximately_equal(const double &a, const double &b, const double &epsilon)
+bool are_approximately_equal(const double& a, const double& b, const double& epsilon)
 {
     return std::abs(a - b) < epsilon;
 }
@@ -49,55 +49,50 @@ bool are_approximately_equal(const double &a, const double &b, const double &eps
 namespace sas
 {
 
-RobotDriverROS::RobotDriverROS(std::shared_ptr<rclcpp::Node> &node,
-                               const std::shared_ptr<RobotDriver> &robot_driver,
-                               const RobotDriverROSConfiguration &configuration,
-                               std::atomic_bool *kill_this_node):
-    node_(node),
-    configuration_(configuration),
-    kill_this_node_(kill_this_node),
-    shutdown_signaler_(std::make_shared<ShutdownSignaler>(kill_this_node)),
-    robot_driver_(robot_driver),
-    clock_(configuration.thread_sampling_time_sec),
-    robot_driver_server_(node,configuration_.robot_driver_provider_prefix),
-    watchdog_started_{false}
+RobotDriverROS::RobotDriverROS(std::shared_ptr<rclcpp::Node>& node, const std::shared_ptr<RobotDriver>& robot_driver,
+                               const RobotDriverROSConfiguration& configuration, std::atomic_bool* kill_this_node)
+    : node_(node),
+      configuration_(configuration),
+      kill_this_node_(kill_this_node),
+      shutdown_signaler_(std::make_shared<ShutdownSignaler>(kill_this_node)),
+      robot_driver_(robot_driver),
+      clock_(configuration.thread_sampling_time_sec),
+      robot_driver_server_(node, configuration_.robot_driver_provider_prefix),
+      watchdog_started_{false}
 {
-
 }
 
-RobotDriverROS::RobotDriverROS(std::shared_ptr<rclcpp::Node> &node,
-                               const std::shared_ptr<RobotDriver> &robot_driver,
-                               const RobotDriverROSConfiguration &configuration,
-                               const std::shared_ptr<ShutdownSignaler>& shutdown_signaler):
-    node_(node),
-    configuration_(configuration),
-    kill_this_node_(nullptr),
-    shutdown_signaler_(shutdown_signaler),
-    robot_driver_(robot_driver),
-    clock_(configuration.thread_sampling_time_sec),
-    robot_driver_server_(node,configuration_.robot_driver_provider_prefix),
-    watchdog_started_{false}
+RobotDriverROS::RobotDriverROS(std::shared_ptr<rclcpp::Node>& node, const std::shared_ptr<RobotDriver>& robot_driver,
+                               const RobotDriverROSConfiguration& configuration,
+                               const std::shared_ptr<ShutdownSignaler>& shutdown_signaler)
+    : node_(node),
+      configuration_(configuration),
+      kill_this_node_(nullptr),
+      shutdown_signaler_(shutdown_signaler),
+      robot_driver_(robot_driver),
+      clock_(configuration.thread_sampling_time_sec),
+      robot_driver_server_(node, configuration_.robot_driver_provider_prefix),
+      watchdog_started_{false}
 {
-
 }
 
 int RobotDriverROS::control_loop()
 {
-    try{
+    try
+    {
         clock_.init();
-        RCLCPP_INFO_STREAM(node_->get_logger(),"::Waiting to connect with robot...");
+        RCLCPP_INFO_STREAM(node_->get_logger(), "::Waiting to connect with robot...");
         robot_driver_->connect();
-        RCLCPP_INFO_STREAM(node_->get_logger(),"::Connected to robot.");
+        RCLCPP_INFO_STREAM(node_->get_logger(), "::Connected to robot.");
 
-        RCLCPP_INFO_STREAM(node_->get_logger(),"::Initializing robot...");
+        RCLCPP_INFO_STREAM(node_->get_logger(), "::Initializing robot...");
         robot_driver_->initialize();
-        RCLCPP_INFO_STREAM(node_->get_logger(),"::Robot initialized.");
+        RCLCPP_INFO_STREAM(node_->get_logger(), "::Robot initialized.");
 
-        while(not _should_shutdown())
+        while (not _should_shutdown())
         {
             clock_.update_and_sleep();
             rclcpp::spin_some(node_);
-
 
             if (robot_driver_server_.get_shutdown_signal())
             {
@@ -105,31 +100,47 @@ int RobotDriverROS::control_loop()
                 shutdown_signaler_->shutdown();
                 //throw std::runtime_error("The shutdown signal was received!");
             }
-                
-            if(robot_driver_server_.is_enabled())
+
+            if (robot_driver_server_.is_enabled())
             {
                 robot_driver_->set_target_joint_positions(robot_driver_server_.get_target_joint_positions());
             }
-            if(robot_driver_server_.is_enabled(RobotDriver::Functionality::VelocityControl))
+            if (robot_driver_server_.is_enabled(RobotDriver::Functionality::VelocityControl))
             {
-                 try{robot_driver_->set_target_joint_velocities(robot_driver_server_.get_target_joint_velocities());} catch(...){}
+                try
+                {
+                    robot_driver_->set_target_joint_velocities(robot_driver_server_.get_target_joint_velocities());
+                }
+                catch (...)
+                {
+                }
             }
-            if(robot_driver_server_.is_enabled(RobotDriver::Functionality::ForceControl))
+            if (robot_driver_server_.is_enabled(RobotDriver::Functionality::ForceControl))
             {
-                try{robot_driver_->set_target_joint_torques(robot_driver_server_.get_target_joint_forces());} catch(...){}
+                try
+                {
+                    robot_driver_->set_target_joint_torques(robot_driver_server_.get_target_joint_forces());
+                }
+                catch (...)
+                {
+                }
             }
-            if(robot_driver_server_.is_enabled(RobotDriver::Functionality::Watchdog))
+            if (robot_driver_server_.is_enabled(RobotDriver::Functionality::Watchdog))
             {
                 if (!watchdog_started_)
-                {   // This portion of code is executed only one time
+                {  // This portion of code is executed only one time
                     // Initialize the watchdog.
-                    watchdog_period_in_seconds_                   = robot_driver_server_.get_watchdog_period();
-                    watchdog_maximum_acceptable_delay_in_seconds_ = robot_driver_server_.get_watchdog_maximum_acceptable_delay();
+                    watchdog_period_in_seconds_ = robot_driver_server_.get_watchdog_period();
+                    watchdog_maximum_acceptable_delay_in_seconds_ =
+                        robot_driver_server_.get_watchdog_maximum_acceptable_delay();
 
-                    RCLCPP_INFO_STREAM(node_->get_logger(), "::Watchdog initialized with a " << watchdog_period_in_seconds_  << " second period");
+                    RCLCPP_INFO_STREAM(node_->get_logger(), "::Watchdog initialized with a "
+                                                                << watchdog_period_in_seconds_ << " second period");
                     // If the elapsed time between the triggers is higher than the watchdog period, an exception is thrown
 
-                    RCLCPP_INFO_STREAM(node_->get_logger(), "::Watchdog initialized with a maximum acceptable delay of " <<watchdog_maximum_acceptable_delay_in_seconds_<< " seconds");
+                    RCLCPP_INFO_STREAM(node_->get_logger(), "::Watchdog initialized with a maximum acceptable delay of "
+                                                                << watchdog_maximum_acceptable_delay_in_seconds_
+                                                                << " seconds");
                     // If the time difference between the time point of signal that was sent (using the client computer's clock) and the time point
                     // when the watchdog signal was received (using the computer's clock on which the server is running) is higher than the watchdog_maximum_acceptable_delay,
                     // an exception is thrown by the robot driver.
@@ -142,90 +153,118 @@ int RobotDriverROS::control_loop()
                     //-----------------------------------------------------------------------------------------/
                     robot_driver_->watchdog_start(period);
                     //--- For developers: Do not put more code after this point---//
-                }else{
+                }
+                else
+                {
                     // Check if the period and the maximum acceptable delay changed.
-                    if (!are_approximately_equal(watchdog_period_in_seconds_,robot_driver_server_.get_watchdog_period(), DQ_robotics::DQ_threshold))
+                    if (!are_approximately_equal(watchdog_period_in_seconds_,
+                                                 robot_driver_server_.get_watchdog_period(), DQ_robotics::DQ_threshold))
                     {
-                        RCLCPP_INFO_STREAM_ONCE(node_->get_logger(), "::The watchdog period changed from "+std::to_string(watchdog_period_in_seconds_)+
-                                                 " to " +std::to_string(robot_driver_server_.get_watchdog_period()));
+                        RCLCPP_INFO_STREAM_ONCE(node_->get_logger(),
+                                                "::The watchdog period changed from " +
+                                                    std::to_string(watchdog_period_in_seconds_) + " to " +
+                                                    std::to_string(robot_driver_server_.get_watchdog_period()));
                         shutdown_signaler_->shutdown();
                         //throw std::runtime_error("Invalid operation. The watchdog period changed from "+std::to_string(watchdog_period_in_seconds_)+
                         //                         " to " +std::to_string(robot_driver_server_.get_watchdog_period()));
                     }
 
-
-                    if (!are_approximately_equal(watchdog_maximum_acceptable_delay_in_seconds_, robot_driver_server_.get_watchdog_maximum_acceptable_delay(), DQ_robotics::DQ_threshold))
+                    if (!are_approximately_equal(watchdog_maximum_acceptable_delay_in_seconds_,
+                                                 robot_driver_server_.get_watchdog_maximum_acceptable_delay(),
+                                                 DQ_robotics::DQ_threshold))
                     {
-                        RCLCPP_INFO_STREAM_ONCE(node_->get_logger(), "::The watchdog maximum acceptable delay changed from "+std::to_string(watchdog_maximum_acceptable_delay_in_seconds_)+
-                                                 " to " +std::to_string(robot_driver_server_.get_watchdog_maximum_acceptable_delay()));
+                        RCLCPP_INFO_STREAM_ONCE(
+                            node_->get_logger(),
+                            "::The watchdog maximum acceptable delay changed from " +
+                                std::to_string(watchdog_maximum_acceptable_delay_in_seconds_) + " to " +
+                                std::to_string(robot_driver_server_.get_watchdog_maximum_acceptable_delay()));
                         shutdown_signaler_->shutdown();
                         //throw std::runtime_error("Invalid operation. The watchdog maximum acceptable delay changed from "+std::to_string(watchdog_maximum_acceptable_delay_in_seconds_)+
                         //                         " to " +std::to_string(robot_driver_server_.get_watchdog_maximum_acceptable_delay()));
                     }
                 }
-                
-                try{robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_time_point_from_the_client(),
-                                                robot_driver_server_.get_watchdog_time_point_from_the_server(),
-                                                robot_driver_server_.get_watchdog_trigger_status());} catch(...){}
-               
+
+                try
+                {
+                    robot_driver_->watchdog_trigger(robot_driver_server_.get_watchdog_time_point_from_the_client(),
+                                                    robot_driver_server_.get_watchdog_time_point_from_the_server(),
+                                                    robot_driver_server_.get_watchdog_trigger_status());
+                }
+                catch (...)
+                {
+                }
 
                 // Any exception from the watchdog thread control loop will be rethrown by check_for_watchdog_exceptions(), and
                 // consequently the main control loop must stop.
-                try {
+                try
+                {
                     robot_driver_->check_for_watchdog_exceptions();
-                } catch (const std::exception& e) {
+                }
+                catch (const std::exception& e)
+                {
                     RCLCPP_INFO_STREAM_ONCE(node_->get_logger(), "::Watchdog exception: " << e.what());
                     RCLCPP_INFO_STREAM_ONCE(node_->get_logger(), "::The shutdown signal was received!");
                     shutdown_signaler_->shutdown();
                 }
-
             }
 
-
             // Execute the control loop callback if one has been set
-            if (robot_driver_->control_loop_callback_is_set()) {
+            if (robot_driver_->control_loop_callback_is_set())
+            {
                 RCLCPP_INFO_STREAM_ONCE(node_->get_logger(), "::Control loop callback is set and will be executed!");
-                try {
+                try
+                {
                     robot_driver_->execute_control_loop_callback();
-                } catch (const std::exception& e) {
+                }
+                catch (const std::exception& e)
+                {
                     throw std::runtime_error("Control loop callback execution failed: " + std::string(e.what()));
                 }
             }
 
-
             auto joint_positions{robot_driver_->get_joint_positions()};
             Eigen::VectorXd joint_velocities;
-            try{joint_velocities = robot_driver_->get_joint_velocities();} catch(...){}
+            try
+            {
+                joint_velocities = robot_driver_->get_joint_velocities();
+            }
+            catch (...)
+            {
+            }
             Eigen::VectorXd joint_torques;
-            try{joint_torques = robot_driver_->get_joint_torques();} catch(...){}
+            try
+            {
+                joint_torques = robot_driver_->get_joint_torques();
+            }
+            catch (...)
+            {
+            }
 
             robot_driver_server_.send_joint_states(joint_positions, joint_velocities, joint_torques);
             robot_driver_server_.send_joint_limits(robot_driver_->get_joint_limits());
             rclcpp::spin_some(node_);
         }
     }
-    catch(const std::exception& e)
+    catch (const std::exception& e)
     {
-        RCLCPP_ERROR_STREAM(node_->get_logger(),"::Exception caught::" << e.what());
+        RCLCPP_ERROR_STREAM(node_->get_logger(), "::Exception caught::" << e.what());
     }
-    catch(...)
+    catch (...)
     {
-        RCLCPP_ERROR_STREAM(node_->get_logger(),"::Unexpected error or exception caught");
+        RCLCPP_ERROR_STREAM(node_->get_logger(), "::Unexpected error or exception caught");
     }
 
     return 0;
 }
-
 
 bool RobotDriverROS::_should_shutdown() const
 {
     return shutdown_signaler_->should_shutdown();
 }
 
-
 RobotDriverROS::~RobotDriverROS()
 {
     robot_driver_->deinitialize();
     robot_driver_->disconnect();
 }
-}
+}  // namespace sas
