@@ -57,7 +57,8 @@ protected:
 
 public:
     RobotDriverROSComposer(const RobotDriverROSComposerConfiguration& configuration,
-                           std::shared_ptr<rclcpp::Node>& node, std::atomic_bool* break_loops);
+                           std::shared_ptr<rclcpp::Node>& node,
+                           const std::shared_ptr<marinholab::sas::core::ShutdownSignaler>& shutdown_signaler);
 
     Eigen::VectorXd get_joint_positions() override;
     void set_target_joint_positions(const Eigen::VectorXd& set_target_joint_positions_rad) override;

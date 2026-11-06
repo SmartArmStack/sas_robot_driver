@@ -32,11 +32,10 @@
 
 namespace sas
 {
-RobotDriverROSComposer::RobotDriverROSComposer(const RobotDriverROSComposerConfiguration& configuration,
-                                               std::shared_ptr<rclcpp::Node>& node, std::atomic_bool* break_loops)
-    : RobotDriver(std::make_shared<marinholab::sas::core::ShutdownSignaler>(break_loops)),
-      node_(node),
-      configuration_(configuration)
+RobotDriverROSComposer::RobotDriverROSComposer(
+    const RobotDriverROSComposerConfiguration& configuration, std::shared_ptr<rclcpp::Node>& node,
+    const std::shared_ptr<marinholab::sas::core::ShutdownSignaler>& shutdown_signaler)
+    : RobotDriver(shutdown_signaler), node_(node), configuration_(configuration)
 {
     for (const std::string& topic_prefix : configuration.robot_driver_client_names)
     {
@@ -92,7 +91,7 @@ void RobotDriverROSComposer::disconnect()
 void RobotDriverROSComposer::initialize()
 {
     bool initialized = false;
-    while (not initialized and not(*break_loops_))
+    while (not initialized and not shutdown_signaler_->should_shutdown())
     {
         rclcpp::spin_some(node_);
         initialized = true;

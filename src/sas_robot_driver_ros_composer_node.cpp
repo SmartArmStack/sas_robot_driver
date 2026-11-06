@@ -76,8 +76,9 @@ int main(int argc, char** argv)
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Parameters OK.");
 
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Instantiating RobotDriverROSComposer.");
+        auto shutdown_signaler = std::make_shared<marinholab::sas::core::ShutdownSignaler>(&kill_this_process);
         auto robot_driver_composer = std::make_shared<sas::RobotDriverROSComposer>(
-            robot_driver_ros_composer_configuration, node, &kill_this_process);
+            robot_driver_ros_composer_configuration, node, shutdown_signaler);
         RCLCPP_INFO_STREAM_ONCE(node->get_logger(), "::Instantiating RobotDriverROS.");
 
         sas::RobotDriverROS robot_driver_ros(
